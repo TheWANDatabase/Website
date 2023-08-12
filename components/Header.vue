@@ -1,5 +1,54 @@
 <script setup>
 import style from "./Header.module.css";
+
+let sb = useSupabaseClient();
+
+let results = ref([]);
+let visible = ref(false);
+let thumbs = ref({})
+async function search(d) {
+    let term = d.target.value;
+    if (term.length > 1) {
+        console.log(term);
+
+        let res = (await sb.rpc('search', {
+            phrase: term,
+            lmt: 5,
+            ofst: 0
+        })).data;
+
+        if (res.length === 0) {
+            results.value = [{
+                error: "No Results Found"
+            }]
+        } else {
+            let promises = [];
+            for (let i = 0; i < res.length; i++) {
+                promises.push(
+                    new Promise(async (r) => {
+                        thumbs.value[res[i].id] = (await sb.storage.from('thumbs').getPublicUrl(res[i].id + '.jpeg')).data.publicUrl;
+                        r();
+                    })
+                );
+            }
+            await Promise.all(promises);
+
+            results.value = res;
+        }
+
+        visible.value = results.value.length > 0;
+    } else {
+        results.value = [];
+        visible.value = results.value.length > 0;
+        thumbs.value = {};
+    }
+    console.log(visible.value)
+}
+
+function openVideo(id) {
+    window.location.pathname = '/videos/'+id;
+}
+
 </script>
 <template>
     <div :class="style.header">
@@ -15,5 +64,32 @@ import style from "./Header.module.css";
             <!-- <a :class="style.navlink" href="/contributors">Contributors</a>
             <a :class="style.navlink" href="/cast">Cast & Crew</a> -->
         </ul>
+        <input type="text" @input="search" :class="style.search" placeholder="Search..." />
+        <div :class="style.searchResults" :style="{
+            'max-height': visible ? ((results.length * 110)) + 'px' : '0px',
+            opacity: visible ? '0.95' : '0'
+        }">
+            <template v-for="result in results">
+                <div v-if="!result.error" @click="openVideo(result.id)" :class="style.searchResult">
+                    {{ console.log(result) }}
+                    <img :src="thumbs[result.id]" />
+                    <span>
+                        <h2>{{ result.title }}</h2>
+                        <ul>
+                            <li v-for="index in (result.matched_topics.length > 2 ? 2 : result.matched_topics.length)">
+                                {{ result.matched_topics[index - 1].title }}
+                            </li>
+                            <li v-if="result.matched_topics.length > 2">
+                                as well as {{ (result.matched_topics.length - 2).toLocaleString() }} other topics
+                            </li>
+                        </ul>
+                    </span>
+
+                </div>
+                <div v-else :class="style.searchResultError">
+                    <h2>No Results Found</h2>
+                </div>
+            </template>
+        </div>
     </div>
 </template>

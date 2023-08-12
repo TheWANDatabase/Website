@@ -1,4 +1,8 @@
 .header {
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 12;
     width: 100%;
     height: 3rem;
     background-color: #3d3c3d;
@@ -23,7 +27,7 @@
 }
 
 .orange {
-    color: #8a231d;
+    color: #b83320;
 }
 
 .navcontainer {
@@ -48,7 +52,55 @@
 
 .navlink:hover {
     background-color: #706d70;
-    color: #8a231d;
+    color: #b83320;
     font-weight: 900;
     transition: 200ms ease-in-out;
+}
+
+.searchResults {
+    color: white;
+    position: absolute;
+    top: 4rem;
+    left: 25vw;
+    z-index: 10;
+    width: 50vw;
+    height: auto;
+    /* max-height: 97vh; */
+    background: #3e3d3e 3rem;
+    transition: 500ms ease-in-out;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    border-radius: 5px;
+}
+
+.searchResult {
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    margin: 5px 0.5rem;
+    background: #706d70;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: 200ms ease-in-out;
+}
+
+.searchResult:hover {
+    background: #b83320;
+    transition: 200ms ease-in-out;
+}
+
+.searchResult h2 {
+    margin: 0.25rem auto 0.25rem 0.5rem;
+}
+
+.searchResult ul {
+    margin: -0.25rem auto 0.25rem 0.5rem;
+}
+
+.searchResultError {
+    height: 100px;
+    line-height: 100px;
+    vertical-align: middle;
+    margin: -1.5rem auto 0;
+    width: fit-content;
 }

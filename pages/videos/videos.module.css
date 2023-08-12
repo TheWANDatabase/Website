@@ -101,7 +101,7 @@
 
 .topicDetails {
     display: grid;
-    grid-template-columns: 165px 50px 100px;
+    grid-template-columns: 200px 20px 100px;
     grid-template-areas: "contributor . timestamp";
     height: 1.5rem;
     margin: 0.5rem;
