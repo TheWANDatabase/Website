@@ -9,7 +9,6 @@ let thumbs = ref({})
 async function search(d) {
     let term = d.target.value;
     if (term.length > 1) {
-        console.log(term);
 
         let res = (await sb.rpc('search', {
             phrase: term,
@@ -42,7 +41,6 @@ async function search(d) {
         visible.value = results.value.length > 0;
         thumbs.value = {};
     }
-    console.log(visible.value)
 }
 
 function openVideo(id) {

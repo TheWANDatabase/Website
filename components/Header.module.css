@@ -73,6 +73,16 @@
     border-radius: 5px;
 }
 
+.search {
+    margin: 0.5rem 0.5rem 0.5rem auto;
+    width: 15rem;
+    padding: 5px 10px;
+    color: white;
+    border: 1px #1f1f1f solid; 
+    background-color: #1a1a1a;
+    border-radius: 5px;
+}
+
 .searchResult {
     height: 100px;
     display: flex;
