@@ -11,7 +11,7 @@ let topics
 
 if (props.id) {
     episode = (await sb.from('episodes').select('id, cast, aired, youtube, floatplane').eq('id', props.id).single()).data;
-    cast = (await sb.from('cast').select('id').in('id', episode.cast.map((i) => i.id))).data;
+    cast = (await sb.from('cast').select('id').in('id', episode.cast)).data;
     topics = (await sb.from('topics').select('id').eq('episode', episode.id)).data;
     episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
 }

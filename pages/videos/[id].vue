@@ -22,11 +22,10 @@ function hash(str) {
 }
 
 let { data, error } = useAsyncData(async () => {
-
     let { data, error } = await sb.from('episodes').select('*').eq('id', id).single();
     if (data) {
         let episode = data;
-        let cast = (await sb.from('cast').select('*').in('id', episode.cast.map((i) => i.id))).data;
+        let cast = (await sb.from('cast').select('*').in('id', episode.cast)).data;
         for (let i = 0; i < cast.length; i++) {
             cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
         }
@@ -106,7 +105,7 @@ function toggleState(id) {
                 </div>
                 <div :class="style.groups">
                     <ClientOnly>
-                        <template v-for="group in data.topics">
+                        <template v-if="data.topics.length > 0" v-for="group in data.topics">
                             <div :id="group.hash" :class="[style.group]" @click="toggleState(group.hash)">
                                 <h3>{{ group.title }}</h3>
 
@@ -125,6 +124,9 @@ function toggleState(id) {
                                 </div>
                             </div>
                         </template>
+                        <template v-else>
+                            <h3>Topics currently unavailable</h3>
+                        </template>
                     </ClientOnly>
                 </div>
                 <div :class="style.cast">
@@ -132,8 +134,18 @@ function toggleState(id) {
                         <template v-for="person in data.cast">
                             <div :class="style.castMember">
                                 <img :src="person.mug" :alt="`Mugshot image for ${person.name}`" />
-                                <h3>{{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ') : person.name }}
+                                <h3>
+                                    {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ') : person.name
+                                    }}
                                 </h3>
+                                <h4>
+                                    <a v-if="person.outlet_uri" :href="person.outlet_uri">
+                                        {{ person.outlet ? person.outlet : '' }}
+                                        <Icon name="ph:link" />
+                                    </a>
+                                    <template v-else>{{ person.outlet ? person.outlet : '' }}</template>
+                                </h4>
+
 
                             </div>
                         </template>
