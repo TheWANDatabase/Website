@@ -6,7 +6,7 @@
 }
 
 body {
-  height: 100%;
+  background: #1a1a1a;
   width: 100%;
   margin: 0;
   padding: 0;
