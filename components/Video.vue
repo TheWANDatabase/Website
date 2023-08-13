@@ -5,16 +5,9 @@ let props = defineProps([
 ])
 let sb = useSupabaseClient();
 
-let episode
-let cast
-let topics
 
-if (props.id) {
-    episode = (await sb.from('episodes').select('id, cast, aired, youtube, floatplane').eq('id', props.id).single()).data;
-    cast = (await sb.from('cast').select('id').in('id', episode.cast)).data;
-    topics = (await sb.from('topics').select('id').eq('episode', episode.id)).data;
-    episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
-}
+
+let data = await (await fetch('/api/v1/videos/' + props.id)).json();
 
 </script>
 
@@ -30,30 +23,40 @@ if (props.id) {
             </span>
         </div>
     </template>
+    <template v-else-if="!data.episode">
+        <div :class="style.ghostVideo"></div>
+    </template>
     <template v-else>
-        <template v-if="!topics">
-            <div :class="style.ghostVideo"></div>
-        </template>
-        <template v-else>
-            <NuxtLink :class="style.video" :href="`/videos/${episode.id}`">
-                <img :class="style.videoThumbnail" :src="episode.thumbnail" />
-                <h3 :class="style.videoTitle">{{ episode.title }}</h3>
-                <span :class="style.videoAirDate">{{ new Date(episode.aired).toLocaleDateString() }}</span>
-                <!-- <span :class="style.videoDuration">Duration: {{ episode.aired }}</span> -->
+        <NuxtLink :class="style.video" :href="`/videos/${data.episode.id}`">
+            <img :class="style.videoThumbnail" :src="data.episode.thumbnail" />
+            <h3 :class="style.videoTitle">
+                <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' /> {{
+                    data.episode.title }}
+                <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' />
+            </h3>
+            <span :class="style.videoAirDate">
+                <Icon name="mdi:calendar" /> {{ new Date(data.episode.aired).toLocaleDateString() }}
+            </span>
+            <span :class="style.videoDuration">
+                <Icon name="material-symbols:timer" /> {{ data.episode.duration_text }}
+            </span>
 
-                <span :class="style.videoStats">
-                    <span :class="style.tooltip">
-                        <Icon name="material-symbols:topic" color="black" /> {{ topics.length.toLocaleString() }}
-                        <span :class="style.tooltiptext">This VOD has {{ topics.length.toLocaleString() }}
-                            topics</span>
-                    </span>
-                    <span :class="style.tooltip">
-                        <Icon name="material-symbols:person" color="black" /> {{ cast.length.toLocaleString() }}
-                        <span :class="style.tooltiptext">This VOD has {{ cast.length.toLocaleString() }} cast
-                            involved</span>
+            <span :class="style.videoStats">
+                <span :class="style.tooltip">
+                    <Icon name="material-symbols:topic" color="white" /> {{ data.topics.length.toLocaleString() }}
+                    <span :class="style.tooltiptext">This VOD has {{ data.topics.length.toLocaleString() }}
+                        topics
+                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' />
                     </span>
                 </span>
-            </NuxtLink>
-        </template>
+                <span :class="style.tooltip">
+                    <Icon name="material-symbols:person" color="white" /> {{ data.cast.length.toLocaleString() }}
+                    <span :class="style.tooltiptext">This VOD has {{ data.cast.length.toLocaleString() }} cast
+                        involved
+                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' />
+                    </span>
+                </span>
+            </span>
+        </NuxtLink>
     </template>
 </template>

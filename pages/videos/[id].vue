@@ -30,7 +30,6 @@ let { data, error } = useAsyncData(async () => {
             cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
         }
         let topics = (await sb.from('topics').select('title, timestamp, section, url, contributors(*)').eq('episode', episode.id).order('timestamp')).data;
-        let current = null;
         let tpcs = [];
 
         for (let i = 0; i < topics.length; i++) {
@@ -94,12 +93,18 @@ function toggleState(id) {
     <template v-else-if="data">
         <div :class="style.container">
             <div :class="style.viewport">
+                <div :class="style.videoTitleBar">
+                    <div>
+                        <h2>{{ data.episode.title }}</h2>
+                        <h4>Originally Aired: {{ new Date(data.episode.aired).toLocaleDateString() }}</h4>
+                        <h4>Runtime: {{ data.episode.duration_text }}</h4>
+                    </div>
+                </div>
                 <div :class="style.video">
                     <ClientOnly>
-                        {{ console.log(data) }}
                         <iframe width="100%" height="100%" :src="`https://www.youtube.com/embed/${data.episode.id}`"
                             title="YouTube video player" frameborder="0"
-                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen />
                     </ClientOnly>
                 </div>
@@ -107,16 +112,25 @@ function toggleState(id) {
                     <ClientOnly>
                         <template v-if="data.topics.length > 0" v-for="group in data.topics">
                             <div :id="group.hash" :class="[style.group]" @click="toggleState(group.hash)">
-                                <h3>{{ group.title }}</h3>
+                                <h3>{{ group.title }}
+                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
+                                        color='#1DA1F2' />
+                                </h3>
 
                                 <div :class="style.topics">
                                     <template v-for="topic in group.children">
                                         <div :class=style.topic>
-                                            <p :class="style.topicTitle">{{ topic.title }}</p>
+                                            <p :class="style.topicTitle">{{ topic.title }} </p>
                                             <span :class="style.topicDetails">
                                                 <p v-if="topic.contributors" :class="style.topicContributor">Contributor: {{
-                                                    topic.contributors.name }}</p>
-                                                <p v-else :class="style.topicContributor">Unknown Contributor</p>
+                                                    topic.contributors.name }}
+                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
+                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
+                                                </p>
+                                                <p v-else :class="style.topicContributor">Unknown Contributor
+                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
+                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
+                                                </p>
                                                 <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
                                             </span>
                                         </div>
@@ -150,11 +164,10 @@ function toggleState(id) {
                             </div>
                         </template>
                     </ClientOnly>
-                </div>
             </div>
         </div>
-    </template>
-    <template v-else>
-        Error {{ error }}
-    </template>
+    </div>
 </template>
+<template v-else>
+    Error {{ error }}
+</template></template>
