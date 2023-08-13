@@ -2,6 +2,7 @@
 import style from "./Header.module.css";
 
 let sb = useSupabaseClient();
+const user = useSupabaseUser();
 
 let results = ref([]);
 let visible = ref(false);
@@ -44,9 +45,17 @@ async function search(d) {
 }
 
 function openVideo(id) {
-    window.location.pathname = '/videos/'+id;
+    window.location.pathname = '/videos/' + id;
 }
 
+
+function login() {
+    window.location.href = '/login';
+}
+
+function logout() {
+    sb.auth.signOut();
+}
 </script>
 <template>
     <div :class="style.header">
@@ -62,6 +71,8 @@ function openVideo(id) {
             <!-- <a :class="style.navlink" href="/contributors">Contributors</a>
             <a :class="style.navlink" href="/cast">Cast & Crew</a> -->
         </ul>
+        <button v-if="!user" @click="login" :class="style.login">Login</button>
+        <button v-else @click="logout" :class="style.login">Logout</button>
         <input type="text" @input="search" :class="style.search" placeholder="Search..." />
         <div :class="style.searchResults" :style="{
             'max-height': visible ? ((results.length * 110)) + 'px' : '0px',

@@ -1,4 +1,5 @@
 <script async setup>
+import { v4 } from 'uuid';
 import style from './videos.module.css';
 
 definePageMeta({
@@ -6,6 +7,7 @@ definePageMeta({
 });
 
 const sb = useSupabaseClient();
+const user = useSupabaseUser();
 
 let { id } = useRoute().params;
 
@@ -29,7 +31,7 @@ let { data, error } = useAsyncData(async () => {
         for (let i = 0; i < cast.length; i++) {
             cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
         }
-        let topics = (await sb.from('topics').select('title, timestamp, section, url, contributors(*)').eq('episode', episode.id).order('timestamp')).data;
+        let topics = (await sb.from('topics').select('id,title, timestamp, section, url, contributors(*)').eq('episode', episode.id).order('timestamp')).data;
         let tpcs = [];
 
         for (let i = 0; i < topics.length; i++) {
@@ -76,11 +78,61 @@ let { data, error } = useAsyncData(async () => {
     }
 })
 
-function toggleState(id) {
-    let e = document.getElementById(id)
-    e.classList.toggle(style.groupOpen)
+async function save(id) {
+    console.log(id);
+    let e = document.getElementById(id);
+    console.log(e);
 }
 
+function addGroup() {
+    data.value.topics.push({
+        id: v4(),
+        episode: data.value.episode.id,
+        section: false,
+        title: 'New Topic',
+        description: '',
+        url: '',
+        timestamp: '00:00:00',
+        timestamp_raw: 0,
+        last_modified: new Date(),
+        hash: hash(new Date().toISOString() + 'new_topic'),
+        children: []
+    })
+}
+
+function addTopicToGroup(id) {
+    for (let i = 0; i < data.value.topics.length; i++) {
+        if (data.value.topics[i].hash === id) {
+            data.value.topics[i].children.push({
+                id: v4(),
+                episode: data.value.episode.id,
+                section: false,
+                title: 'New Topic',
+                description: '',
+                url: '',
+                timestamp: '00:00:00',
+                timestamp_raw: 0,
+                last_modified: new Date()
+            })
+        }
+    }
+}
+
+function removeTopicFromGroup(id, group) {
+    let answer = confirm('Are you sure you wish to delete this topic?');
+    for (let i = 0; i < data.value.topics.length; i++) {
+        if (data.value.topics[i].hash === group) {
+            data.value.topics[i].children = data.value.topics[i].children.filter((t) => t.id !== id);
+        }
+    }
+}
+
+function toggleState(id, target) {
+    if (target.id === '' + id) {
+        let e = document.getElementById(id)
+        e.classList.toggle(style.groupOpen)
+    }
+}
 </script>
 
 <template>
@@ -110,28 +162,58 @@ function toggleState(id) {
                 </div>
                 <div :class="style.groups">
                     <ClientOnly>
+                        <button v-if="user" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                         <template v-if="data.topics.length > 0" v-for="group in data.topics">
-                            <div :id="group.hash" :class="[style.group]" @click="toggleState(group.hash)">
-                                <h3>{{ group.title }}
+                            <div :id="group.hash" :class="[style.group]" @click="(e) => toggleState(group.hash, e.target)">
+                                <h3 v-if="!user" :id="group.hash">{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                                         color='#1DA1F2' />
                                 </h3>
-
+                                <input v-else id="group-title-box" :class="style.topicTitle" :value=group.title />
+                                <span v-if="user" :class="style.topicButtons">
+                                    <button :class="style.topicButton" @click="save(group.id, true)">Save
+                                        Changes</button>
+                                    <button :class="style.topicButton" @click="addTopicToGroup(topic.id)">Add Topic</button>
+                                    <button :class="style.topicButton" @click="removeGroup(group.hash)">Delete
+                                        Group</button>
+                                </span>
                                 <div :class="style.topics">
                                     <template v-for="topic in group.children">
-                                        <div :class=style.topic>
-                                            <p :class="style.topicTitle">{{ topic.title }} </p>
+                                        <div :class=style.topic :id="topic.id">
+                                            <p v-if="!user" :class="style.topicTitle">{{ topic.title }} </p>
+                                            <input v-else id="title-box" :class="style.topicTitle" :value=topic.title />
                                             <span :class="style.topicDetails">
-                                                <p v-if="topic.contributors" :class="style.topicContributor">Contributor: {{
-                                                    topic.contributors.name }}
-                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
-                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
-                                                </p>
-                                                <p v-else :class="style.topicContributor">Unknown Contributor
-                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
-                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
-                                                </p>
-                                                <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                                                <template v-if="!user">
+                                                    <p v-if="topic.contributors" :class="style.topicContributor">
+                                                        Contributor: {{
+                                                            topic.contributors.name }}
+                                                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
+                                                            name="ri:verified-badge-fill" color='#1DA1F2' />
+                                                    </p>
+                                                    <p v-else :class="style.topicContributor">Unknown Contributor
+                                                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
+                                                            name="ri:verified-badge-fill" color='#1DA1F2' />
+                                                    </p>
+                                                </template>
+                                                <span :class="style.topicButtons" v-else>
+                                                    <button :class="style.topicButton" @click="save(topic.id)">Save
+                                                        Changes</button>
+                                                    <button :class="style.topicButton"
+                                                        @click="removeTopicFromGroup(topic.id, group.hash)">Delete
+                                                        Topic</button>
+                                                </span>
+
+                                                <p v-if="!user" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                                                <span v-else :class="style.timestampEditor">
+                                                    <input id="timestamp-hh" type="number" :class="style.topicTitle"
+                                                        :value="topic.timestamp.split(':')[0]" />
+                                                    :
+                                                    <input id="timestamp-mm" type="number" :class="style.topicTitle"
+                                                        :value="topic.timestamp.split(':')[1]" />
+                                                    :
+                                                    <input id="timestamp-ss" type="number" :class="style.topicTitle"
+                                                        :value="topic.timestamp.split(':')[2]" />
+                                                </span>
                                             </span>
                                         </div>
                                     </template>
@@ -164,10 +246,11 @@ function toggleState(id) {
                             </div>
                         </template>
                     </ClientOnly>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
+    <template v-else>
+        Error {{ error }}
+    </template>
 </template>
-<template v-else>
-    Error {{ error }}
-</template></template>

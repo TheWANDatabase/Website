@@ -10,9 +10,9 @@
     display: grid;
     grid-template-columns: auto 25rem;
     grid-template-areas:
-    "title title"
-    "video groups"
-    "cast groups";
+        "title title"
+        "video groups"
+        "cast groups";
     margin-top: 0rem;
     padding-bottom: 5vh;
 }
@@ -58,7 +58,7 @@
     overflow-y: scroll;
 }
 
-.groups > h3 {
+.groups>h3 {
     background: #111;
     padding: 5px 10px;
     border-radius: 5px;
@@ -131,7 +131,7 @@
 
 .topicDetails {
     display: grid;
-    grid-template-columns: 200px 20px 100px;
+    grid-template-columns: 200px 10px 100px;
     grid-template-areas: "contributor . timestamp";
     height: 1.5rem;
     margin: 0.5rem;
@@ -187,6 +187,7 @@
 .castMember h3 {
     margin: 0.5rem auto;
 }
+
 .castMember h4 {
     margin: 0.5rem auto;
 }
@@ -194,4 +195,73 @@
 .castMember h4 a {
     color: inherit;
     text-decoration: none;
+}
+
+.group input {
+    color: white;
+    padding: 2px;
+    /* margin-bottom: -0.5rem; */
+    border: 1px #1f1f1f solid;
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    transition: 200ms;
+}
+
+.group input:hover,
+.group input:active,
+.group input:focus {
+    color: #ffa500;
+    border: 1px #ffa500 solid;
+    transition: 200ms;
+}
+
+.topicButtons {
+    width: fit-content;
+    display: flex;
+    margin: 0.25rem auto;
+}
+
+.topicButton {
+    width: 6rem;
+    margin: 0.25rem 0.25rem;
+    padding: 2px;
+    color: white;
+    border: 1px #1f1f1f solid;
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    transition: 200ms;
+}
+
+.topicButton:hover,
+.topicButton:active,
+.topicButton:focus {
+    color: #ffa500;
+    border: 1px #ffa500 solid;
+    transition: 200ms;
+}
+
+.timestampEditor {
+    grid-area: timestamp;
+    display: flex;
+    margin: 0.5rem 0.5rem 0.5rem auto;
+}
+
+.timestampEditor input[type=number] {
+    width: 30px;
+    text-align: center;
+    color: white;
+    border: 1px #1f1f1f solid;
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    transition: 200ms;
+    /* height: 10px; */
+}
+
+
+.timestampEditor input[type=number]:hover,
+.timestampEditor input[type=number]:active,
+.timestampEditor input[type=number]:focus {
+    color: #ffa500;
+    border: 1px #ffa500 solid;
+    transition: 200ms;
 }

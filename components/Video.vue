@@ -6,8 +6,11 @@ let props = defineProps([
 let sb = useSupabaseClient();
 
 
+let data;
 
-let data = await (await fetch('/api/v1/videos/' + props.id)).json();
+if (!props.ghost) {
+    data = await (await fetch('/api/v1/videos/' + props.id)).json();
+}
 
 </script>
 
