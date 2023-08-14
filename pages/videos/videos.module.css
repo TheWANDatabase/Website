@@ -72,8 +72,8 @@
 .group {
     display: inline-flex;
     flex-direction: column;
-    height: 5rem;
-    max-height: auto;
+    height: 40px;
+    max-height: fit-content;
     overflow: hidden;
     width: 34.5rem;
     border: 1px solid #3b3b3b;
@@ -88,6 +88,7 @@
 }
 
 .group .topics {
+    max-height: fit-content;
     height: 0;
     transition: 200ms;
     margin: 0
@@ -95,18 +96,17 @@
 
 .groupOpen {
     height: 100%;
-
     transition: 200ms;
 }
 
 .groupOpen .topics {
-    height: 100%;
     /* overflow-y: scroll; */
     transition: 200ms;
+    opacity: 1;
 }
 
 .topics {
-    height: 100%;
+    opacity: 0;
     max-height: fit-content;
     width: 33.25rem;
     margin: 0 auto 0.5rem;
@@ -116,12 +116,12 @@
 .topic {
     border: 1px solid #3b3b3b;
     display: grid;
-    min-height: 2.5rem;
+    height: 110px;
     width: 33.25rem;
     grid-template-areas:
         "title title"
         ". timestamp";
-    margin: 0.25rem auto;
+    margin: 10px auto;
     padding: 0.5rem;
     border-radius: 5px;
 }
@@ -372,4 +372,18 @@
     color: #ffa500;
     border: 1px #ffa500 solid;
     transition: 200ms;
+}
+
+.activeGroup {
+    background: #303030;
+    /* color: #ffa500; */
+    border: 1px #ffa500 solid;
+    transition: 1000ms;
+}
+
+.activeTopic {
+    background: #2b2b2b;
+    color: #ffa500;
+    border: 1px #ffa500 solid;
+    transition: 1000ms;
 }
