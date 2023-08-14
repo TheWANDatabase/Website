@@ -23,6 +23,8 @@ function hash(str) {
     return h;
 }
 
+
+
 let { data, error } = useAsyncData(async () => {
     let { data, error } = await sb.from('episodes').select('*').eq('id', id).single();
     if (data) {
@@ -118,11 +120,56 @@ function addTopicToGroup(id) {
     }
 }
 
+let showPersonSearch = ref(false);
+let castSearchValue = ref('');
+
+let castSearchResults = useAsyncData(async () => {
+    if (castSearchValue.value.length === 0) {
+        return [];
+    } else {
+        let d = await sb.rpc('search_cast', {
+            search_term: castSearchValue.value
+        });
+        for (let i = 0; i < d.data.length; i++) {
+            d.data[i].avatar = (await sb.storage.from('mugs').getPublicUrl(d.data[i].mug)).data.publicUrl;
+        }
+        return d.data;
+    }
+}, {
+    watch: [castSearchValue]
+})
+
+function addPerson() {
+    showPersonSearch.value = true;
+}
+
+function toggleCastMember(id) {
+    if (data.value.episode.cast.includes(id)) {
+        data.value.episode.cast = data.value.episode.cast.filter(i => i !== id);
+    } else data.value.episode.cast.push(id);
+}
+
+async function saveCastMembers() {
+    let res = await sb.from('episodes').update({
+        cast: data.value.episode.cast.filter(function (elem, pos) {
+            return data.value.episode.cast.indexOf(elem) == pos;
+        })
+    }).eq('id', data.value.episode.id);
+    console.log(res);
+    window.location.reload();
+}
+
+function closeEditor() {
+    showPersonSearch.value = false;
+}
+
 function removeTopicFromGroup(id, group) {
     let answer = confirm('Are you sure you wish to delete this topic?');
-    for (let i = 0; i < data.value.topics.length; i++) {
-        if (data.value.topics[i].hash === group) {
-            data.value.topics[i].children = data.value.topics[i].children.filter((t) => t.id !== id);
+    if (answer) {
+        for (let i = 0; i < data.value.topics.length; i++) {
+            if (data.value.topics[i].hash === group) {
+                data.value.topics[i].children = data.value.topics[i].children.filter((t) => t.id !== id);
+            }
         }
     }
 }
@@ -160,28 +207,32 @@ function toggleState(id, target) {
                             allowfullscreen />
                     </ClientOnly>
                 </div>
-                <div :class="style.groups">
+                <ul :class="style.groups">
                     <ClientOnly>
                         <button v-if="user" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                         <template v-if="data.topics.length > 0" v-for="group in data.topics">
-                            <div :id="group.hash" :class="[style.group]" @click="(e) => toggleState(group.hash, e.target)">
+                            <li :id="group.hash" :class="[style.group]" @click="(e) => toggleState(group.hash, e.target)">
                                 <h3 v-if="!user" :id="group.hash">{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                                         color='#1DA1F2' />
                                 </h3>
                                 <input v-else id="group-title-box" :class="style.topicTitle" :value=group.title />
                                 <span v-if="user" :class="style.topicButtons">
-                                    <button :class="style.topicButton" @click="save(group.id, true)">Save
+                                    <button :class="[style.topicButton, style.hoverEffects]"
+                                        @click="save(group.id, true)">Save
                                         Changes</button>
-                                    <button :class="style.topicButton" @click="addTopicToGroup(topic.id)">Add Topic</button>
-                                    <button :class="style.topicButton" @click="removeGroup(group.hash)">Delete
+                                    <button :class="[style.topicButton, style.hoverEffects]"
+                                        @click="addTopicToGroup(topic.id)">Add Topic</button>
+                                    <button :class="[style.topicButton, style.hoverEffects]"
+                                        @click="removeGroup(group.hash)">Delete
                                         Group</button>
                                 </span>
                                 <div :class="style.topics">
                                     <template v-for="topic in group.children">
                                         <div :class=style.topic :id="topic.id">
                                             <p v-if="!user" :class="style.topicTitle">{{ topic.title }} </p>
-                                            <input v-else id="title-box" :class="style.topicTitle" :value=topic.title />
+                                            <input v-else id="title-box" :class="[style.topicTitle, style.hoverEffects]"
+                                                :value=topic.title />
                                             <span :class="style.topicDetails">
                                                 <template v-if="!user">
                                                     <p v-if="topic.contributors" :class="style.topicContributor">
@@ -196,53 +247,101 @@ function toggleState(id, target) {
                                                     </p>
                                                 </template>
                                                 <span :class="style.topicButtons" v-else>
-                                                    <button :class="style.topicButton" @click="save(topic.id)">Save
+                                                    <button :class="[style.topicButton, style.hoverEffects]"
+                                                        @click="save(topic.id)">Save
                                                         Changes</button>
-                                                    <button :class="style.topicButton"
+                                                    <button :class="[style.topicButton, style.hoverEffects]"
                                                         @click="removeTopicFromGroup(topic.id, group.hash)">Delete
                                                         Topic</button>
                                                 </span>
 
                                                 <p v-if="!user" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
                                                 <span v-else :class="style.timestampEditor">
-                                                    <input id="timestamp-hh" type="number" :class="style.topicTitle"
+                                                    <input id="timestamp-hh" type="number"
+                                                        :class="[style.topicTitle, style.hoverEffects]"
                                                         :value="topic.timestamp.split(':')[0]" />
                                                     :
-                                                    <input id="timestamp-mm" type="number" :class="style.topicTitle"
+                                                    <input id="timestamp-mm" type="number"
+                                                        :class="[style.topicTitle, style.hoverEffects]"
                                                         :value="topic.timestamp.split(':')[1]" />
                                                     :
-                                                    <input id="timestamp-ss" type="number" :class="style.topicTitle"
+                                                    <input id="timestamp-ss" type="number"
+                                                        :class="[style.topicTitle, style.hoverEffects]"
                                                         :value="topic.timestamp.split(':')[2]" />
                                                 </span>
                                             </span>
                                         </div>
                                     </template>
                                 </div>
-                            </div>
+                            </li>
                         </template>
                         <template v-else>
                             <h3>Topics currently unavailable</h3>
                         </template>
                     </ClientOnly>
-                </div>
+                </ul>
                 <div :class="style.cast">
                     <ClientOnly>
-                        <template v-for="person in data.cast">
+                        <button v-if="user" style="position:sticky;top:0rem;" @click="addPerson()">Add Person</button>
+                        <div :class="[style.personEditorSearch, showPersonSearch ? undefined : style.hidden]">
+                            <div :class="style.personEditorInner">
+                                <button :class="[style.editorClose, style.hoverEffects]"
+                                    @click="closeEditor()">Close</button>
+                                <div :class="style.editorHorizontal">
+                                    <h1>Cast Editor</h1>
+                                </div>
+                                <div :class="style.editorHorizontal">
+                                    <input :class="[style.searchBar, style.hoverEffects]" type="text"
+                                        v-model="castSearchValue" placeholder="Search..." />
+                                    <button :class="[style.editorSave, style.hoverEffects]"
+                                        @click="saveCastMembers()">Save</button>
+                                </div>
+                                <div :class="style.editorSearchContainer">
+                                    <template v-if="castSearchResults.data.value.length > 0"
+                                        v-for="person in castSearchResults.data.value">
+
+                                        <div @click="toggleCastMember(person.id)"
+                                            :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]">
+                                            <img :src="person.avatar" />
+                                            <div>
+                                                <h3>
+                                                    {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '"')
+                                                        : person.name }}
+                                                </h3>
+                                                <h4>
+                                                    <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
+                                                        {{ person.outlet ? person.outlet : 'No Affiliation' }}
+                                                        <Icon name="ph:link" />
+                                                    </a>
+                                                    <template v-else>{{ person.outlet ? person.outlet : 'No Affiliation'
+                                                    }}</template>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <div v-else>
+                                        No Results
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <template v-for=" person  in  data.cast ">
                             <div :class="style.castMember">
-                                <img :src="person.mug" :alt="`Mugshot image for ${person.name}`" />
-                                <h3>
-                                    {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ') : person.name
-                                    }}
-                                </h3>
-                                <h4>
-                                    <a v-if="person.outlet_uri" :href="person.outlet_uri">
-                                        {{ person.outlet ? person.outlet : '' }}
-                                        <Icon name="ph:link" />
-                                    </a>
-                                    <template v-else>{{ person.outlet ? person.outlet : '' }}</template>
-                                </h4>
-
-
+                                <img :src="person.mug" />
+                                <div>
+                                    <h3>
+                                        {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '"')
+                                            : person.name }}
+                                    </h3>
+                                    <h4>
+                                        <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
+                                            {{ person.outlet ? person.outlet : 'No Affiliation' }}
+                                            <Icon name="ph:link" />
+                                        </a>
+                                        <template v-else>{{ person.outlet ? person.outlet : 'No Affiliation'
+                                        }}</template>
+                                    </h4>
+                                </div>
                             </div>
                         </template>
                     </ClientOnly>
@@ -254,3 +353,6 @@ function toggleState(id, target) {
         Error {{ error }}
     </template>
 </template>
+
+
+

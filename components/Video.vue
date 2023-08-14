@@ -8,14 +8,27 @@ let sb = useSupabaseClient();
 
 let data;
 
-if (!props.ghost) {
-    data = await (await fetch('/api/v1/videos/' + props.id)).json();
+if (props) {
+    if (!props.ghost) {
+        data = await (await fetch('/api/v1/videos/' + props.id)).json();
+    }
 }
 
 </script>
 
 <template>
-    <template v-if="props.ghost">
+    <template v-if="!props">
+        <div :class="style.ghostVideo">
+            <img :class="style.ghostVideoThumbnail" />
+            <h3 :class="style.ghostVideoTitle" />
+            <span :class="style.ghostVideoAirDate" />
+            <span :class="style.ghostVideoStats">
+                <span :class="style.ghostVideoStat" />
+                <span :class="style.ghostVideoStat" />
+            </span>
+        </div>
+    </template>
+    <template v-else-if="props.ghost">
         <div :class="style.ghostVideo">
             <img :class="style.ghostVideoThumbnail" />
             <h3 :class="style.ghostVideoTitle" />
@@ -27,7 +40,15 @@ if (!props.ghost) {
         </div>
     </template>
     <template v-else-if="!data.episode">
-        <div :class="style.ghostVideo"></div>
+        <div :class="style.ghostVideo">
+            <img :class="style.ghostVideoThumbnail" />
+            <h3 :class="style.ghostVideoTitle" />
+            <span :class="style.ghostVideoAirDate" />
+            <span :class="style.ghostVideoStats">
+                <span :class="style.ghostVideoStat" />
+                <span :class="style.ghostVideoStat" />
+            </span>
+        </div>
     </template>
     <template v-else>
         <NuxtLink :class="style.video" :href="`/videos/${data.episode.id}`">
