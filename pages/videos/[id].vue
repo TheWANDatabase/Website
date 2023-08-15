@@ -4,13 +4,22 @@ import style from './videos.module.css';
 import Youtube from 'vue3-youtube';
 
 const player = ref(null);
+const profile = useState('uprofile', () => undefined);
+const showEditor = ref(false);
 
 definePageMeta({
     layout: "viewer"
 });
 
+useAsyncData(async () => {
+    if (profile) {
+        showEditor.value = ((profile.value.permissions && 1) == 1 || (profile.value.permissions && 2) == 1)
+    }
+}, {
+    watch: [profile]
+})
+
 const sb = useSupabaseClient();
-const user = useSupabaseUser();
 
 let { id } = useRoute().params;
 
@@ -256,12 +265,13 @@ export default {
 
                 <!-- Player Section -->
                 <div id="videoplayerviewportsector" :class="style.video">
-                    <Youtube width="100%" height="700" :src="`https://www.youtube.com/embed/${data.episode.id}`" ref="player" />
+                    <Youtube width="100%" height="700" :src="`https://www.youtube.com/embed/${data.episode.id}`"
+                        ref="player" />
                 </div>
 
                 <!-- Topic Section -->
                 <ul :class="style.groups">
-                    <button v-if="user" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
+                    <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
                         <li :id="group.hash"
                             :style="{ maxHeight: group.children.length > 0 ? (group.children.length * 115) + ((group.children.length - 1) * 20) + 82 + 'px' : '150px' }"
@@ -277,13 +287,13 @@ export default {
                                 <Icon style="height: 30px; width: 30px; margin: auto;" :id="group.hash + '-INNER'"
                                     :name="expanded[group.hash] ? 'material-symbols:unfold-less' : 'material-symbols:unfold-more'"
                                     color='#1DA1F2' />
-                                <h3 v-if="!user" @click="(e) => seek(group.timestamp_raw)">{{ group.title }}
+                                <h3 v-if="!showEditor" @click="(e) => seek(group.timestamp_raw)">{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                                         color='#1DA1F2' />
                                 </h3>
                                 <input v-else id="group-title-box" :class="style.topicTitle" :value=group.title />
                             </span>
-                            <span v-if="user" :class="style.topicButtons">
+                            <span v-if="showEditor" :class="style.topicButtons">
                                 <button :class="[style.topicButton, style.hoverEffects]" @click="save(group.id, true)">Save
                                     Changes</button>
                                 <button :class="[style.topicButton, style.hoverEffects]"
@@ -298,11 +308,11 @@ export default {
                                     <div @click="(e) => seek(topic.timestamp_raw)"
                                         :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
                                         :id="topic.id">
-                                        <p v-if="!user" :class="style.topicTitle">{{ topic.title }} </p>
+                                        <p v-if="!showEditor" :class="style.topicTitle">{{ topic.title }} </p>
                                         <input v-else id="title-box" :class="[style.topicTitle, style.hoverEffects]"
                                             :value=topic.title />
                                         <span :class="style.topicDetails">
-                                            <template v-if="!user">
+                                            <template v-if="!showEditor">
                                                 <p v-if="topic.contributors" :class="style.topicContributor">
                                                     Contributor: {{
                                                         topic.contributors.name }}
@@ -323,7 +333,7 @@ export default {
                                                     Topic</button>
                                             </span>
 
-                                            <p v-if="!user" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                                            <p v-if="!showEditor" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
                                             <span v-else :class="style.timestampEditor">
                                                 <input id="timestamp-hh" type="number"
                                                     :class="[style.topicTitle, style.hoverEffects]"
@@ -350,7 +360,7 @@ export default {
 
                 <!-- Cast Section -->
                 <div :class="style.cast">
-                    <button v-if="user" style="position:sticky;top:0rem;" @click="addPerson()">Add Person</button>
+                    <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addPerson()">Add Person</button>
                     <div :class="[style.personEditorSearch, showPersonSearch ? undefined : style.hidden]">
                         <div :class="style.personEditorInner">
                             <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">Close</button>

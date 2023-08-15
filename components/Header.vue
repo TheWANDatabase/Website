@@ -4,6 +4,19 @@ import style from "./Header.module.css";
 let sb = useSupabaseClient();
 const user = useSupabaseUser();
 
+const profile = useState('uprofile', () => undefined);
+
+useAsyncData(async () => {
+    if (user.value) {
+        let { data } = await sb.from('profiles').select('*').eq('id', user.value.id).single();
+        profile.value = data;
+    } else {
+        profile.value = undefined;
+    }
+}, {
+    watch: [user]
+})
+
 let results = ref([]);
 let visible = ref(false);
 let thumbs = ref({})
@@ -55,6 +68,7 @@ function login() {
 
 function logout() {
     sb.auth.signOut();
+    profile.value = undefined;
 }
 </script>
 <template>
@@ -71,8 +85,15 @@ function logout() {
             <!-- <a :class="style.navlink" href="/contributors">Contributors</a>
             <a :class="style.navlink" href="/cast">Cast & Crew</a> -->
         </ul>
+
         <button v-if="!user" @click="login" :class="style.login">Login</button>
-        <button v-else @click="logout" :class="style.login">Logout</button>
+        <template v-else>
+            <span v-if="profile" :class=style.profilePill>
+                <img :src="profile.avatar_url">
+                {{ profile.username ? profile.username : profile.full_name }}
+            </span>
+            <button @click="logout" :class="style.logout">Logout</button>
+        </template>
         <input type="text" @input="search" :class="style.search" placeholder="Search..." />
         <div :class="style.searchResults" :style="{
             'max-height': visible ? ((results.length * 110)) + 'px' : '0px',
