@@ -6,13 +6,13 @@ import Youtube from 'vue3-youtube';
 const player = ref(null);
 const profile = useState('uprofile', () => undefined);
 const showEditor = ref(false);
-
+const playerStatus = ref(0);
 definePageMeta({
     layout: "viewer"
 });
 
 useAsyncData(async () => {
-    if (profile) {
+    if (profile.value) {
         showEditor.value = ((profile.value.permissions && 1) == 1 || (profile.value.permissions && 2) == 1)
     }
 }, {
@@ -36,23 +36,78 @@ function hash(str) {
 }
 let time = ref(0);
 let vpw = ref(700);
-
+let watch = ref();
+let time_human = ref('00:00:00')
+let time_percentage = ref('0.00')
 let itv = {
     player: null,
     viewport: null
 };
 
+useAsyncData(async () => {
+    try {
+        if (Math.round(time.value) === Math.round(data.value.episode.duration)) {
+            if (profile.value && watch.value) {
+                console.log(await sb.from('episode_progression').update({
+                    viewed_seconds: Math.floor(data.value.episode.duration)
+                }).eq('id', watch.value.id));
+            }
+        } else if (Math.floor(time.value) % 5 !== 0 || playerStatus.value === 0) {
+            return;
+        } else {
+            if (profile.value && watch.value) {
+                console.log(await sb.from('episode_progression').update({
+                    viewed_seconds: Math.floor(time.value)
+                }).eq('id', watch.value.id));
+            } else if (profile.value) {
+                console.log('Selecting')
+                let x = await sb.from('episode_progression').select('*')
+                    .eq('viewer', profile.value.id)
+                    .eq('episode', id).maybeSingle();
+                if (x.data) {
+                    watch.value = x.data;
+                    player.value.seekTo(watch.value.viewed_seconds)
+                } else {
+                    let a = await sb.from('episode_progression').insert({
+                        viewer: profile.value.id,
+                        episode: id,
+                        viewed_seconds: Math.floor(time.value)
+                    }).select();
+                    watch.value = a.data[0];
+                }
+            } else {
+                console.log("User is logged in as a guest, playback analytics are disabled.");
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}, {
+    server: false,
+    watch: [time, playerStatus]
+})
+
+function onPlayerReady() {
+    playerStatus.value = 1
+}
+
 onMounted(() => {
     itv.player = setInterval(() => {
-        if (player.value) {
-            if (player.value.getCurrentTime) time.value = player.value.getCurrentTime()
+        if (playerStatus.value === 1) {
+            try {
+                time.value = player.value.getCurrentTime()
+                time_human.value = toTimestamp(player.value.getCurrentTime());
+                time_percentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2);
+            } catch (e) {
+                console.warn('Failed to fetch playback timestamp', e)
+            }
         }
     }, 333)
 
-    itv.viewport = setInterval(() => {
-        let e = document.getElementById('videoplayerviewportsector');
-        vpw.value = e.offsetWidth;
-    }, 10)
+    // itv.viewport = setInterval(() => {
+    //     let e = document.getElementById('videoplayerviewportsector');
+    //     vpw.value = e.offsetWidth;
+    // }, 10)
 })
 
 onUnmounted(() => {
@@ -78,12 +133,6 @@ let { data, error } = useAsyncData(async () => {
             if (topic.title === 'Chapters' || topic.title === 'Intro') continue;
 
             if (topic.section) {
-                if (tpcs.length > 0) {
-                    let tpc = tpcs[tpcs.length - 1];
-                    if (tpcs[tpcs.length - 1].children[tpc.children.length - 1]) {
-                        tpcs[tpcs.length - 1].children[tpc.children.length - 1].endpoint = topic.timestamp_raw;
-                    }
-                }
                 tpcs.push({
                     ...topic,
                     hash: hash(topic.title),
@@ -100,10 +149,9 @@ let { data, error } = useAsyncData(async () => {
                             children: [topic]
                         })
                     } else {
-                        if (tpcs[tpcs.length - 1].children.length > 0) {
-                            tpcs[tpcs.length - 1].children[tpcs[tpcs.length - 1].children.length - 1].endpoint = topic.timestamp_raw;
-                        }
+                        tpcs[tpcs.length - 1].endpoint = topic.endpoint;
                         tpcs[tpcs.length - 1].children.push(topic)
+                        console.log(tpcs[tpcs.length - 1])
                     }
                 } else {
                     tpcs.push({
@@ -115,7 +163,6 @@ let { data, error } = useAsyncData(async () => {
                 }
             }
         }
-
         episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
         return {
             episode, cast, topics: tpcs
@@ -259,14 +306,17 @@ export default {
                     <div>
                         <h2>{{ data.episode.title }}</h2>
                         <h4>Originally Aired: {{ new Date(data.episode.aired).toLocaleDateString() }}</h4>
-                        <h4>Runtime: {{ data.episode.duration_text }}</h4>
+                        <h4>
+                            Runtime: {{ data.episode.duration_text }}
+                            (You've watched {{ time_human }} | That's {{ time_percentage }}%)
+                        </h4>
                     </div>
                 </div>
 
                 <!-- Player Section -->
                 <div id="videoplayerviewportsector" :class="style.video">
-                    <Youtube width="100%" height="700" :src="`https://www.youtube.com/embed/${data.episode.id}`"
-                        ref="player" />
+                    <Youtube @ready="onPlayerReady()" width="100%" height="700"
+                        :src="`https://www.youtube.com/embed/${data.episode.id}`" ref="player" />
                 </div>
 
                 <!-- Topic Section -->
@@ -274,14 +324,14 @@ export default {
                     <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
                         <li :id="group.hash"
-                            :style="{ maxHeight: group.children.length > 0 ? (group.children.length * 115) + ((group.children.length - 1) * 20) + 82 + 'px' : '150px' }"
+                            :style="{ /*maxHeight: group.children.length > 0 ? (group.children.length * 115) + ((group.children.length - 1) * 20) + 82 + 'px' : '150px'*/ }"
                             :class="[
                                 style.group,
                                 (
                                     expanded[group.id] ||
-                                    (group.timestamp_raw <= time && group.children[group.children.length - 1].endpoint >= time)
+                                    (group.timestamp_raw <= time && group.endpoint >= time)
                                 ) ? style.groupOpen : undefined,
-                                (group.timestamp_raw <= time && group.children[group.children.length - 1].endpoint >= time) ? style.activeGroup : undefined
+                                (group.timestamp_raw <= time && group.endpoint >= time) ? style.activeGroup : undefined
                             ]" @click="(e) => toggleState(group.hash, e.target)">
                             <span style="display: grid; grid-template-columns: 20px auto;">
                                 <Icon style="height: 30px; width: 30px; margin: auto;" :id="group.hash + '-INNER'"

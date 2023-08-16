@@ -84,6 +84,7 @@
     transition: 200ms;
     display: flex;
     flex-direction: row;
+    text-decoration: none;
 }
 
 .profilePill img {

@@ -9,11 +9,17 @@ const profile = useState('uprofile', () => undefined);
 useAsyncData(async () => {
     if (user.value) {
         let { data } = await sb.from('profiles').select('*').eq('id', user.value.id).single();
-        profile.value = data;
+        if (data === null) {
+
+            sb.auth.signOut();
+        } else {
+            profile.value = data;
+        }
     } else {
         profile.value = undefined;
     }
 }, {
+    server: false,
     watch: [user]
 })
 
@@ -88,10 +94,10 @@ function logout() {
 
         <button v-if="!user" @click="login" :class="style.login">Login</button>
         <template v-else>
-            <span v-if="profile" :class=style.profilePill>
+            <a href="/profile" v-if="profile" :class=style.profilePill>
                 <img :src="profile.avatar_url">
                 {{ profile.username ? profile.username : profile.full_name }}
-            </span>
+            </a>
             <button @click="logout" :class="style.logout">Logout</button>
         </template>
         <input type="text" @input="search" :class="style.search" placeholder="Search..." />

@@ -95,12 +95,12 @@
 }
 
 .groupOpen {
-    height: 100%;
+    height: fit-content;
     transition: 200ms;
 }
 
 .groupOpen .topics {
-    /* overflow-y: scroll; */
+    height: fit-content;
     transition: 200ms;
     opacity: 1;
 }
