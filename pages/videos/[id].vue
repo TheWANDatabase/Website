@@ -145,6 +145,7 @@ let { data, error } = useAsyncData(async () => {
                             title: 'Sponsor Spots',
                             hash: hash('Sponsor Spots'),
                             timestamp: topic.timestamp,
+                            timestamp_raw: topic.timestamp_raw,
                             url: null,
                             children: [topic]
                         })
