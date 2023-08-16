@@ -353,7 +353,7 @@ export default {
                                     Group</button>
                             </span>
                             <div :class="style.topics"
-                                :style="{ maxHeight: (group.children.length * 110) + ((group.children.length - 1) * 20) + 'px' }">
+                                :style="{ /* maxHeight: (group.children.length * 110) + ((group.children.length - 1) * 20) + 'px' */ }">
                                 <template v-for="topic in group.children">
                                     <div @click="(e) => seek(topic.timestamp_raw)"
                                         :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
