@@ -21,7 +21,8 @@
     transition: 200ms;
 }
 
-.ghostVideo:hover, .video:hover {
+.ghostVideo:hover,
+.video:hover {
     background-color: #3b3b3b;
     transition: 200ms;
     color: #ffa500;
@@ -43,8 +44,14 @@
     grid-area: thumb;
     width: 350px;
     height: 190px;
-    object-fit: cover;
     margin: 0.5rem auto 1rem;
+}
+
+.videoThumbnail img {
+    width: 350px;
+    height: 190px;
+    border-radius: 5px;
+    object-fit: cover;
 }
 
 .videoTitle {
@@ -75,15 +82,23 @@
     vertical-align: middle;
 }
 
-.videoAirDate svg ,.videoDuration svg {
+.videoAirDate svg,
+.videoDuration svg,
+.videoDurationWatched svg {
     height: 20px;
-    margin-right: 5px; 
+    margin-right: 5px;
+}
+
+.videoTopBar {
+    position: relative;
+    top: -195px;
+    left: 0;
+    width: 350px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .videoDuration {
-    position: relative;
-    top: -269px;
-    left: -355px;
     opacity: 0.75;
     grid-area: duration;
     /* margin: 0.5rem; */
@@ -98,6 +113,41 @@
     flex-direction: row;
     justify-content: space-around;
     vertical-align: middle;
+}
+
+.videoDurationWatched {
+    opacity: 0.75;
+    grid-area: duration;
+    /* margin: 0.5rem; */
+    padding: 5px 10px;
+    border-radius: 0 4px 0 25px;
+    background: #1a1a1a;
+    color: pink;
+    text-align: center;
+    width: fit-content;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    vertical-align: middle;
+}
+
+.videoDurationBarContainer {
+    width: 350px;
+    background: #3a3a3a;
+    position: relative;
+    opacity: 50%;
+    border-radius: 0 0 5px 5px;
+    top: -39px;
+    left: 0;
+    height: 5px;
+    overflow: hidden;
+}
+
+.videoDurationBar {
+    max-width: 350px;
+    background: #ffa500;
+    height: 5px;
 }
 
 .videoStats {

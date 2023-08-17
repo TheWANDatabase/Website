@@ -152,7 +152,6 @@ let { data, error } = useAsyncData(async () => {
                     } else {
                         tpcs[tpcs.length - 1].endpoint = topic.endpoint;
                         tpcs[tpcs.length - 1].children.push(topic)
-                        console.log(tpcs[tpcs.length - 1])
                     }
                 } else {
                     tpcs.push({
@@ -254,7 +253,6 @@ async function saveCastMembers() {
             return data.value.episode.cast.indexOf(elem) == pos;
         })
     }).eq('id', data.value.episode.id);
-    console.log(res);
     window.location.reload();
 }
 
@@ -324,26 +322,15 @@ export default {
                 <ul :class="style.groups">
                     <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
-                        <li :id="group.hash"
-                            :style="{ /*maxHeight: group.children.length > 0 ? (group.children.length * 115) + ((group.children.length - 1) * 20) + 82 + 'px' : '150px'*/ }"
-                            :class="[
-                                style.group,
-                                (
-                                    expanded[group.id] ||
-                                    (group.timestamp_raw <= time && group.endpoint >= time)
-                                ) ? style.groupOpen : undefined,
-                                (group.timestamp_raw <= time && group.endpoint >= time) ? style.activeGroup : undefined
-                            ]" @click="(e) => toggleState(group.hash, e.target)">
-                            <span style="display: grid; grid-template-columns: 20px auto;">
-                                <Icon style="height: 30px; width: 30px; margin: auto;" :id="group.hash + '-INNER'"
-                                    :name="expanded[group.hash] ? 'material-symbols:unfold-less' : 'material-symbols:unfold-more'"
-                                    color='#1DA1F2' />
-                                <h3 v-if="!showEditor" @click="(e) => seek(group.timestamp_raw)">{{ group.title }}
+                        <Accordion :show="(group.timestamp_raw <= time && group.endpoint-1 >= time)">
+                            <template #header>
+                                <h3 v-if="!showEditor">{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                                         color='#1DA1F2' />
                                 </h3>
                                 <input v-else id="group-title-box" :class="style.topicTitle" :value=group.title />
-                            </span>
+                                <button @click="(e) => seek(group.timestamp_raw)">Jump To Topic</button>
+                            </template>
                             <span v-if="showEditor" :class="style.topicButtons">
                                 <button :class="[style.topicButton, style.hoverEffects]" @click="save(group.id, true)">Save
                                     Changes</button>
@@ -353,56 +340,53 @@ export default {
                                     @click="removeGroup(group.hash)">Delete
                                     Group</button>
                             </span>
-                            <div :class="style.topics"
-                                :style="{ /* maxHeight: (group.children.length * 110) + ((group.children.length - 1) * 20) + 'px' */ }">
-                                <template v-for="topic in group.children">
-                                    <div @click="(e) => seek(topic.timestamp_raw)"
-                                        :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
-                                        :id="topic.id">
-                                        <p v-if="!showEditor" :class="style.topicTitle">{{ topic.title }} </p>
-                                        <input v-else id="title-box" :class="[style.topicTitle, style.hoverEffects]"
-                                            :value=topic.title />
-                                        <span :class="style.topicDetails">
-                                            <template v-if="!showEditor">
-                                                <p v-if="topic.contributors" :class="style.topicContributor">
-                                                    Contributor: {{
-                                                        topic.contributors.name }}
-                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
-                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
-                                                </p>
-                                                <p v-else :class="style.topicContributor">Unknown Contributor
-                                                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'"
-                                                        name="ri:verified-badge-fill" color='#1DA1F2' />
-                                                </p>
-                                            </template>
-                                            <span :class="style.topicButtons" v-else>
-                                                <button :class="[style.topicButton, style.hoverEffects]"
-                                                    @click="save(topic.id)">Save
-                                                    Changes</button>
-                                                <button :class="[style.topicButton, style.hoverEffects]"
-                                                    @click="removeTopicFromGroup(topic.id, group.hash)">Delete
-                                                    Topic</button>
-                                            </span>
-
-                                            <p v-if="!showEditor" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
-                                            <span v-else :class="style.timestampEditor">
-                                                <input id="timestamp-hh" type="number"
-                                                    :class="[style.topicTitle, style.hoverEffects]"
-                                                    :value="topic.timestamp.split(':')[0]" />
-                                                :
-                                                <input id="timestamp-mm" type="number"
-                                                    :class="[style.topicTitle, style.hoverEffects]"
-                                                    :value="topic.timestamp.split(':')[1]" />
-                                                :
-                                                <input id="timestamp-ss" type="number"
-                                                    :class="[style.topicTitle, style.hoverEffects]"
-                                                    :value="topic.timestamp.split(':')[2]" />
-                                            </span>
+                            <template v-for="topic in group.children">
+                                <div @click="(e) => seek(topic.timestamp_raw)"
+                                    :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
+                                    :id="topic.id">
+                                    <p v-if="!showEditor" :class="style.topicTitle">{{ topic.title }} </p>
+                                    <input v-else id="title-box" :class="[style.topicTitle, style.hoverEffects]"
+                                        :value=topic.title />
+                                    <span :class="style.topicDetails">
+                                        <template v-if="!showEditor">
+                                            <p v-if="topic.contributors" :class="style.topicContributor">
+                                                Contributor: {{
+                                                    topic.contributors.name }}
+                                                <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
+                                                    color='#1DA1F2' />
+                                            </p>
+                                            <p v-else :class="style.topicContributor">Unknown Contributor
+                                                <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
+                                                    color='#1DA1F2' />
+                                            </p>
+                                        </template>
+                                        <span :class="style.topicButtons" v-else>
+                                            <button :class="[style.topicButton, style.hoverEffects]"
+                                                @click="save(topic.id)">Save
+                                                Changes</button>
+                                            <button :class="[style.topicButton, style.hoverEffects]"
+                                                @click="removeTopicFromGroup(topic.id, group.hash)">Delete
+                                                Topic</button>
                                         </span>
-                                    </div>
-                                </template>
-                            </div>
-                        </li>
+
+                                        <p v-if="!showEditor" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                                        <span v-else :class="style.timestampEditor">
+                                            <input id="timestamp-hh" type="number"
+                                                :class="[style.topicTitle, style.hoverEffects]"
+                                                :value="topic.timestamp.split(':')[0]" />
+                                            :
+                                            <input id="timestamp-mm" type="number"
+                                                :class="[style.topicTitle, style.hoverEffects]"
+                                                :value="topic.timestamp.split(':')[1]" />
+                                            :
+                                            <input id="timestamp-ss" type="number"
+                                                :class="[style.topicTitle, style.hoverEffects]"
+                                                :value="topic.timestamp.split(':')[2]" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </template>
+                        </Accordion>
                     </template>
                     <template v-else>
                         <h3>Topics currently unavailable</h3>

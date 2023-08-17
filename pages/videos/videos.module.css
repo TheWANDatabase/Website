@@ -117,7 +117,7 @@
     border: 1px solid #3b3b3b;
     display: grid;
     height: 110px;
-    width: 33.25rem;
+    width: 31.25rem;
     grid-template-areas:
         "title title"
         ". timestamp";

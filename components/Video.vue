@@ -3,7 +3,6 @@ import style from "./Video.module.css";
 let props = defineProps([
     'id', 'ghost'
 ])
-let sb = useSupabaseClient();
 
 
 let data;
@@ -11,6 +10,7 @@ let data;
 if (props) {
     if (!props.ghost) {
         data = await (await fetch('/api/v1/videos/' + props.id)).json();
+        console.log(data.watchProgress)
     }
 }
 
@@ -52,18 +52,30 @@ if (props) {
     </template>
     <template v-else>
         <NuxtLink :class="style.video" :href="`/videos/${data.episode.id}`">
-            <img :class="style.videoThumbnail" :src="data.episode.thumbnail" />
+            <div :class="style.videoThumbnail">
+                <img :src="data.episode.thumbnail" />
+                <div :class="style.videoTopBar">
+                    <div :class="style.videoDuration">
+                        <Icon name="material-symbols:timer" /> {{ data.episode.duration_text }}
+                    </div>
+                    <div v-if="data.watchProgress" :class="style.videoDurationWatched">
+                        <Icon name="carbon:view-filled" /> {{ toTimestamp(data.watchProgress.viewed_seconds) }}
+                    </div>
+                </div>
+                <div v-if="data.watchProgress" :class="style.videoDurationBarContainer">
+                    <div v-if="data.watchProgress" :style="{
+                        width: ((data.watchProgress.viewed_seconds / data.episode.duration) * 350) + 'px'
+                    }" :class="style.videoDurationBar" />
+                </div>
+            </div>
             <h3 :class="style.videoTitle">
                 <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' /> {{
                     data.episode.title }}
                 <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color='#1DA1F2' />
             </h3>
-            <span :class="style.videoAirDate">
+            <div :class="style.videoAirDate">
                 <Icon name="mdi:calendar" /> {{ new Date(data.episode.aired).toLocaleDateString() }}
-            </span>
-            <span :class="style.videoDuration">
-                <Icon name="material-symbols:timer" /> {{ data.episode.duration_text }}
-            </span>
+            </div>
 
             <span :class="style.videoStats">
                 <span :class="style.tooltip">
