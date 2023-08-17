@@ -46,7 +46,7 @@ let itv = {
 
 useAsyncData(async () => {
     try {
-        if (Math.round(time.value) === Math.round(data.value.episode.duration)) {
+        if (Math.round(time.value) >= Math.round(data.value.episode.duration - 60)) {
             if (profile.value && watch.value) {
                 console.log(await sb.from('episode_progression').update({
                     viewed_seconds: Math.floor(data.value.episode.duration)
@@ -322,7 +322,7 @@ export default {
                 <ul :class="style.groups">
                     <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
-                        <Accordion :show="(group.timestamp_raw <= time && group.endpoint-1 >= time)">
+                        <Accordion :show="(group.timestamp_raw <= time && group.endpoint - 1 >= time)">
                             <template #header>
                                 <h3 v-if="!showEditor">{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
