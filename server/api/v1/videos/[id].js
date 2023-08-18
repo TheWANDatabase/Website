@@ -18,9 +18,25 @@ export default defineEventHandler(async (event) => {
                 return videoCache.get(id);
             }
         } else {
-            let episode = (await sb.from('episodes').select('*').eq('id', id).single()).data;
-            let cast = (await sb.from('cast').select('id').in('id', episode.cast)).data;
-            let topics = (await sb.from('topics').select('id').eq('episode', episode.id)).data;
+            let episode = (
+                await sb.from('episodes')
+                    .select('*')
+                    .eq('id', id).single()
+            ).data;
+
+            let cast = (
+                await sb.from('cast')
+                    .select('id')
+                    .in('id', episode.cast)
+            ).data;
+
+            let topics = (
+                await sb.from('topics')
+                    .select('id')
+                    .eq('episode', episode.id)
+                    .eq('accepted', true)
+            ).data;
+
             let watchProgress;
             if (u) watchProgress = (await sb.from('episode_progression').select('*').eq('viewer', u.id).eq('episode', id).maybeSingle()).data
 

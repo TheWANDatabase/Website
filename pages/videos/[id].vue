@@ -178,20 +178,36 @@ async function save(id) {
     console.log(e);
 }
 
+let showTopicEditor = ref(true);
+let topicEditor = {
+    time: {
+        hh: ref(0),
+        mm: ref(0),
+        ss: ref(0)
+    },
+    end: {
+        hh: ref(0),
+        mm: ref(0),
+        ss: ref(0)
+    },
+    type: ref('category'),
+    title: ref('')
+}
 function addGroup() {
-    data.value.topics.push({
-        id: v4(),
-        episode: data.value.episode.id,
-        section: false,
-        title: 'New Topic',
-        description: '',
-        url: '',
-        timestamp: '00:00:00',
-        timestamp_raw: 0,
-        last_modified: new Date(),
-        hash: hash(new Date().toISOString() + 'new_topic'),
-        children: []
-    })
+    showTopicEditor.value = true;
+    // data.value.topics.push({
+    //     id: v4(),
+    //     episode: data.value.episode.id,
+    //     section: false,
+    //     title: 'New Topic',
+    //     description: '',
+    //     url: '',
+    //     timestamp: '00:00:00',
+    //     timestamp_raw: 0,
+    //     last_modified: new Date(),
+    //     hash: hash(new Date().toISOString() + 'new_topic'),
+    //     children: []
+    // })
 }
 
 function addTopicToGroup(id) {
@@ -258,6 +274,7 @@ async function saveCastMembers() {
 
 function closeEditor() {
     showPersonSearch.value = false;
+    showTopicEditor.value = false;
 }
 
 function removeTopicFromGroup(id, group) {
@@ -321,14 +338,74 @@ export default {
                 <!-- Topic Section -->
                 <ul :class="style.groups">
                     <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">Add Group</button>
+                    <div :class="[style.topicEditor, showTopicEditor ? undefined : style.hidden]">
+                        <div :class="style.topicEditorInner">
+                            <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">Close</button>
+                            <div :class="style.editorHorizontal">
+                                <h1>Topic Editor</h1>
+                            </div>
+                            <h3>Topic Type</h3>
+                            <p>
+                                <strong>Container</strong>
+                                <br />
+                                Collapsible topic container, used to show just a general topic.
+                                <br />
+                                (eg: Topic 1 - xQc's Reaction Called Out)
+                                <br />
+                                <br />
+                                <strong>Topic</strong>
+                                <br />
+                                Used for more precise breakdowns of whats going on.
+                                <br />(eg: specific Merch Message question)
+                            </p>
+                            <select v-model="topicEditor.type.value" placeholder="Topic Title Text">
+                                <option value="category">Container</option>
+                                <option value="Topic">Topic</option>
+                            </select>
+                            <h3>Title</h3>
+                            <input v-model="topicEditor.title.value" placeholder="Topic Title Text" />
+                            <h3>Start Timestamp</h3>
+                            <p>
+                                At which point should the topic be highlighted in the player view?
+                            </p>
+                            <div :class="style.editorHorizontal">
+                                <input type="number" v-model="topicEditor.time.hh.value" placeholder="00" />
+                                <input type="number" v-model="topicEditor.time.mm.value" placeholder="00" />
+                                <input type="number" v-model="topicEditor.time.ss.value" placeholder="00" />
+                            </div>
+                            <h3>End Timestamp</h3>
+                            <p>
+                                Whe should the highlight be disabled. This is usually about 1 second before the start time
+                                of the next topic.
+                            </p>
+                            <div :class="style.editorHorizontal">
+                                <input type="number" v-model="topicEditor.end.hh.value" placeholder="00" />
+                                <input type="number" v-model="topicEditor.end.mm.value" placeholder="00" />
+                                <input type="number" v-model="topicEditor.end.ss.value" placeholder="00" />
+                            </div>
+                            <h4>Preview</h4>
+                            <div :class="[style.topic]">
+                                <p :class="style.topicTitle">{{ topicEditor.title.value.length > 0 ? topicEditor.title.value : 'Topic Title Text' }} </p>
+                                <span :class="style.topicDetails">
+                                    <p v-if="profile" :class="style.topicContributor">
+                                        Contributor: {{
+                                            profile.username }}
+                                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
+                                            color='#1DA1F2' />
+                                    </p>
+                                    <p :class="style.topicTimestamp">{{ topicEditor.time.hh }} :
+                                        {{ topicEditor.time.mm }} : {{ topicEditor.time.ss }}</p>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
                         <Accordion :show="(group.timestamp_raw <= time && group.endpoint - 1 >= time)">
                             <template #header>
-                                <h3 v-if="!showEditor">{{ group.title }}
+                                <h3>{{ group.title }}
                                     <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                                         color='#1DA1F2' />
                                 </h3>
-                                <input v-else id="group-title-box" :class="style.topicTitle" :value=group.title />
                                 <button @click="(e) => seek(group.timestamp_raw)">Jump To Topic</button>
                             </template>
                             <span v-if="showEditor" :class="style.topicButtons">
@@ -344,11 +421,9 @@ export default {
                                 <div @click="(e) => seek(topic.timestamp_raw)"
                                     :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
                                     :id="topic.id">
-                                    <p v-if="!showEditor" :class="style.topicTitle">{{ topic.title }} </p>
-                                    <input v-else id="title-box" :class="[style.topicTitle, style.hoverEffects]"
-                                        :value=topic.title />
+                                    <p :class="style.topicTitle">{{ topic.title }} </p>
                                     <span :class="style.topicDetails">
-                                        <template v-if="!showEditor">
+                                        <template>
                                             <p v-if="topic.contributors" :class="style.topicContributor">
                                                 Contributor: {{
                                                     topic.contributors.name }}
@@ -360,29 +435,7 @@ export default {
                                                     color='#1DA1F2' />
                                             </p>
                                         </template>
-                                        <span :class="style.topicButtons" v-else>
-                                            <button :class="[style.topicButton, style.hoverEffects]"
-                                                @click="save(topic.id)">Save
-                                                Changes</button>
-                                            <button :class="[style.topicButton, style.hoverEffects]"
-                                                @click="removeTopicFromGroup(topic.id, group.hash)">Delete
-                                                Topic</button>
-                                        </span>
-
-                                        <p v-if="!showEditor" :class="style.topicTimestamp">{{ topic.timestamp }}</p>
-                                        <span v-else :class="style.timestampEditor">
-                                            <input id="timestamp-hh" type="number"
-                                                :class="[style.topicTitle, style.hoverEffects]"
-                                                :value="topic.timestamp.split(':')[0]" />
-                                            :
-                                            <input id="timestamp-mm" type="number"
-                                                :class="[style.topicTitle, style.hoverEffects]"
-                                                :value="topic.timestamp.split(':')[1]" />
-                                            :
-                                            <input id="timestamp-ss" type="number"
-                                                :class="[style.topicTitle, style.hoverEffects]"
-                                                :value="topic.timestamp.split(':')[2]" />
-                                        </span>
+                                        <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
                                     </span>
                                 </div>
                             </template>

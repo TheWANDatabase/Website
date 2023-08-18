@@ -1,4 +1,4 @@
-<style scoped>
+<style>
 .accordion {
     margin: 0 0 20px;
     background-color: #3b3b3b;

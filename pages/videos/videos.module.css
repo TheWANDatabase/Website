@@ -253,7 +253,8 @@
     /* height: 10px; */
 }
 
-.personEditorSearch {
+.personEditorSearch,
+.topicEditor {
     z-index: 30;
     position: fixed;
     top: 3rem;
@@ -265,7 +266,8 @@
     transition: 200ms;
 }
 
-.personEditorInner {
+.personEditorInner,
+.topicEditorInner {
     background-color: #2b2b2b;
     margin: 0.5rem auto;
     padding: 0.5rem;
@@ -273,6 +275,8 @@
     width: 40rem;
     text-align: center;
 }
+
+
 
 .editorHorizontal {
     display: flex;
