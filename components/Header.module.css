@@ -178,3 +178,60 @@
     margin: -1.5rem auto 0;
     width: fit-content;
 }
+
+.miniLogo {
+    display: none;
+    opacity: 0;
+    width: 0;
+    transition: 500ms;
+}
+
+.wordmark {
+    display: block;
+    opacity: 1;
+    width: fit-content;
+    transition: 500ms;
+    animation: fadeIn 500ms linear;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media screen and (max-width: 800px) {
+
+    .miniLogo {
+        display: block;
+        opacity: 1;
+        width: fit-content;
+        transition: 500ms;
+        animation: fadeIn 500ms linear;
+    }
+
+    .wordmark {
+        display: none;
+        opacity: 0;
+        width: 0;
+        transition: 500ms;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .profilePill {
+        display: none;
+    }
+
+    .search {
+        display: none;
+    }
+
+    .logout {
+        margin: 0.5rem 0.5rem 0.5rem auto;
+    }
+}

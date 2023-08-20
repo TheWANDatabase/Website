@@ -79,12 +79,17 @@ function logout() {
 </script>
 <template>
     <div :class="style.header">
-        <h1 :class="style.brand">
+        <h1 :class="[style.brand, style.wordmark]">
             THE
             <span :class="style.grey1">W</span>
             <span :class="style.orange">A</span>
             <span :class="style.grey2">N</span>
             DB
+        </h1>
+        <h1 :class="[style.brand, style.miniLogo]">
+            <span :class="style.grey1">W</span>
+            <span :class="style.orange">A</span>
+            <span :class="style.grey2">N</span>
         </h1>
         <ul :class="style.navcontainer">
             <a :class="style.navlink" href="/">Video Index</a>

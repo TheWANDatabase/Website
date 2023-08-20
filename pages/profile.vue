@@ -38,7 +38,7 @@ function calcWatchTime(history) {
 }
 
 function calcCompletion(history) {
-    return (history.map(f => (Math.floor(f.viewed_seconds) / f.episode.duration) * 100).reduce((partialSum, a) => partialSum + a, 0) / history.length).toFixed(2);
+    return parseFloat((history.map(f => (Math.floor(f.viewed_seconds) / f.episode.duration) * 100).reduce((partialSum, a) => partialSum + a, 0) / history.length).toFixed(2));
 }
 
 useAsyncData(async () => {
@@ -96,14 +96,16 @@ function drawEpisodesStarted() {
         .attr("viewBox", [-100 / 2, -100 / 2, 100, 100])
         .attr("style", "max-width: 100%; height: auto;");
 
+    let started = calcStarted(data.value.history.data);
+
     let dta = [
         {
             name: 'started',
-            value: calcStarted(data.value.history.data)
+            value: started
         },
         {
             name: 'total',
-            value: data.value.videos.count
+            value: data.value.videos.count - started
         }
     ]
 
@@ -111,7 +113,7 @@ function drawEpisodesStarted() {
         .selectAll()
         .data(pie(dta))
         .join("path")
-        .attr("fill", d => d.name === 'started' ? '#ffa500' : '#444')
+        .attr("fill", d => d.data.name === 'started' ? '#ffa500' : '#444')
         .attr("d", arc)
         .append("title")
         .text(d => `${d.name}: ${d.value.toLocaleString()}`);
@@ -156,14 +158,16 @@ function drawEpisodesFinished() {
         .attr("viewBox", [-100 / 2, -100 / 2, 100, 100])
         .attr("style", "max-width: 100%; height: auto;");
 
+    let fin = calcFinished(data.value.history.data);
+
     let dta = [
         {
             name: 'started',
-            value: calcFinished(data.value.history.data)
+            value: fin
         },
         {
             name: 'total',
-            value: data.value.videos.count
+            value: data.value.videos.count - fin
         }
     ]
 
@@ -171,7 +175,7 @@ function drawEpisodesFinished() {
         .selectAll()
         .data(pie(dta))
         .join("path")
-        .attr("fill", d => d.name === 'started' ? '#ffa500' : '#444')
+        .attr("fill", d => d.data.name === 'started' ? '#ffa500' : '#444')
         .attr("d", arc)
         .append("title")
         .text(d => `${d.name}: ${d.value.toLocaleString()}`);
@@ -208,7 +212,64 @@ function drawavgWatchTime() {
 }
 
 function drawavgCompletion() {
-    document.getElementById('avgCompletionChartBox').innerHTML = `<h1>${toTimestamp(calcCompletion(data.value.history.data))}</h1>`;
+    const arc = d3
+        .arc()
+        .innerRadius(50 * 0.8)
+        .outerRadius(50);
+
+    const pie = d3.pie()
+        .padAngle(1 / 50)
+        .sort(null)
+        .value(d => d.value)
+
+    const svg = d3.create("svg")
+        .attr("width", 100)
+        .attr("height", 100)
+        .attr("viewBox", [-100 / 2, -100 / 2, 100, 100])
+        .attr("style", "max-width: 100%; height: auto;");
+    let comp = calcCompletion(data.value.history.data);
+    let dta = [
+        {
+            name: 'started',
+            value: comp
+        },
+        {
+            name: 'total',
+            value: 100 - comp
+        }
+    ]
+
+    svg.append("g")
+        .selectAll()
+        .data(pie(dta))
+        .join("path")
+        .attr("fill", d => d.data.name === 'started' ? '#ffa500' : '#444')
+        .attr("d", arc)
+        .append("title")
+        .text(d => `${d.name}: ${d.value.toLocaleString()}`);
+    svg.append("g")
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 12)
+        .attr("text-anchor", "middle")
+        .selectAll()
+        .data(pie(data))
+        .join("text")
+        .attr("transform", d => `translate(${arc.centroid(d)})`)
+        .call(text => text.append("tspan")
+            .attr("y", "-0.4em")
+            .attr("font-weight", "bold")
+            .text(d => d.data.name))
+        .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append("tspan")
+            .attr("x", 0)
+            .attr("y", "0.7em")
+            .attr("fill-opacity", 0.7)
+            .text(d => d.data.value.toLocaleString("en-US")));
+
+
+    document.getElementById('avgCompletionChartBox').innerHTML = '';
+    document.getElementById('avgCompletionChartBox').appendChild(svg.node());
+    document.getElementById('avgCompletionChartValue').innerHTML = `<span style="color:#ffa500;">${dta[0].value.toLocaleString()}%</span>`;
+    // document.getElementById('avgCompletionChartBox').innerHTML = `<h1>${calcCompletion(data.value.history.data)}%</h1>`;
 }
 
 function relocate(id) {

@@ -42,7 +42,7 @@
     grid-area: video;
     border-radius: 5px;
     overflow: hidden;
-    margin-left: 0.5rem; 
+    margin-left: 0.5rem;
 }
 
 .video iframe {
@@ -418,4 +418,117 @@
     color: #ffa500;
     border: 1px #ffa500 solid;
     transition: 1000ms;
+}
+
+.error {
+    margin: auto 0;
+    width: 100vw;
+    height: auto;
+    opacity: 0;
+    transition: 200ms;
+    color: white;
+}
+
+.error h3 {
+    margin: 0.5rem auto;
+    width: fit-content;
+    color: red;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-shadow: black 1px 1px 2px;
+}
+
+.error p {
+    margin: 0.5rem auto;
+    width: fit-content;
+}
+
+
+@media screen and (max-width: 1700px) {
+    .viewport {
+        grid-template-columns: 40rem auto;
+        grid-template-areas:
+            "title title"
+            "video video"
+            "groups cast";
+        margin-right: 0.5rem;
+    }
+
+    .video {
+        height: auto;
+        width: 80vw;
+        aspect-ratio: 16/9;
+        margin: auto;
+    }
+
+    .groups {
+        margin: 0.5rem;
+    }
+
+    .cast {
+        margin-right: 0.5rem;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 48% 48%;
+        align-content: first baseline;
+    }
+
+    .cast .castMember {
+        margin: 0.5rem;
+        width: 100%;
+
+    }
+}
+
+@media screen and (max-width: 1450px) {
+    .cast {
+        grid-template-columns: 100%;
+    }
+}
+
+@media screen and (max-width: 1150px) {
+    .viewport {
+        grid-template-columns: auto;
+        grid-template-areas:
+            "title"
+            "video"
+            "groups"
+            "cast";
+        margin-right: 0.5rem;
+    }
+
+    .groups {
+        margin: 0.5rem auto;
+    }
+
+
+    .cast {
+        margin-right: 0.5rem;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 48% 48%;
+        align-content: first baseline;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .cast {
+        grid-template-columns: 100%;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .container {
+        opacity: 0;
+        max-height: 0;
+        height: 0;
+        min-height: 0;
+        transition: 200ms;
+    }
+
+    .error {
+        opacity: 1;
+        transition: 200ms;
+    }
 }

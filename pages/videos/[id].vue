@@ -579,6 +579,10 @@ export default {
     <template v-else>
         Error {{ error }}
     </template>
+    <div :class="style.error">
+        <h3>This device is too small for this page to display correctly.</h3>
+        <p>Please try viewing on a bigger device.</p>
+    </div>
 </template>
 
 
