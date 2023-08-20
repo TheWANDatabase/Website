@@ -134,9 +134,8 @@
 
 .videoDurationBarContainer {
     width: 350px;
-    background: #3a3a3a;
+    background: #3a3a3a88;
     position: relative;
-    opacity: 50%;
     border-radius: 0 0 5px 5px;
     top: -39px;
     left: 0;

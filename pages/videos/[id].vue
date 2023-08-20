@@ -3,10 +3,8 @@ import { v4 } from 'uuid';
 import style from './videos.module.css';
 import Youtube from 'vue3-youtube';
 
-const player = ref(null);
 const profile = useState('uprofile', () => undefined);
 const showEditor = ref(false);
-const playerStatus = ref(0);
 definePageMeta({
     layout: "viewer"
 });
@@ -46,37 +44,39 @@ let itv = {
 
 useAsyncData(async () => {
     try {
-        if (Math.round(time.value) >= Math.round(data.value.episode.duration - 60)) {
-            if (profile.value && watch.value) {
-                console.log(await sb.from('episode_progression').update({
-                    viewed_seconds: Math.floor(data.value.episode.duration)
-                }).eq('id', watch.value.id));
-            }
-        } else if (Math.floor(time.value) % 5 !== 0 || playerStatus.value === 0) {
-            return;
-        } else {
-            if (profile.value && watch.value) {
-                console.log(await sb.from('episode_progression').update({
-                    viewed_seconds: Math.floor(time.value)
-                }).eq('id', watch.value.id));
-            } else if (profile.value) {
-                console.log('Selecting')
-                let x = await sb.from('episode_progression').select('*')
-                    .eq('viewer', profile.value.id)
-                    .eq('episode', id).maybeSingle();
-                if (x.data) {
-                    watch.value = x.data;
-                    player.value.seekTo(watch.value.viewed_seconds)
-                } else {
-                    let a = await sb.from('episode_progression').insert({
-                        viewer: profile.value.id,
-                        episode: id,
-                        viewed_seconds: Math.floor(time.value)
-                    }).select();
-                    watch.value = a.data[0];
+        if (data) {
+            if (Math.round(time.value) >= Math.round(data.value.episode.duration - 60)) {
+                if (profile.value && watch.value) {
+                    console.log(await sb.from('episode_progression').update({
+                        viewed_seconds: Math.floor(data.value.episode.duration)
+                    }).eq('id', watch.value.id));
                 }
+            } else if (Math.floor(time.value) % 5 !== 0 || !player) {
+                return;
             } else {
-                console.log("User is logged in as a guest, playback analytics are disabled.");
+                if (profile.value && watch.value) {
+                    console.log(await sb.from('episode_progression').update({
+                        viewed_seconds: Math.floor(time.value)
+                    }).eq('id', watch.value.id));
+                } else if (profile.value) {
+                    console.log('Selecting')
+                    let x = await sb.from('episode_progression').select('*')
+                        .eq('viewer', profile.value.id)
+                        .eq('episode', id).maybeSingle();
+                    if (x.data) {
+                        watch.value = x.data;
+                        player.seekTo(watch.value.viewed_seconds)
+                    } else {
+                        let a = await sb.from('episode_progression').insert({
+                            viewer: profile.value.id,
+                            episode: id,
+                            viewed_seconds: Math.floor(time.value)
+                        }).select();
+                        watch.value = a.data[0];
+                    }
+                } else {
+                    console.log("User is logged in as a guest, playback analytics are disabled.");
+                }
             }
         }
     } catch (e) {
@@ -84,19 +84,20 @@ useAsyncData(async () => {
     }
 }, {
     server: false,
-    watch: [time, playerStatus]
+    watch: [time]
 })
 
-function onPlayerReady() {
-    playerStatus.value = 1
-}
+
 
 onMounted(() => {
+
+
+
     itv.player = setInterval(() => {
-        if (playerStatus.value === 1) {
+        if (player) {
             try {
-                time.value = player.value.getCurrentTime()
-                time_human.value = toTimestamp(player.value.getCurrentTime());
+                time.value = player.getCurrentTime()
+                time_human.value = toTimestamp(player.getCurrentTime());
                 time_percentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2);
             } catch (e) {
                 console.warn('Failed to fetch playback timestamp', e)
@@ -115,7 +116,7 @@ onUnmounted(() => {
     if (itv.viewport) clearInterval(itv.viewport);
 })
 
-
+let topicEditorList = ref([]);
 let { data, error } = useAsyncData(async () => {
     let { data, error } = await sb.from('episodes').select('*').eq('id', id).single();
     if (data) {
@@ -164,6 +165,7 @@ let { data, error } = useAsyncData(async () => {
             }
         }
         episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
+        topicEditorList.value = tpcs;
         return {
             episode, cast, topics: tpcs
         }
@@ -178,7 +180,7 @@ async function save(id) {
     console.log(e);
 }
 
-let showTopicEditor = ref(true);
+let showTopicEditor = ref(false);
 let topicEditor = {
     time: {
         hh: ref(0),
@@ -191,7 +193,8 @@ let topicEditor = {
         ss: ref(0)
     },
     type: ref('category'),
-    title: ref('')
+    title: ref(''),
+    parent: ref(null)
 }
 function addGroup() {
     showTopicEditor.value = true;
@@ -248,8 +251,13 @@ let castSearchResults = useAsyncData(async () => {
 })
 
 function seek(timestamp) {
-    if (player.value) {
-        player.value.seekTo(timestamp);
+    console.log(player)
+    try {
+        if (player) {
+            player.seekTo(timestamp);
+        }
+    } catch (e) {
+        console.log(e);
     }
 }
 
@@ -299,6 +307,38 @@ function toggleState(id, target) {
         expanded.value[target.id] = !c;
     }
 }
+
+function processTopicChanges() {
+    let tpc = topicEditor;
+    if (tpc.type.value === 'category') {
+        console.log(tpc, data.value.topics[0]);
+        let start = ((tpc.time.hh.value * 60 * 60) + (tpc.time.mm.value * 60) + tpc.time.ss.value);
+        let end = ((tpc.end.hh.value * 60 * 60) + (tpc.end.mm.value * 60) + tpc.end.ss.value)
+
+        topicEditorList.value.push({
+            id: v4(),
+            accepted: false,
+            title: tpc.title.value,
+            timestamp_raw: start,
+            timestamp: toTimestamp(start),
+            end: end,
+            section: true,
+            episode: id
+        })
+    }
+}
+
+useHead({
+    script: [
+        {
+            src: 'https://www.youtube.com/iframe_api'
+        },
+        {
+            src: '/scripts/player.js'
+        }
+    ]
+})
+
 </script>
 <script>
 export default {
@@ -330,9 +370,12 @@ export default {
                 </div>
 
                 <!-- Player Section -->
-                <div id="videoplayerviewportsector" :class="style.video">
-                    <Youtube @ready="onPlayerReady()" width="100%" height="700"
-                        :src="`https://www.youtube.com/embed/${data.episode.id}`" ref="player" />
+                <div :class="style.video">
+                    <iframe id="videoplayerviewportsector"
+                        src="https://www.youtube.com/embed/JjHCiXQqirg?enablejsapi=1" title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen />
                 </div>
 
                 <!-- Topic Section -->
@@ -360,7 +403,7 @@ export default {
                             </p>
                             <select v-model="topicEditor.type.value" placeholder="Topic Title Text">
                                 <option value="category">Container</option>
-                                <option value="Topic">Topic</option>
+                                <option value="topic">Topic</option>
                             </select>
                             <h3>Title</h3>
                             <input v-model="topicEditor.title.value" placeholder="Topic Title Text" />
@@ -375,7 +418,7 @@ export default {
                             </div>
                             <h3>End Timestamp</h3>
                             <p>
-                                Whe should the highlight be disabled. This is usually about 1 second before the start time
+                                When should the highlight be disabled. This is usually about 1 second before the start time
                                 of the next topic.
                             </p>
                             <div :class="style.editorHorizontal">
@@ -383,9 +426,28 @@ export default {
                                 <input type="number" v-model="topicEditor.end.mm.value" placeholder="00" />
                                 <input type="number" v-model="topicEditor.end.ss.value" placeholder="00" />
                             </div>
+                            <template v-if="topicEditor.type.value === 'topic'">
+                                <h3>Parent Container</h3>
+                                <p>
+                                    Which primary topic this subtopic should be stored within (only works on 'Topic'
+                                    entries,
+                                    and not 'Container' entries)
+                                </p>
+                                <select v-model="topicEditor.parent.value">
+                                    <option v-for="topic in topicEditorList" :value="topic.id">{{ topic.title }}</option>
+                                </select>
+                            </template>
                             <h4>Preview</h4>
-                            <div :class="[style.topic]">
-                                <p :class="style.topicTitle">{{ topicEditor.title.value.length > 0 ? topicEditor.title.value : 'Topic Title Text' }} </p>
+                            <Accordion v-if="topicEditor.type.value === 'category'" :show="false">
+                                <template #header>
+                                    <h3>{{ topicEditor.title.value }} </h3>
+                                    <button>Jump To Topic</button>
+                                </template>
+                                <h4>No sub-topics available</h4>
+                            </Accordion>
+                            <div v-else :class="[style.topic]">
+                                <p :class="style.topicTitle">{{ topicEditor.title.value.length > 0 ? topicEditor.title.value
+                                    : 'Topic Title Text' }} </p>
                                 <span :class="style.topicDetails">
                                     <p v-if="profile" :class="style.topicContributor">
                                         Contributor: {{
@@ -397,6 +459,7 @@ export default {
                                         {{ topicEditor.time.mm }} : {{ topicEditor.time.ss }}</p>
                                 </span>
                             </div>
+                            <button @click="processTopicChanges()">Edit Topic</button>
                         </div>
                     </div>
                     <template v-if="data.topics.length > 0" v-for="group in data.topics">
