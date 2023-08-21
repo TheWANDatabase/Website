@@ -5,15 +5,39 @@ let sb = useSupabaseClient();
 const user = useSupabaseUser();
 
 const profile = useState('uprofile', () => undefined);
+const history = useState('history', () => {
+    new Map();
+});
+
 
 useAsyncData(async () => {
     if (user.value) {
-        let { data } = await sb.from('profiles').select('*').eq('id', user.value.id).single();
+        let { data } = await (await fetch('/api/v1/profiles', {
+            method: 'POST',
+            body: JSON.stringify({
+                id: user.value.id
+            })
+        })).json()
         if (data === null) {
 
             sb.auth.signOut();
         } else {
             profile.value = data;
+
+            if (!history.value) history.value = new Map();
+
+            let h = await (await fetch('/api/v1/history', {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: user.value.id
+                })
+            })).json();
+
+            if (h.data) {
+                for (let i = 0; i < h.data.length; i++) {
+                    history.value.set(h.data[i].episode, h.data[i]);
+                }
+            }
         }
     } else {
         profile.value = undefined;
@@ -30,11 +54,14 @@ async function search(d) {
     let term = d.target.value;
     if (term.length > 1) {
 
-        let res = (await sb.rpc('search', {
-            phrase: term,
-            lmt: 5,
-            ofst: 0
-        })).data;
+        let res = await (await fetch('/api/v1/search', {
+            method: 'POST',
+            body: JSON.stringify({
+                phrase: term,
+                lmt: 5,
+                ofst: 0
+            })
+        })).json()
 
         if (res.length === 0) {
             results.value = [{

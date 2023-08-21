@@ -4,19 +4,23 @@ let props = defineProps([
     'id', 'ghost'
 ])
 
+let history = useState('history');
 
 let data;
 
 if (props) {
     if (!props.ghost) {
         data = await (await fetch('/api/v1/videos/' + props.id)).json();
-        console.log(data.watchProgress)
+        data.watchProgress = history.value.get(props.id)
     }
 }
 
 </script>
 
 <template>
+    <template v-if="!style">
+
+    </template>
     <template v-if="!props">
         <div :class="style.ghostVideo">
             <img :class="style.ghostVideoThumbnail" />

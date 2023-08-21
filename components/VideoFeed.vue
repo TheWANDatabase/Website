@@ -6,9 +6,11 @@ let sb = useSupabaseClient();
 let fd = ref([])
 let fdm = ref(new Map())
 
-let { data } = useAsyncData(async () => {
-    let cast = (await sb.from('cast').select('id, name, outlet').order('id')).data;
 
+let { data } = useAsyncData(async () => {
+    let cast = (await (await fetch('/api/v1/cast')).json()).data;
+
+    
     return cast;
 })
 let filters = ref({
@@ -49,46 +51,18 @@ async function filter() {
 async function infinite() {
     try {
 
-        let query = sb.from('episodes')
-            .select('*')
-            .not('aired', 'is', 'null')
-            .range(offset, offset + 19)
-            .gte('aired', filters.value.startDate.toISOString())
-            .lte('aired', filters.value.endDate.toISOString())
+        let feed = await (await fetch('/api/v1/episodes', {
+            method: 'POST',
+            body: JSON.stringify({
+                filters: filters.value,
+                offset,
+                limit: 20
+            })
+        })).json();
+        console.log('Fetched feed update in', feed.time, 'ms');
 
-        switch (filters.value.order) {
-            case 'release':
-                query.order('aired', { ascending: true });
-                break;
-            case 'release-desc':
-                query.order('aired', { ascending: false });
-                break;
-            case 'title':
-                query.order('title', { ascending: true });
-                break;
-            case 'title-desc':
-                query.order('title', { ascending: false });
-                break;
-            case 'topics':
-                query.order('topic_count', { ascending: true });
-                break;
-            case 'topics-desc':
-                query.order('topic_count', { ascending: false });
-                break;
-            case 'duration':
-                query.order('duration', { ascending: true });
-                break;
-            case 'duration-desc':
-                query.order('duration', { ascending: false });
-                break;
-        }
-
-        if (filters.value.members.length > 0) {
-            query.filter('cast', 'ov', `{"${filters.value.members.join('","')}"}`);
-        }
-
-        let feed = (await query).data.filter(({ id }) => !fdm.value.has(id));
-        fd.value = fd.value.concat(feed);
+        feed.data.filter(({ id }) => !fdm.value.has(id));
+        fd.value = fd.value.concat(feed.data);
         offset += 20;
     } catch (e) {
         console.error(e);

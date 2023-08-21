@@ -1,5 +1,7 @@
 .ghostVideo,
 .video {
+    position: relative;
+    z-index: 1;
     --background: linear-gradient(to right, #2a2a2a 45%, #3b3b3b 50%, #2a2a2a 55%);
     --background-size: 300%;
     --background-position: 0;
@@ -29,12 +31,28 @@
     border: 1px #ffa500 solid;
 }
 
+@keyframes fadeRight {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 @keyframes fadein {
     0% {
+        z-index: 0;
+        position: relative;
+        left: -100px;
         opacity: 0;
     }
 
     100% {
+        z-index: 0;
+        position: relative;
+        left: 0;
         opacity: 1;
     }
 }
@@ -45,6 +63,7 @@
     width: 350px;
     height: 190px;
     margin: 0.5rem auto 1rem;
+    animation: fadeRight 500ms ease-in-out;
 }
 
 .videoThumbnail img {
@@ -52,6 +71,7 @@
     height: 190px;
     border-radius: 5px;
     object-fit: cover;
+    animation: fadeRight 500ms ease-in-out;
 }
 
 .videoTitle {

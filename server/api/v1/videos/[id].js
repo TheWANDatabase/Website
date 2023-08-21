@@ -1,22 +1,12 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import NodeCache from "node-cache";
-const videoCache = new NodeCache({
-    stdTTL: 300
-});
+import { videoCache } from '~/utils/cache';
 
 export default defineEventHandler(async (event) => {
     let sb = await serverSupabaseClient(event);
-    let u = await serverSupabaseUser(event);
     let id = getRouterParam(event, 'id');
     if (id) {
         if (videoCache.has(id)) {
-            if (u) {
-                let c = videoCache.get(id);
-                if (u) c.watchProgress = (await sb.from('episode_progression').select('*').eq('viewer', u.id).eq('episode', id).maybeSingle()).data
-                return c;
-            } else {
-                return videoCache.get(id);
-            }
+            return videoCache.get(id);
         } else {
             let episode = (
                 await sb.from('episodes')
@@ -37,10 +27,6 @@ export default defineEventHandler(async (event) => {
                     .eq('accepted', true)
             ).data;
 
-            let watchProgress;
-            if (u) watchProgress = (await sb.from('episode_progression').select('*').eq('viewer', u.id).eq('episode', id).maybeSingle()).data
-
-
             episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
             episode.title = episode.title.split('- WAN Show')[0];
             videoCache.set(id, {
@@ -52,8 +38,7 @@ export default defineEventHandler(async (event) => {
             return {
                 episode,
                 cast,
-                topics,
-                watchProgress
+                topics
             }
         }
     }
