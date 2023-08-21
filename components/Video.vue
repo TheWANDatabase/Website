@@ -11,7 +11,9 @@ let data;
 if (props) {
     if (!props.ghost) {
         data = await (await fetch('/api/v1/videos/' + props.id)).json();
-        data.watchProgress = history.value.get(props.id)
+        if (history.value) {
+            data.watchProgress = history.value.get(props.id)
+        }
     }
 }
 
