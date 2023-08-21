@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
             }
         } else {
             let { data } = await sb.from('episode_progression').select('*').eq('viewer', q.id);
-            console.log(data);
+
             historyCache.set(q.id, data);
             return {
                 data: data,
@@ -22,7 +22,6 @@ export default defineEventHandler(async (event) => {
             }
         }
     } catch (e) {
-        console.log(e);
         return {
             error: e,
             time: new Date() - t

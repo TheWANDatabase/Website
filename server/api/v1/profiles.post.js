@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
             }
         }
     } catch (e) {
-        console.log(e);
         return {
             error: e,
             time: new Date() - t

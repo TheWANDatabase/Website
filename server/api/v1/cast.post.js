@@ -6,18 +6,14 @@ export default defineEventHandler(async (event) => {
     let sb = await serverSupabaseClient(event);
 
     try {
-        let { filters, limit, offset } = await readBody(event);
-        let batch = `${JSON.stringify(filters)}-${limit}-${offset}`;
 
-
-
-        if (videoCache.has(batch)) {
+        if (castCache.has('cast')) {
             return {
-                data: videoCache.get(batch),
+                data: castCache.get('cast'),
                 time: new Date() - t
             }
         } else {
-            sb.from('cast').select('id, name, outlet').order('id')
+            let feed = (await sb.from('cast').select('id, name, outlet').order('id')).data
             castCache.set('cast', feed);
             return {
                 data: feed,
@@ -25,7 +21,6 @@ export default defineEventHandler(async (event) => {
             }
         }
     } catch (e) {
-        console.log(e);
         return {
             error: e,
             time: new Date() - t

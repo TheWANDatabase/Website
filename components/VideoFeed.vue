@@ -8,11 +8,15 @@ let fdm = ref(new Map())
 
 
 let { data } = useAsyncData(async () => {
-    let cast = (await (await fetch('/api/v1/cast')).json()).data;
 
-    
-    return cast;
-})
+    let cast = await (await fetch('/api/v1/cast', {
+        method: 'POST'
+    })).json();
+
+    console.log(cast);
+
+    return cast.data;
+}, { watch: [fd] })
 let filters = ref({
     order: 'release-desc',
     startDate: new Date('2012-10-19T00:00:00.000Z'),
@@ -59,7 +63,6 @@ async function infinite() {
                 limit: 20
             })
         })).json();
-        console.log('Fetched feed update in', feed.time, 'ms');
 
         feed.data.filter(({ id }) => !fdm.value.has(id));
         fd.value = fd.value.concat(feed.data);
