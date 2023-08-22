@@ -15,5 +15,10 @@ export default defineNuxtConfig({
         '/videos/*'
       ]
     }
+  },
+  runtimeConfig: {
+    public: {
+      domain: process.env.DOMAIN
+    }
   }
 })

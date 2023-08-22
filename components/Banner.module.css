@@ -1,20 +1,24 @@
 .banner {
-    display: none;
-    z-index: 13;
     width: 100vw;
     height: 2rem;
     margin: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #4a4a4a;
+    background-color: #2a2a2a;
     color: orange;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid black;
 }
 
 .banner p {
     margin: auto auto;
-    width: fit-content;
+    width: 100vw;
+    text-align: center;
     line-height: 2rem;
+    height: 2rem;
     vertical-align: middle;
     font-weight: bold;
+}
+
+.banner svg {
+    margin: auto 1.5rem auto auto;
 }
