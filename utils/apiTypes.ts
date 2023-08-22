@@ -5,10 +5,9 @@
  * a build to the remote. Thank you - Altrius.
  */
 
-
 /**
  * @name StandardResponse
- * @description The default response layout used by every API Endpoint, 
+ * @description The default response layout used by every API Endpoint,
  * and then modified to fit their data layouts
  */
 export interface StandardResponse<T> {
@@ -17,19 +16,16 @@ export interface StandardResponse<T> {
     time: number
 }
 
-
-
-
 /**
  * @interface
  * @name StandardResponse
- * @description The default response layout used by every API Endpoint, 
+ * @description The default response layout used by every API Endpoint,
  * and then modified to fit their data layouts
  */
 export interface HistoryRequest {
     /**
      * @name id
-     * @description a User ID (in UUIDv4 formatting), 
+     * @description a User ID (in UUIDv4 formatting),
      * which can be referenced to the user's profile
      */
     id: string

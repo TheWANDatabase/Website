@@ -1,13 +1,9 @@
-export function toTimestamp(ts: number = 0) {
-    let hours = ~~(ts / 3600);
-    let minutes = ~~(ts % 3600 / 60);
-    let seconds = ~~(ts % 60);
-
-    return `${paddy(hours, 2)}:${paddy(minutes, 2)}:${paddy(seconds, 2)}`;
+export function toTimestamp (ts: number = 0) {
+  return `${paddy(~~(ts / 3600), 2)}:${paddy(~~(ts % 3600 / 60), 2)}:${paddy(~~(ts % 60), 2)}`
 }
 
-export function paddy(num: number, padlen: number = 0, padchar: string = '0') {
-    let pad_char = typeof padchar !== 'undefined' ? padchar : '0';
-    let pad = new Array(1 + padlen).join(pad_char);
-    return (pad + num).slice(-pad.length);
+export function paddy (num: number, padlen: number = 0, padchar: string = '0') {
+  const padChar = typeof padchar !== 'undefined' ? padchar : '0'
+  const pad = new Array(1 + padlen).join(padChar)
+  return (pad + num).slice(-pad.length)
 }
