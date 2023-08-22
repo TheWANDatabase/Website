@@ -13,8 +13,6 @@ let { data } = useAsyncData(async () => {
         method: 'POST'
     })).json();
 
-    console.log(cast);
-
     return cast.data;
 }, { watch: [fd] })
 let filters = ref({
