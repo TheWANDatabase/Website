@@ -14,24 +14,26 @@ const signInWithOtp = async () => {
 }
 
 const signInWithGoogle = async () => {
-    console.log(window.location.hostname);
-    // const { error } = await supabase.auth.signInWithOAuth({
-    //     provider: 'google',
-    //     options: {
-    //         //     queryParams: {
-    //         //         access_type: 'offline',
-    //         //         prompt: 'consent',
-    //         //     },
-    //         redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
-    //     }
-    // })
-    // if (error) console.log(error)
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            //     queryParams: {
+            //         access_type: 'offline',
+            //         prompt: 'consent',
+            //     },
+            redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
+        }
+    })
+    if (error) console.log(error)
 
 }
 
 const signInWithDiscord = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'discord'
+        provider: 'discord',
+        options: {
+            redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
+        }
     })
     if (error) console.log(error)
 
