@@ -1,8 +1,39 @@
-<script setup>
+<script setup lang="ts">
 import style from "./Banner.module.css";
+
+
+
+export interface Props {
+    pid?: string,
+    bg?: string,
+    fg?: string,
+    fixed?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    fixed: false
+});
+
+console.log(props);
+
+let show = ref(true);
+
+if (props.pid) {
+    show = useState(`show-banner-${props.pid}`, () => true);
+}
+
+function close() {
+    show.value = false;
+}
+
 </script>
+
+
+
 <template>
-    <div :class="style.banner">
-        <p>This website is currently in early access. It is unfinished and many design elements may change in upcoming updates.</p>
+    <div :class="[style.banner, !show ? style.hide : undefined]"
+        :style="{ backgroundColor: props.bg || '#2a2a2a', color: props.fg || 'orange' }">
+        <slot />
+        <Icon v-if="!props.fixed" name="mdi:close-thick" @click="close()" />
     </div>
 </template>
