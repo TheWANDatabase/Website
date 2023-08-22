@@ -1,13 +1,21 @@
 <script setup>
-let r = useRoute();
+const r = useRoute()
 
+// const { data } = await useAsyncData(() => {
 
-let { data } = await useAsyncData(() => {
-
-})
-
+// })
 
 </script>
+<template>
+  <div class="sidenav">
+    <h1>My Profile</h1>
+    <hr>
+    <a href="/profile" :class="[r.path === '/profile' ? 'active' : undefined]">Profile</a>
+    <a href="/profile/settings" :class="[r.path === '/profile/settings' ? 'active' : undefined]">Settings</a>
+    <a href="/profile/data" :class="[r.path === '/profile/data' ? 'active' : undefined]">My Data</a>
+  </div>
+</template>
+
 <style scoped>
 .sidenav {
     grid-area: sidenav;
@@ -54,13 +62,3 @@ let { data } = await useAsyncData(() => {
     background: #3d3c3d;
 }
 </style>
-
-<template>
-    <div class="sidenav">
-        <h1>My Profile</h1>
-        <hr />
-        <a href="/profile" :class="[r.path === '/profile' ? 'active' : undefined]">Profile</a>
-        <a href="/profile/settings" :class="[r.path === '/profile/settings' ? 'active' : undefined]">Settings</a>
-        <a href="/profile/data" :class="[r.path === '/profile/data' ? 'active' : undefined]">My Data</a>
-    </div>
-</template>

@@ -1,46 +1,65 @@
 <script setup>
 const p = defineProps([
-    'current',
-    'placeholder',
-    'editor',
-    'vname'
-]);
-const editing = ref(false);
-const val = ref(p.editor.value || p.current);
-const v = ref(val.value);
+  'current',
+  'placeholder',
+  'editor',
+  'vname'
+])
+const editing = ref(false)
+const val = ref(p.editor.value || p.current)
+const v = ref(val.value)
 const emit = defineEmits([
-    'modified',
-    'saved'
+  'modified',
+  'saved'
 ])
 
 useAsyncData(() => {
-    if (v.value !== val.value) {
-        emit('modified', val.value, v.value)
-        v.value = val.value;
-    }
+  if (v.value !== val.value) {
+    emit('modified', val.value, v.value)
+    v.value = val.value
+  }
 }, {
-    watch: [val]
+  watch: [val]
 })
 
-function tstate() {
-    editing.value = !editing.value;
+function tstate () {
+  editing.value = !editing.value
 }
 
-function save() {
-    tstate();
-    emit('saved', val.value)
+function save () {
+  tstate()
+  emit('saved', val.value)
 }
 
-function processKey(e) {
-    if (e.code === 'Enter') {
-        var tmp = document.createElement("input");
-        e.target.parentElement.appendChild(tmp);
-        tmp.focus();
-        e.target.parentElement.removeChild(tmp);
-        save();
-    }
+function processKey (e) {
+  if (e.code === 'Enter') {
+    const tmp = document.createElement('input')
+    e.target.parentElement.appendChild(tmp)
+    tmp.focus()
+    e.target.parentElement.removeChild(tmp)
+    save()
+  }
 }
 </script>
+<template>
+  <div class="textEditSetting">
+    <div v-if="!editing" class="textEditBox">
+      <h4>{{ p.vname }}</h4>
+      <span>
+        <Icon name="tabler:edit" @click="tstate()" />
+      </span>
+      <p>{{ p.current ? p.current : p.placeholder }}</p>
+    </div>
+    <div v-else class="textEditBox active">
+      <h4>{{ p.vname }}</h4>
+      <span>
+        <Icon name="mdi:cancel" @click="tstate()" />
+        <Icon name="material-symbols:save" @click="save()" />
+      </span>
+      <input v-model="val" :placeholder="p.placeholder" @keyup="processKey">
+    </div>
+  </div>
+</template>
 <style scoped>
 .textEditSetting {
     margin: auto 0.5rem 0 -0.25rem;
@@ -125,22 +144,3 @@ function processKey(e) {
     }
 }
 </style>
-<template>
-    <div class="textEditSetting">
-        <div v-if="!editing" class="textEditBox">
-            <h4>{{ p.vname }}</h4>
-            <span>
-                <Icon @click="tstate()" name="tabler:edit" />
-            </span>
-            <p>{{ p.current ? p.current : p.placeholder }}</p>
-        </div>
-        <div v-else class="textEditBox active">
-            <h4>{{ p.vname }}</h4>
-            <span>
-                <Icon @click="tstate()" name="mdi:cancel" />
-                <Icon @click="save()" name="material-symbols:save" />
-            </span>
-            <input v-model="val" @keyup="processKey" :placeholder="p.placeholder" />
-        </div>
-    </div>
-</template>

@@ -1,6 +1,5 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import { profileCache } from '~/utils/cache';
-
+import { serverSupabaseClient } from '#supabase/server'
+import { profileCache } from '~/utils/cache'
 
 /**
  * Method | PATCH
@@ -11,29 +10,23 @@ import { profileCache } from '~/utils/cache';
  */
 
 export default defineEventHandler(async (event) => {
-    let t = new Date();
-    let sb = await serverSupabaseClient(event);
+  const t = new Date()
+  const sb = await serverSupabaseClient(event)
 
-    try {
-        let q = await readBody(event);
+  try {
+    const q = await readBody(event)
 
-        let { data } = await sb.from('profiles').select('*').eq('id', q.id).single();
+    const { data } = await sb.from('profiles').select('*').eq('id', q.id).single()
 
-        profileCache.set(q.id, data);
-        return {
-            data: data,
-            time: new Date() - t
-        }
-    } catch (e) {
-        return {
-            error: e,
-            time: new Date() - t
-        }
-    }
-
+    profileCache.set(q.id, data)
     return {
-        error: 'undefined',
-        time: new Date() - t
+      data,
+      time: new Date() - t
     }
+  } catch (e) {
+    return {
+      error: e,
+      time: new Date() - t
+    }
+  }
 })
-

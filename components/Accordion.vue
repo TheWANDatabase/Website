@@ -1,3 +1,58 @@
+<script setup>
+const props = defineProps({
+  show: Boolean
+})
+const showAccordion = ref(false)
+
+function toggle () {
+  showAccordion.value = !showAccordion.value
+}
+
+useAsyncData(() => {
+  showAccordion.value = props.show
+}, {
+  watch: [props]
+})
+
+function beforeEnter (el) {
+  el.style.height = '0'
+}
+
+function enter (el) {
+  el.style.height = el.scrollHeight + 'px'
+}
+
+function beforeLeave (el) {
+  el.style.height = el.scrollHeight + 'px'
+}
+
+function leave (el) {
+  el.style.height = '0'
+};
+</script>
+<template>
+  <div class="accordion">
+    <div class="header" @click="toggle">
+      <slot name="header">
+        HINT
+      </slot>
+      <i class="fa fa-2x fa-angle-down header-icon" :class="{ rotate: showAccordion }" />
+    </div>
+    <transition
+      name="accordion"
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @before-leave="beforeLeave"
+      @leave="leave"
+    >
+      <div v-show="showAccordion" class="body">
+        <div class="body-inner">
+          <slot />
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>
 <style>
 .accordion {
     margin: 0 0 20px;
@@ -73,49 +128,3 @@
     transition-duration: 0.3s;
 }
 </style>
-<script setup>
-const props = defineProps(['show']);
-const show = ref(false);
-
-function toggle() {
-    show.value = !show.value;
-}
-
-useAsyncData(() => {
-    show.value = props.show;
-}, {
-    watch: [props]
-})
-
-function beforeEnter(el) {
-    el.style.height = '0';
-}
-
-function enter(el) {
-    el.style.height = el.scrollHeight + 'px';
-}
-
-function beforeLeave(el) {
-    el.style.height = el.scrollHeight + 'px';
-}
-
-function leave(el) {
-    el.style.height = '0';
-};
-</script>
-<template>
-    <div class="accordion">
-        <div class="header" v-on:click="toggle">
-            <slot name="header">HINT</slot>
-            <i class="fa fa-2x fa-angle-down header-icon" v-bind:class="{ rotate: show }"></i>
-        </div>
-        <transition name="accordion" v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:before-leave="beforeLeave"
-            v-on:leave="leave">
-            <div class="body" v-show="show">
-                <div class="body-inner">
-                    <slot></slot>
-                </div>
-            </div>
-        </transition>
-    </div>
-</template>

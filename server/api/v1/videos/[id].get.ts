@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { videoCache } from '~/utils/cache';
+import { videoCache } from '~/utils/cache'
 
 /**
  * Method | GET
@@ -10,57 +10,56 @@ import { videoCache } from '~/utils/cache';
  *        | on supabase server (and minimise bandwidth costs)
  */
 
-
 // TODO: Bring this endpoint into compliance with StandardResponse interface
 export default defineEventHandler(async (event) => {
-    let sb = await serverSupabaseClient(event);
-    let id = getRouterParam(event, 'id');
-    if (id) {
-        if (videoCache.has(id)) {
-            return videoCache.get(id);
-        } else {
-            let episode: any = (
-                await sb.from('episodes')
-                    .select('*')
-                    .eq('id', id).single()
-            ).data;
+  const sb = await serverSupabaseClient(event)
+  const id = getRouterParam(event, 'id')
+  if (id) {
+    if (videoCache.has(id)) {
+      return videoCache.get(id)
+    } else {
+      const episode: any = (
+        await sb.from('episodes')
+          .select('*')
+          .eq('id', id).single()
+      ).data
 
-            if (episode) {
-                let cast = (
-                    await sb.from('cast')
-                        .select('id')
-                        .in('id', episode.cast)
-                ).data;
+      if (episode) {
+        const cast = (
+          await sb.from('cast')
+            .select('id')
+            .in('id', episode.cast)
+        ).data
 
-                let topics = (
-                    await sb.from('topics')
-                        .select('id')
-                        .eq('episode', episode.id)
-                        .eq('accepted', true)
-                ).data;
+        const topics = (
+          await sb.from('topics')
+            .select('id')
+            .eq('episode', episode.id)
+            .eq('accepted', true)
+        ).data
 
-                episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
-                episode.title = episode.title.split('- WAN Show')[0];
-                videoCache.set(id, {
-                    episode,
-                    cast,
-                    topics
-                });
+        episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
+        episode.title = episode.title.split('- WAN Show')[0]
+        videoCache.set(id, {
+          episode,
+          cast,
+          topics
+        })
 
-                return {
-                    episode,
-                    cast,
-                    topics
-                }
-            } else {
-                return {
-                    error: "Unable to locate episode matching id: " + id
-                }
-            }
+        return {
+          episode,
+          cast,
+          topics
         }
+      } else {
+        return {
+          error: 'Unable to locate episode matching id: ' + id
+        }
+      }
     }
+  }
 
-    return {
-        error: 'undefined'
-    }
+  return {
+    error: 'undefined'
+  }
 })

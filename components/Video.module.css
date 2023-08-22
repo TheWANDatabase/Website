@@ -1,7 +1,5 @@
 .ghostVideo,
 .video {
-    position: relative;
-    z-index: 1;
     --background: linear-gradient(to right, #2a2a2a 45%, #3b3b3b 50%, #2a2a2a 55%);
     --background-size: 300%;
     --background-position: 0;
@@ -244,6 +242,7 @@
 .tooltip {
     position: relative;
     display: inline-block;
+    z-index: 2;
     /* border-bottom: 1px dotted black; */
 }
 
@@ -263,7 +262,7 @@
 
     /* Position the tooltip */
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     opacity: 0;
     transition: 200ms;
 }
