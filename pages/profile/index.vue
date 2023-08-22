@@ -279,10 +279,7 @@ function relocate(id) {
 <template>
     <Header />
     <div :class="style.container">
-        <div :class="style.sidenav">
-            <h1>My Profile</h1>
-            <p>More Sections coming soon!</p>
-        </div>
+        <Sidenav />
         <div v-if="profile" :class="style.profile">
             <div :class="style.profileImg">
                 <img :src="profile.avatar_url" />
@@ -350,18 +347,6 @@ function relocate(id) {
                         <div :class="style.chartValue" id="avgCompletionChartValue" />
                     </div>
                 </div>
-                <!-- <template v-if="data.history.data">
-                    <span><strong>Episodes Started</strong>: {{ calcStarted(data.history.data) }}</span> |
-                    <span><strong>Episodes Finished</strong>: {{ calcFinished(data.history.data) }}</span> |
-                    <span><strong>Average Watch Time</strong>: {{ calcWatchTime(data.history.data) }}</span> |
-                    <span><strong>Average Completion</strong>: {{ calcCompletion(data.history.data) }}%</span>
-                </template>
-                <template v-else>
-                    <span><strong>Episodes Started</strong> No Data</span> |
-                    <span><strong>Episodes Finished</strong> No Data</span> |
-                    <span><strong>Average Watch Time</strong> No Data</span> |
-                    <span><strong>Average Completion</strong> No Data</span>
-                </template> -->
             </div>
 
         </div>

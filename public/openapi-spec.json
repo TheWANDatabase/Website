@@ -1,0 +1,98 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "The WAN DB",
+      "version": "1.0"
+    },
+    "components": {
+      "schemas": {
+        "episodesFilterQuery": {
+          "description": "The data format used by the filter module to provide accurate responses to user provided conditions",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "servers": [
+      {
+        "url": "https://thewandb.com/api/v1",
+        "description": "Production server"
+      },
+      {
+        "url": "https://beta.thewandb.com/api/v1",
+        "description": "Beta server - May have unexpected / buggy behaviours"
+      },
+      {
+        "url": "http://localhost:3000/api/v1",
+        "description": "Development server - May have unexpected / buggy behaviours"
+      }
+    ],
+    "paths": {
+      "/videos/[id]": {
+        "get": {
+          "summary": "(OUT OF COMPLIANCE)Used to fetch general information about specific episodes"
+        }
+      },
+      "/episodes": {
+        "post": {
+          "summary": "Used to fetch a feed of episodes matching search parameters",
+          "operationId": "fetchEpisodesWithFilter",
+          "requestBody": {
+            "description": "The filter method used to return information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "filters": {
+                      "properties": {
+                        "order": {
+                          "type": "string"
+                        },
+                        "startDate": {
+                          "type": "string",
+                          "format": "date or date-time",
+                          "description": "Note: Time is not kept, so date is preferred"
+                        },
+                        "endDate": {
+                          "type": "string",
+                          "format": "date or date-time",
+                          "description": "Note: Time is not kept, so date is preferred"
+                        },
+                        "members": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                },
+                "example": {
+                  "filters": {},
+                  "limit": 20,
+                  "offset": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

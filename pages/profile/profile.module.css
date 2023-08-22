@@ -11,15 +11,6 @@
     padding: 0.5rem;
 }
 
-.sidenav {
-    grid-area: sidenav;
-    margin-right: 0.5rem;
-    border-radius: 5px;
-    padding: 0.5rem;
-    background: #2b2b2b;
-    color: white;
-}
-
 .profile {
     grid-area: profile;
     display: grid;
