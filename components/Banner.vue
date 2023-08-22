@@ -1,12 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import style from "./Banner.module.css";
 
-const show = ref(true);
 
-const props = defineProps([
-    'bg',
-    'fg'
-])
+
+export interface Props {
+    pid?: string,
+    bg?: string,
+    fg?: string,
+    fixed?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    fixed: false
+});
+
+console.log(props);
+
+let show = ref(true);
+
+if (props.pid) {
+    show = useState(`show-banner-${props.pid}`, () => true);
+}
 
 function close() {
     show.value = false;
@@ -17,9 +31,9 @@ function close() {
 
 
 <template>
-    <div :class="style.banner"
-        :style="{ display: show ? 'flex' : 'none', backgroundColor: props.bg || '#2a2a2a', color: props.fg || 'orange' }">
+    <div :class="[style.banner, !show ? style.hide : undefined]"
+        :style="{ backgroundColor: props.bg || '#2a2a2a', color: props.fg || 'orange' }">
         <slot />
-        <Icon name="mdi:close-thick" @click="close()" />
+        <Icon v-if="!props.fixed" name="mdi:close-thick" @click="close()" />
     </div>
 </template>

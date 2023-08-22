@@ -110,18 +110,18 @@ function logout() {
 </script>
 <template>
     <div :class="style.headerContainer">
-        <Banner>
+        <Banner pid="eab">
             <p>
                 This website is currently in early access. It is unfinished and many design elements
                 may change in upcoming updates.
             </p>
         </Banner>
-        <Banner bg="#914f4f" fg="#fff" v-if="config.public.domain === 'localhost:3000'">
+        <Banner pid="gab" :fixed="true" bg="#914f4f" fg="#fff" v-if="config.public.domain === 'localhost:3000'">
             <p>
                 You are using a development build of The WAN DB - Proceed with caution.
             </p>
         </Banner>
-        <Banner bg="#914f4f" fg="#fff" v-if="config.public.domain === 'beta.thewandb.com'">
+        <Banner pid="gbb" :fixed="true" bg="#914f4f" fg="#fff" v-if="config.public.domain === 'beta.thewandb.com'">
             <p>
                 You are using an early access build of The WAN DB - Proceed with caution.
             </p>

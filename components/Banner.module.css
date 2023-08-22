@@ -7,6 +7,24 @@
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid black;
+    animation: grow 500ms;
+}
+
+@keyframes grow {
+    from {
+        height: 0;
+        opacity: 0;
+    }
+    to {
+        height: 2rem;
+        opacity: 1;
+    }
+}
+
+.hide {
+    height: 0;
+    opacity: 0;
+    transition: 500ms;
 }
 
 .banner p {
