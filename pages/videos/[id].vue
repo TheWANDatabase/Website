@@ -372,7 +372,7 @@ export default {
                 <!-- Player Section -->
                 <div :class="style.video">
                     <iframe id="videoplayerviewportsector"
-                        src="https://www.youtube.com/embed/JjHCiXQqirg?enablejsapi=1" title="YouTube video player"
+                        :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`" title="YouTube video player"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowfullscreen />
