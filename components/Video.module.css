@@ -242,6 +242,7 @@
 }
 
 .tooltip {
+    z-index:2;
     position: relative;
     display: inline-block;
     /* border-bottom: 1px dotted black; */
