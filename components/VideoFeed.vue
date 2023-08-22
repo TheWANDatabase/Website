@@ -156,7 +156,7 @@ infinite()
         <!-- </input> -->
       </div>
       <div :class="style.videobox">
-        <template v-for="[video, index] in fd" :key="index">
+        <template v-for="video, index in fd" :key="index">
           <Video :id="video.id" />
         </template>
         <InfiniteLoading v-if="fd.length > 19" @infinite="infinite" />
