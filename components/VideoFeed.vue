@@ -145,7 +145,7 @@ infinite()
         <div :class="style.input">
           <p>Show only episodes featuring:</p>
           <ul id="castFilter">
-            <template v-for="[member, index] in data" :key="index">
+            <template v-for="(member, index) in data" :key="index">
               <li :class="style.inlineCheck">
                 <input :id="member.id" type="checkbox" :checked="filters.members.includes(member.id)">
                 <p>{{ member.name }} ({{ member.outlet }})</p>
@@ -156,8 +156,8 @@ infinite()
         <!-- </input> -->
       </div>
       <div :class="style.videobox">
-        <template v-for="video, index in fd" :key="index">
-          <Video :id="video.id" />
+        <template v-for="(video, index) in fd" :key="index">
+          <VideoContainer :id="video.id" />
         </template>
         <InfiniteLoading v-if="fd.length > 19" @infinite="infinite" />
       </div>

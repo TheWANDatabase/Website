@@ -387,7 +387,7 @@ useHead({
                   and not 'Container' entries)
                 </p>
                 <select v-model="topicEditor.parent.value">
-                  <option v-for="[topic, index] in topicEditorList" :key="index" :value="topic.id">
+                  <option v-for="(topic, index) in topicEditorList" :key="index" :value="topic.id">
                     {{ topic.title }}
                   </option>
                 </select>
@@ -421,7 +421,7 @@ useHead({
             </div>
           </div>
           <template v-if="data.topics.length > 0">
-            <template v-for="[group, index] in data.topics" :key="index">
+            <template v-for="(group, index) in data.topics" :key="index">
               <Accordion :show="(group.timestamp_raw <= time && group.endpoint - 1 >= time)">
                 <template #header>
                   <h3>
@@ -496,7 +496,7 @@ useHead({
               </div>
               <div :class="style.editorSearchContainer">
                 <template v-if="castSearchResults.data.value.length > 0">
-                  <template v-for="[person, index] in castSearchResults.data.value" :key="index">
+                  <template v-for="(person, index) in castSearchResults.data.value" :key="index">
                     <div
                       :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
                       @click="toggleCastMember(person.id)"
@@ -527,7 +527,7 @@ useHead({
               </div>
             </div>
           </div>
-          <template v-for="[person, index] in data.cast" :key="index">
+          <template v-for="(person, index) in data.cast" :key="index">
             <div :class="style.castMember">
               <img :src="person.mug">
               <div>

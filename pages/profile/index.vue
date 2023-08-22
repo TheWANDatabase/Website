@@ -359,7 +359,7 @@ function relocate (id) {
       <i>No, we cannot see your YouTube watch history, we also do not show this data to anybody except you.</i>
       <template v-if="data.history.data">
         <template v-if="data.history.data.length > 0">
-          <template v-for="[video, index] in data.history.data" :key="index">
+          <template v-for="(video, index) in data.history.data" :key="index">
             <div :class="style.watchHistoryVideo" @click="relocate(video.episode.id)">
               <img :src="video.episode.thumbnailURI">
               <div>
