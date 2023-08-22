@@ -14,8 +14,6 @@ const props = withDefaults(defineProps<Props>(), {
     fixed: false
 });
 
-console.log(props);
-
 let show = ref(true);
 
 if (props.pid) {

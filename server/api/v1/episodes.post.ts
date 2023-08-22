@@ -1,6 +1,22 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import { episodeCache } from '~/utils/cache';
 
+/**
+ * Method | POST
+ * PATH   | /api/v1/episodes
+ * Purpose| Fetch a minimal amount of information for every episode
+ * Usages | Fetches a minimal amount of information for all videos fitting filter criteria
+ *        | and providing cached, paginated responses according to the database's response
+ * 
+ * Iface  | EpisodeRequest
+ */
+
+export interface EpisodeRequest {
+    filters: any,
+    limit: number,
+    offset: number
+}
+
 
 export default defineEventHandler(async (event) => {
     let t = new Date();
@@ -15,7 +31,7 @@ export default defineEventHandler(async (event) => {
         if (episodeCache.has(batch)) {
             return {
                 data: episodeCache.get(batch),
-                time: new Date() - t
+                time: new Date().getTime() - t.getTime()
             }
         } else {
             let query = sb.from('episodes')
@@ -61,18 +77,18 @@ export default defineEventHandler(async (event) => {
             episodeCache.set(batch, feed);
             return {
                 data: feed,
-                time: new Date() - t
+                time: new Date().getTime() - t.getTime()
             }
         }
     } catch (e) {
         return {
             error: e,
-            time: new Date() - t
+            time: new Date().getTime() - t.getTime()
         }
     }
 
     return {
         error: 'undefined',
-        time: new Date() - t
+        time: new Date().getTime() - t.getTime()
     }
 })

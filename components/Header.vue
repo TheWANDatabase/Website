@@ -5,14 +5,11 @@ let sb = useSupabaseClient();
 const user = useSupabaseUser();
 const config = useRuntimeConfig()
 
-console.log(config);
-
 const profile = useState('uprofile', () => undefined);
 const history = useState('history', () => {
     new Map();
 });
 
-console.log(process.env.DOMAIN)
 
 useAsyncData(async () => {
     if (user.value) {
@@ -27,7 +24,7 @@ useAsyncData(async () => {
             sb.auth.signOut();
         } else {
             profile.value = data;
-
+            console.log(data);
             if (!history.value) history.value = new Map();
 
             let h = await (await fetch('/api/v1/history', {

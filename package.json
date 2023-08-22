@@ -7,7 +7,8 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "update-types": "npx supabase gen types typescript --project-id \"$PROJECT_REF\" > types/supabase.ts"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
