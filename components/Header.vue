@@ -139,7 +139,7 @@ function logout () {
           Logout
         </button>
       </template>
-      <input type="text" :class="style.search" placeholder="Search..." @input="search">
+      <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search">
       <div
         :class="style.searchResults"
         :style="{

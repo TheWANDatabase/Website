@@ -4,9 +4,13 @@ import style from './videos.module.css'
 
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
-definePageMeta({
-  layout: 'viewer'
-})
+
+
+
+const route = useRoute()
+
+console.log(route)
+
 
 useAsyncData(() => {
   if (profile.value) {
@@ -20,7 +24,7 @@ const sb = useSupabaseClient()
 
 const { id } = useRoute().params
 
-function hash (str) {
+function hash(str) {
   let h = 0
   let i; let chr
   if (str.length === 0) { return h }
@@ -59,7 +63,9 @@ useAsyncData(async () => {
           .eq('episode', id).maybeSingle()
         if (x.data) {
           watch.value = x.data
-          player.seekTo(watch.value.viewed_seconds)
+          if (!route.query.t) {
+            player.seekTo(watch.value.viewed_seconds)
+          }
         } else {
           const a = await sb.from('episode_progression').insert({
             viewer: profile.value.id,
@@ -78,6 +84,16 @@ useAsyncData(async () => {
 })
 
 onMounted(() => {
+  setTimeout(() => {
+    if (player) {
+      if (route.query.t) {
+        let t = parseInt(route.query.t)
+        console.log("Time Query Provided, skipping to", t)
+        player.seekTo(t)
+        player.playVideo()
+      }
+    }
+  }, 200)
   itv.player = setInterval(() => {
     if (player) {
       try {
@@ -168,7 +184,7 @@ const topicEditor = {
   title: ref(''),
   parent: ref(null)
 }
-function addGroup () {
+function addGroup() {
   showTopicEditor.value = true
   // data.value.topics.push({
   //     id: v4(),
@@ -185,7 +201,7 @@ function addGroup () {
   // })
 }
 
-function addTopicToGroup (id) {
+function addTopicToGroup(id) {
   for (let i = 0; i < data.value.topics.length; i++) {
     if (data.value.topics[i].hash === id) {
       data.value.topics[i].children.push({
@@ -222,7 +238,7 @@ const castSearchResults = useAsyncData(async () => {
   watch: [castSearchValue]
 })
 
-function seek (timestamp) {
+function seek(timestamp) {
   try {
     if (player) {
       player.seekTo(timestamp)
@@ -231,17 +247,17 @@ function seek (timestamp) {
   }
 }
 
-function addPerson () {
+function addPerson() {
   showPersonSearch.value = true
 }
 
-function toggleCastMember (id) {
+function toggleCastMember(id) {
   if (data.value.episode.cast.includes(id)) {
     data.value.episode.cast = data.value.episode.cast.filter(i => i !== id)
   } else { data.value.episode.cast.push(id) }
 }
 
-async function saveCastMembers () {
+async function saveCastMembers() {
   await sb.from('episodes').update({
     cast: data.value.episode.cast.filter(function (elem, pos) {
       return data.value.episode.cast.indexOf(elem) === pos
@@ -250,12 +266,12 @@ async function saveCastMembers () {
   window.location.reload()
 }
 
-function closeEditor () {
+function closeEditor() {
   showPersonSearch.value = false
   showTopicEditor.value = false
 }
 
-function processTopicChanges () {
+function processTopicChanges() {
   const tpc = topicEditor
   if (tpc.type.value === 'category') {
     const start = ((tpc.time.hh.value * 60 * 60) + (tpc.time.mm.value * 60) + tpc.time.ss.value)
@@ -314,14 +330,10 @@ useHead({
 
         <!-- Player Section -->
         <div :class="style.video">
-          <iframe
-            id="videoplayerviewportsector"
-            :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
-            title="YouTube video player"
-            frameborder="0"
+          <iframe id="videoplayerviewportsector" :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
+            title="YouTube video player" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-          />
+            allowfullscreen />
         </div>
 
         <!-- Topic Section -->
@@ -443,11 +455,9 @@ useHead({
                 </span>
                 <template v-if="group.children">
                   <template v-for="(topic, idx in group.children" :key="idx">
-                    <div
-                      :id="topic.id"
+                    <div :id="topic.id"
                       :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
-                      @click="(e) => seek(topic.timestamp_raw)"
-                    >
+                      @click="(e) => seek(topic.timestamp_raw)">
                       <p :class="style.topicTitle">
                         {{ topic.title }}
                       </p>
@@ -487,12 +497,8 @@ useHead({
                 <h1>Cast Editor</h1>
               </div>
               <div :class="style.editorHorizontal">
-                <input
-                  v-model="castSearchValue"
-                  :class="[style.searchBar, style.hoverEffects]"
-                  type="text"
-                  placeholder="Search..."
-                >
+                <input v-model="castSearchValue" :class="[style.searchBar, style.hoverEffects]" type="text"
+                  placeholder="Search...">
                 <button :class="[style.editorSave, style.hoverEffects]" @click="saveCastMembers()">
                   Save
                 </button>
@@ -502,8 +508,7 @@ useHead({
                   <template v-for="(person, index) in castSearchResults.data.value" :key="index">
                     <div
                       :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
-                      @click="toggleCastMember(person.id)"
-                    >
+                      @click="toggleCastMember(person.id)">
                       <img :src="person.avatar">
                       <div>
                         <h3>
