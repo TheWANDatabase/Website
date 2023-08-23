@@ -143,6 +143,7 @@ const { data, error } = useAsyncData(async () => {
     }
     episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
     topicEditorList.value = tpcs
+
     return {
       episode, cast, topics: tpcs
     }
@@ -440,27 +441,29 @@ useHead({
                   <button :class="[style.topicButton, style.hoverEffects]" @click="removeGroup(group.hash)">Delete
                     Group</button>
                 </span>
-                <template v-for="[topic, idx] in group.children" :key="idx">
-                  <div
-                    :id="topic.id"
-                    :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
-                    @click="(e) => seek(topic.timestamp_raw)"
-                  >
-                    <p :class="style.topicTitle">
-                      {{ topic.title }}
-                    </p>
-                    <span :class="style.topicDetails">
-                      <p v-if="topic.contributors" :class="style.topicContributor">
-                        Contributor: {{
-                          topic.contributors.name }}
-                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                <template v-if="group.children">
+                  <template v-for="(topic, idx in group.children" :key="idx">
+                    <div
+                      :id="topic.id"
+                      :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
+                      @click="(e) => seek(topic.timestamp_raw)"
+                    >
+                      <p :class="style.topicTitle">
+                        {{ topic.title }}
                       </p>
-                      <p v-else :class="style.topicContributor">Unknown Contributor
-                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
-                      </p>
-                      <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
-                    </span>
-                  </div>
+                      <span :class="style.topicDetails">
+                        <p v-if="topic.contributors" :class="style.topicContributor">
+                          Contributor: {{
+                            topic.contributors.name }}
+                          <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                        </p>
+                        <p v-else :class="style.topicContributor">Unknown Contributor
+                          <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                        </p>
+                        <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                      </span>
+                    </div>
+                  </template>
                 </template>
               </Accordion>
             </template>
@@ -527,7 +530,9 @@ useHead({
               </div>
             </div>
           </div>
+
           <template v-for="(person, index) in data.cast" :key="index">
+            {{ console.log(person, index) }}
             <div :class="style.castMember">
               <img :src="person.mug">
               <div>
