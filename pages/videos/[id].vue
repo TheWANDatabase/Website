@@ -1,6 +1,8 @@
 <script async setup>
 import { v4 } from 'uuid'
 import style from './videos.module.css'
+import { parse } from 'node-webvtt'
+
 
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
@@ -8,8 +10,6 @@ const showEditor = ref(false)
 
 
 const route = useRoute()
-
-console.log(route)
 
 
 useAsyncData(() => {
@@ -35,6 +35,8 @@ function hash(str) {
   }
   return h
 }
+
+const meta = ref('Video Viewer')
 const time = ref(0)
 const watch = ref()
 const timeHuman = ref('00:00:00')
@@ -103,7 +105,7 @@ onMounted(() => {
       } catch (e) {
       }
     }
-  }, 333)
+  }, 50)
 })
 
 onUnmounted(() => {
@@ -111,16 +113,52 @@ onUnmounted(() => {
   if (itv.viewport) { clearInterval(itv.viewport) }
 })
 
+const castMap = new Map();
+const tsMap = new Map();
+
 const topicEditorList = ref([])
 const { data, error } = useAsyncData(async () => {
   const { data, error } = await sb.from('episodes').select('*').eq('id', id).single()
   if (data) {
     const episode = data
+
+    meta.value = episode.title
+    console.log(episode.title,meta.value)
+
     const cast = (await sb.from('cast').select('*').in('id', episode.cast)).data
     for (let i = 0; i < cast.length; i++) {
       cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
+      castMap.set(cast[i].id, cast[i]);
     }
     const topics = (await sb.from('topics').select('*, contributors(*)').eq('episode', episode.id).order('timestamp_raw')).data
+
+    const transcript = (
+      await sb.from('transcriptions')
+        .select('*')
+        .eq('id', episode.id)
+        .single()
+    ).data;
+
+    if (transcript) {
+      if (transcript.mappings) {
+        for (let i = 0; i < transcript.mappings.length; i++) {
+          let m = transcript.mappings[i];
+          let cm = m.pop();
+          for (let j = 0; j < m.length; j++) {
+            tsMap.set(m[j], cm);
+          }
+        }
+      }
+      if (transcript.vtt) transcript.vtt = parse(transcript.vtt);
+      if (transcript.vtt) transcript.vtt.cues.map((cue) => {
+        let speaker = cue.text.split(']: ')[0].split('[')[1];
+        cue.va = castMap.get(tsMap.get(speaker))
+        if (cue.va) {
+          cue.text = cue.text.split(']: ')[1];
+        }
+      })
+    }
+
     const tpcs = []
 
     for (let i = 0; i < topics.length; i++) {
@@ -161,7 +199,7 @@ const { data, error } = useAsyncData(async () => {
     topicEditorList.value = tpcs
 
     return {
-      episode, cast, topics: tpcs
+      episode, cast, topics: tpcs, transcript
     }
   } else {
     throw error
@@ -290,16 +328,28 @@ function processTopicChanges() {
   }
 }
 
-useHead({
-  script: [
-    {
-      src: 'https://www.youtube.com/iframe_api'
-    },
-    {
-      src: '/scripts/player.js'
-    }
-  ]
+
+
+useAsyncData(() => {
+  console.log(meta.value);
+  useHead({
+    title: meta.value + ' | The WAN DB',
+    description: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.",
+    ogImage: `https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/thumbs/${id}.jpeg`,
+    script: [
+      {
+        src: 'https://www.youtube.com/iframe_api'
+      },
+      {
+        src: '/scripts/player.js'
+      }
+    ]
+  })
+}, {
+  server: false,
+  watch: [meta]
 })
+
 
 </script>
 <template>
@@ -537,7 +587,6 @@ useHead({
           </div>
 
           <template v-for="(person, index) in data.cast" :key="index">
-            {{ console.log(person, index) }}
             <div :class="style.castMember">
               <img :src="person.mug">
               <div>
@@ -559,6 +608,30 @@ useHead({
             </div>
           </template>
         </div>
+      </div>
+
+
+      <!-- Cast Section -->
+      <div :class="style.transcript">
+        <template v-if="data.transcript">
+          <span>Note: These subtitles are generated using OpenAI&apos;s <a
+              href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span>
+          <template v-for="(segment, index) in data.transcript.vtt.cues" :key="index">
+            <div
+              :class="(time >= segment.start && time <= segment.end) ? style.highlightedSpan : (time >= segment.end) ? (time >= segment.end) ? style.noDisplay : style.hiddenSpan : undefined">
+              <template v-if="segment.va">
+                <img :src="segment.va.mug" />
+                <p>{{ segment.text }}</p>
+              </template>
+              <template v-else>
+                <p>{{ segment.text }}</p>
+              </template>
+            </div>
+          </template>
+        </template>
+        <template v-else>
+          Transcript unavailable
+        </template>
       </div>
     </div>
   </template>

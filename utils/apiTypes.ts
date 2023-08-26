@@ -6,8 +6,7 @@
  */
 
 /**
- * @name StandardResponse
- * @description The default response layout used by every API Endpoint,
+ * The default response layout used by every API Endpoint,
  * and then modified to fit their data layouts
  */
 export interface StandardResponse<T> {
@@ -17,10 +16,8 @@ export interface StandardResponse<T> {
 }
 
 /**
- * @interface
- * @name StandardResponse
- * @description The default response layout used by every API Endpoint,
- * and then modified to fit their data layouts
+ * The input format expected by the /history api endpoint.
+ * Anything which does not follow this format, will result in an error.
  */
 export interface HistoryRequest {
     /**
@@ -30,11 +27,31 @@ export interface HistoryRequest {
      */
     id: string
 }
-
+/**
+ * The response format provided by the /history api endpoint.
+ */
 export interface HistoryDetails {
+    /**
+     * @name id
+     * @description A unique identifier for this history entry (UUIDv4 formatted)
+     */
     id: string
+
+    /**
+     * @name viewer
+     * @description A unique identifier for this history entry (UUIDv4 formatted)
+     */
     viewer: string // -> (references user ID)
     episode: string // -> (references episode ID)
     viewed_seconds: string
     last_watched: String | Date // (Returned as a string, but stored as a Timestamp)
 }
+
+
+/**
+ * @interface
+ * @name HistoryRequest
+ * @description The input format expected by the /history api endpoint.
+ * Anything which does not follow this format, will result in an error.
+ */
+export interface HistoryResponse extends StandardResponse<HistoryDetails[]> { }
