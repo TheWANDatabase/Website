@@ -123,7 +123,7 @@ const { data, error } = useAsyncData(async () => {
     const episode = data
 
     meta.value = episode.title
-    console.log(episode.title,meta.value)
+    console.log(episode.title, meta.value)
 
     const cast = (await sb.from('cast').select('*').in('id', episode.cast)).data
     for (let i = 0; i < cast.length; i++) {
@@ -197,6 +197,61 @@ const { data, error } = useAsyncData(async () => {
     }
     episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
     topicEditorList.value = tpcs
+
+    useHead({
+      title: episode.title + ' | The WAN DB',
+      description: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.",
+      meta: [
+        {
+          hid: 'og-title',
+          property: 'og:title',
+          content: episode.title + ' | The WAN DB'
+        },
+        {
+          hid: 'twitter-title',
+          property: 'twitter:title',
+          content: episode.title + ' | The WAN DB'
+        },
+        {
+          hid: 'og-description',
+          property: 'og:description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+        },
+        {
+          hid: 'twitter-description',
+          property: 'twitter:description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+        },
+        {
+          hid: 'og-image',
+          property: 'og:image',
+          content: episode.thumbnail
+        },
+        {
+          hid: 'twitter-image',
+          property: 'twitter:image',
+          content: episode.thumbnail
+        },
+        {
+          hid: 'twitter-card',
+          property: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          hid: 'og-type',
+          property: 'og:type',
+          content: 'website'
+        }
+      ],
+      script: [
+        {
+          src: 'https://www.youtube.com/iframe_api'
+        },
+        {
+          src: '/scripts/player.js'
+        }
+      ]
+    })
 
     return {
       episode, cast, topics: tpcs, transcript
@@ -327,28 +382,6 @@ function processTopicChanges() {
     })
   }
 }
-
-
-
-useAsyncData(() => {
-  console.log(meta.value);
-  useHead({
-    title: meta.value + ' | The WAN DB',
-    description: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.",
-    ogImage: `https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/thumbs/${id}.jpeg`,
-    script: [
-      {
-        src: 'https://www.youtube.com/iframe_api'
-      },
-      {
-        src: '/scripts/player.js'
-      }
-    ]
-  })
-}, {
-  server: false,
-  watch: [meta]
-})
 
 
 </script>
