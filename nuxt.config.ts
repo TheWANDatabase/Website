@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/supabase',
     '@nuxtjs/color-mode',
-    'nuxt-icon'
+    'nuxt-icon',
+    'nuxt-simple-sitemap'
   ],
   devtools: { enabled: true },
   supabase: {
@@ -21,5 +22,18 @@ export default defineNuxtConfig({
     public: {
       domain: process.env.DOMAIN
     }
+  },
+  sitemap: {
+    urls: ['https://thewandb.com'],
+    // hostname: 'https://thewandb.com',
+    // gzip: true,
+    // cacheTime: 1000 * 60 * 15,
+    exclude: [
+      '/privacy',
+      '/cookies',
+      '/tos'
+    ],
+    trailingSlash: true
+
   }
 })

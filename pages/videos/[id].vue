@@ -200,8 +200,19 @@ const { data, error } = useAsyncData(async () => {
 
     useHead({
       title: episode.title + ' | The WAN DB',
-      description: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.",
+      link: [
+        {
+          hid: 'canonical',
+          property: 'canonical',
+          content: 'https://thewandb.com/videos/'+episode.id
+        }
+      ],
       meta: [
+        {
+          hid: 'robots',
+          property: 'robots',
+          content: 'index, archive'
+        }, ,
         {
           hid: 'og-title',
           property: 'og:title',
@@ -211,6 +222,11 @@ const { data, error } = useAsyncData(async () => {
           hid: 'twitter-title',
           property: 'twitter:title',
           content: episode.title + ' | The WAN DB'
+        },
+        {
+          hid: 'description',
+          property: 'description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
         },
         {
           hid: 'og-description',
