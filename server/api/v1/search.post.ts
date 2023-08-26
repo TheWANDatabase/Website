@@ -22,9 +22,16 @@ export default defineEventHandler(async (event) => {
       }
     } else {
       const s = (await sb.rpc('search', q)).data
-      searchCache.set(q.phrase, s)
+      const se = (await sb.rpc('search_episodes', q)).data
+      searchCache.set(q.phrase, {
+        topics: s,
+        episodes: se
+      })
       return {
-        data: s,
+        data: {
+          topics: s,
+          episodes: se
+        },
         time: new Date().getTime() - t.getTime()
       }
     }
