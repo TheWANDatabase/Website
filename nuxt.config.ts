@@ -25,6 +25,7 @@ export default defineNuxtConfig({
     }
   },
   sitemap: {
+    siteUrl: 'https://thewandb.com',
     urls: ['https://thewandb.com'],
     // hostname: 'https://thewandb.com',
     // gzip: true,
