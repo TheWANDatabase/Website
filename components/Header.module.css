@@ -72,8 +72,8 @@
     /* max-height: 97vh; */
     background: #3e3d3e 3rem;
     transition: 500ms ease-in-out;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     border-radius: 5px;
 }
 
