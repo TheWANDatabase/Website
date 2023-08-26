@@ -13,6 +13,7 @@ export default defineNuxtConfig({
       callback: '/confirm',
       exclude: [
         '/',
+        '/sitemap*',
         '/videos/*',
         '/openapi-spec.json'
       ]
