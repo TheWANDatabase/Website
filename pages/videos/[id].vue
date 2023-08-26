@@ -1,12 +1,16 @@
 <script async setup>
 import { v4 } from 'uuid'
 import style from './videos.module.css'
+import { parse } from 'node-webvtt'
+
 
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
-definePageMeta({
-  layout: 'viewer'
-})
+
+
+
+const route = useRoute()
+
 
 useAsyncData(() => {
   if (profile.value) {
@@ -20,7 +24,7 @@ const sb = useSupabaseClient()
 
 const { id } = useRoute().params
 
-function hash (str) {
+function hash(str) {
   let h = 0
   let i; let chr
   if (str.length === 0) { return h }
@@ -31,6 +35,8 @@ function hash (str) {
   }
   return h
 }
+
+const meta = ref('Video Viewer')
 const time = ref(0)
 const watch = ref()
 const timeHuman = ref('00:00:00')
@@ -59,7 +65,9 @@ useAsyncData(async () => {
           .eq('episode', id).maybeSingle()
         if (x.data) {
           watch.value = x.data
-          player.seekTo(watch.value.viewed_seconds)
+          if (!route.query.t) {
+            player.seekTo(watch.value.viewed_seconds)
+          }
         } else {
           const a = await sb.from('episode_progression').insert({
             viewer: profile.value.id,
@@ -78,6 +86,16 @@ useAsyncData(async () => {
 })
 
 onMounted(() => {
+  setTimeout(() => {
+    if (player) {
+      if (route.query.t) {
+        let t = parseInt(route.query.t)
+        console.log("Time Query Provided, skipping to", t)
+        player.seekTo(t)
+        player.playVideo()
+      }
+    }
+  }, 200)
   itv.player = setInterval(() => {
     if (player) {
       try {
@@ -87,7 +105,7 @@ onMounted(() => {
       } catch (e) {
       }
     }
-  }, 333)
+  }, 50)
 })
 
 onUnmounted(() => {
@@ -95,16 +113,52 @@ onUnmounted(() => {
   if (itv.viewport) { clearInterval(itv.viewport) }
 })
 
+const castMap = new Map();
+const tsMap = new Map();
+
 const topicEditorList = ref([])
 const { data, error } = useAsyncData(async () => {
   const { data, error } = await sb.from('episodes').select('*').eq('id', id).single()
   if (data) {
     const episode = data
+
+    meta.value = episode.title
+    console.log(episode.title, meta.value)
+
     const cast = (await sb.from('cast').select('*').in('id', episode.cast)).data
     for (let i = 0; i < cast.length; i++) {
       cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
+      castMap.set(cast[i].id, cast[i]);
     }
     const topics = (await sb.from('topics').select('*, contributors(*)').eq('episode', episode.id).order('timestamp_raw')).data
+
+    const transcript = (
+      await sb.from('transcriptions')
+        .select('*')
+        .eq('id', episode.id)
+        .single()
+    ).data;
+
+    if (transcript) {
+      if (transcript.mappings) {
+        for (let i = 0; i < transcript.mappings.length; i++) {
+          let m = transcript.mappings[i];
+          let cm = m.pop();
+          for (let j = 0; j < m.length; j++) {
+            tsMap.set(m[j], cm);
+          }
+        }
+      }
+      if (transcript.vtt) transcript.vtt = parse(transcript.vtt);
+      if (transcript.vtt) transcript.vtt.cues.map((cue) => {
+        let speaker = cue.text.split(']: ')[0].split('[')[1];
+        cue.va = castMap.get(tsMap.get(speaker))
+        if (cue.va) {
+          cue.text = cue.text.split(']: ')[1];
+        }
+      })
+    }
+
     const tpcs = []
 
     for (let i = 0; i < topics.length; i++) {
@@ -143,8 +197,80 @@ const { data, error } = useAsyncData(async () => {
     }
     episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
     topicEditorList.value = tpcs
+
+    useHead({
+      title: episode.title + ' | The WAN DB',
+      link: [
+        {
+          hid: 'canonical',
+          property: 'canonical',
+          content: 'https://thewandb.com/videos/'+episode.id
+        }
+      ],
+      meta: [
+        {
+          hid: 'robots',
+          property: 'robots',
+          content: 'index, archive'
+        }, ,
+        {
+          hid: 'og-title',
+          property: 'og:title',
+          content: episode.title + ' | The WAN DB'
+        },
+        {
+          hid: 'twitter-title',
+          property: 'twitter:title',
+          content: episode.title + ' | The WAN DB'
+        },
+        {
+          hid: 'description',
+          property: 'description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+        },
+        {
+          hid: 'og-description',
+          property: 'og:description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+        },
+        {
+          hid: 'twitter-description',
+          property: 'twitter:description',
+          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+        },
+        {
+          hid: 'og-image',
+          property: 'og:image',
+          content: episode.thumbnail
+        },
+        {
+          hid: 'twitter-image',
+          property: 'twitter:image',
+          content: episode.thumbnail
+        },
+        {
+          hid: 'twitter-card',
+          property: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          hid: 'og-type',
+          property: 'og:type',
+          content: 'website'
+        }
+      ],
+      script: [
+        {
+          src: 'https://www.youtube.com/iframe_api'
+        },
+        {
+          src: '/scripts/player.js'
+        }
+      ]
+    })
+
     return {
-      episode, cast, topics: tpcs
+      episode, cast, topics: tpcs, transcript
     }
   } else {
     throw error
@@ -167,7 +293,7 @@ const topicEditor = {
   title: ref(''),
   parent: ref(null)
 }
-function addGroup () {
+function addGroup() {
   showTopicEditor.value = true
   // data.value.topics.push({
   //     id: v4(),
@@ -184,7 +310,7 @@ function addGroup () {
   // })
 }
 
-function addTopicToGroup (id) {
+function addTopicToGroup(id) {
   for (let i = 0; i < data.value.topics.length; i++) {
     if (data.value.topics[i].hash === id) {
       data.value.topics[i].children.push({
@@ -221,7 +347,7 @@ const castSearchResults = useAsyncData(async () => {
   watch: [castSearchValue]
 })
 
-function seek (timestamp) {
+function seek(timestamp) {
   try {
     if (player) {
       player.seekTo(timestamp)
@@ -230,17 +356,17 @@ function seek (timestamp) {
   }
 }
 
-function addPerson () {
+function addPerson() {
   showPersonSearch.value = true
 }
 
-function toggleCastMember (id) {
+function toggleCastMember(id) {
   if (data.value.episode.cast.includes(id)) {
     data.value.episode.cast = data.value.episode.cast.filter(i => i !== id)
   } else { data.value.episode.cast.push(id) }
 }
 
-async function saveCastMembers () {
+async function saveCastMembers() {
   await sb.from('episodes').update({
     cast: data.value.episode.cast.filter(function (elem, pos) {
       return data.value.episode.cast.indexOf(elem) === pos
@@ -249,12 +375,12 @@ async function saveCastMembers () {
   window.location.reload()
 }
 
-function closeEditor () {
+function closeEditor() {
   showPersonSearch.value = false
   showTopicEditor.value = false
 }
 
-function processTopicChanges () {
+function processTopicChanges() {
   const tpc = topicEditor
   if (tpc.type.value === 'category') {
     const start = ((tpc.time.hh.value * 60 * 60) + (tpc.time.mm.value * 60) + tpc.time.ss.value)
@@ -273,16 +399,6 @@ function processTopicChanges () {
   }
 }
 
-useHead({
-  script: [
-    {
-      src: 'https://www.youtube.com/iframe_api'
-    },
-    {
-      src: '/scripts/player.js'
-    }
-  ]
-})
 
 </script>
 <template>
@@ -313,14 +429,10 @@ useHead({
 
         <!-- Player Section -->
         <div :class="style.video">
-          <iframe
-            id="videoplayerviewportsector"
-            :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
-            title="YouTube video player"
-            frameborder="0"
+          <iframe id="videoplayerviewportsector" :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
+            title="YouTube video player" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-          />
+            allowfullscreen />
         </div>
 
         <!-- Topic Section -->
@@ -440,27 +552,27 @@ useHead({
                   <button :class="[style.topicButton, style.hoverEffects]" @click="removeGroup(group.hash)">Delete
                     Group</button>
                 </span>
-                <template v-for="[topic, idx] in group.children" :key="idx">
-                  <div
-                    :id="topic.id"
-                    :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
-                    @click="(e) => seek(topic.timestamp_raw)"
-                  >
-                    <p :class="style.topicTitle">
-                      {{ topic.title }}
-                    </p>
-                    <span :class="style.topicDetails">
-                      <p v-if="topic.contributors" :class="style.topicContributor">
-                        Contributor: {{
-                          topic.contributors.name }}
-                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                <template v-if="group.children">
+                  <template v-for="(topic, idx in group.children" :key="idx">
+                    <div :id="topic.id"
+                      :class="[style.topic, (topic.timestamp_raw <= time && topic.endpoint >= time) ? style.activeTopic : undefined]"
+                      @click="(e) => seek(topic.timestamp_raw)">
+                      <p :class="style.topicTitle">
+                        {{ topic.title }}
                       </p>
-                      <p v-else :class="style.topicContributor">Unknown Contributor
-                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
-                      </p>
-                      <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
-                    </span>
-                  </div>
+                      <span :class="style.topicDetails">
+                        <p v-if="topic.contributors" :class="style.topicContributor">
+                          Contributor: {{
+                            topic.contributors.name }}
+                          <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                        </p>
+                        <p v-else :class="style.topicContributor">Unknown Contributor
+                          <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                        </p>
+                        <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
+                      </span>
+                    </div>
+                  </template>
                 </template>
               </Accordion>
             </template>
@@ -484,12 +596,8 @@ useHead({
                 <h1>Cast Editor</h1>
               </div>
               <div :class="style.editorHorizontal">
-                <input
-                  v-model="castSearchValue"
-                  :class="[style.searchBar, style.hoverEffects]"
-                  type="text"
-                  placeholder="Search..."
-                >
+                <input v-model="castSearchValue" :class="[style.searchBar, style.hoverEffects]" type="text"
+                  placeholder="Search...">
                 <button :class="[style.editorSave, style.hoverEffects]" @click="saveCastMembers()">
                   Save
                 </button>
@@ -499,8 +607,7 @@ useHead({
                   <template v-for="(person, index) in castSearchResults.data.value" :key="index">
                     <div
                       :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
-                      @click="toggleCastMember(person.id)"
-                    >
+                      @click="toggleCastMember(person.id)">
                       <img :src="person.avatar">
                       <div>
                         <h3>
@@ -527,6 +634,7 @@ useHead({
               </div>
             </div>
           </div>
+
           <template v-for="(person, index) in data.cast" :key="index">
             <div :class="style.castMember">
               <img :src="person.mug">
@@ -549,6 +657,30 @@ useHead({
             </div>
           </template>
         </div>
+      </div>
+
+
+      <!-- Cast Section -->
+      <div :class="style.transcript">
+        <template v-if="data.transcript">
+          <span>Note: These subtitles are generated using OpenAI&apos;s <a
+              href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span>
+          <template v-for="(segment, index) in data.transcript.vtt.cues" :key="index">
+            <div
+              :class="(time >= segment.start && time <= segment.end) ? style.highlightedSpan : (time >= segment.end) ? (time >= segment.end) ? style.noDisplay : style.hiddenSpan : undefined">
+              <template v-if="segment.va">
+                <img :src="segment.va.mug" />
+                <p>{{ segment.text }}</p>
+              </template>
+              <template v-else>
+                <p>{{ segment.text }}</p>
+              </template>
+            </div>
+          </template>
+        </template>
+        <template v-else>
+          Transcript unavailable
+        </template>
       </div>
     </div>
   </template>

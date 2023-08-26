@@ -21,12 +21,12 @@ export default defineEventHandler(async (event) => {
     profileCache.set(q.id, data)
     return {
       data,
-      time: new Date() - t
+      time: new Date().getTime() - t.getTime()
     }
   } catch (e) {
     return {
       error: e,
-      time: new Date() - t
+      time: new Date().getTime() - t.getTime()
     }
   }
 })

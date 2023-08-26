@@ -44,8 +44,10 @@ useAsyncData(async () => {
 })
 
 const results = ref([])
+const episodeResults = ref([])
 const visible = ref(false)
 const thumbs = ref({})
+
 async function search (d) {
   const term = d.target.value
   if (term.length > 1) {
@@ -57,16 +59,28 @@ async function search (d) {
         ofst: 0
       })
     })).json()
-    if (res.data.length === 0) {
+    if (res.data.topics.length === 0) {
       results.value = [{
         error: 'No Results Found'
       }]
     } else {
-      for (let i = 0; i < res.data.length; i++) {
-        thumbs.value[res.data[i].id] = sb.storage.from('thumbs').getPublicUrl(res.data[i].id + '.jpeg').data.publicUrl
+      for (let i = 0; i < res.data.topics.length; i++) {
+        thumbs.value[res.data.topics[i].id] = sb.storage.from('thumbs').getPublicUrl(res.data.topics[i].id + '.jpeg').data.publicUrl
       }
 
-      results.value = res.data
+      results.value = res.data.topics
+    }
+
+    if (res.data.episodes.length === 0) {
+      episodeResults.value = [{
+        error: 'No Results Found'
+      }]
+    } else {
+      for (let i = 0; i < res.data.topics.length; i++) {
+        thumbs.value[res.data.episodes[i].id] = sb.storage.from('thumbs').getPublicUrl(res.data.episodes[i].id + '.jpeg').data.publicUrl
+      }
+
+      episodeResults.value = res.data.episodes
     }
 
     visible.value = results.value.length > 0
@@ -139,14 +153,15 @@ function logout () {
           Logout
         </button>
       </template>
-      <input type="text" :class="style.search" placeholder="Search..." @input="search">
+      <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search">
       <div
         :class="style.searchResults"
         :style="{
-          'max-height': visible ? ((results.length * 110)) + 'px' : '0px',
+          // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
           opacity: visible ? '0.95' : '0'
         }"
       >
+        <h2>Topics Matching Search</h2>
         <template v-for="(result, index) in results" :key="index">
           <div v-if="!result.error" :class="style.searchResult" @click="openVideo(result.id)">
             <img :src="thumbs[result.id]">
@@ -160,6 +175,19 @@ function logout () {
                   as well as {{ (result.matched_topics.length - 2).toLocaleString() }} other topics
                 </li>
               </ul>
+            </span>
+          </div>
+          <div v-else :class="style.searchResultError">
+            <h2>No Results Found</h2>
+          </div>
+        </template>
+        <hr>
+        <h2>Episodes containing search</h2>
+        <template v-for="(result, index) in episodeResults" :key="index">
+          <div v-if="!result.error" :class="style.searchResult" @click="openVideo(result.id)">
+            <img :src="thumbs[result.id]">
+            <span>
+              <h2>{{ result.title }}</h2>
             </span>
           </div>
           <div v-else :class="style.searchResultError">

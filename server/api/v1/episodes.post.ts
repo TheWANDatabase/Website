@@ -12,9 +12,9 @@ import { episodeCache } from '~/utils/cache'
  */
 
 export interface EpisodeRequest {
-    filters: any,
-    limit: number,
-    offset: number
+  filters: any,
+  limit: number,
+  offset: number
 }
 
 export default defineEventHandler(async (event) => {
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       const query = sb.from('episodes')
         .select('*')
         .not('aired', 'is', 'null')
-        .range(offset, offset + 19)
+        .range(offset, offset + (limit - 1))
 
       if (filters.startDate) { query.gte('aired', filters.startDate) }
       if (filters.endDate) { query.lte('aired', filters.endDate) }

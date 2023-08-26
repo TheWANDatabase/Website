@@ -16,17 +16,24 @@ export default defineEventHandler(async (event) => {
   try {
     const q = await readBody(event)
 
-    const { data } = await sb.from('profiles').select('*').eq('id', q.id).single()
+    if (profileCache.has(q.id)) {
+      return {
+        data: profileCache.get(q.id),
+        time: new Date().getTime() - t.getTime()
+      }
+    } else {
+      const { data } = await sb.from('profiles').select('*').eq('id', q.id).single()
 
-    profileCache.set(q.id, data)
-    return {
-      data,
-      time: new Date() - t
+      profileCache.set(q.id, data)
+      return {
+        data,
+        time: new Date().getTime() - t.getTime()
+      }
     }
   } catch (e) {
     return {
       error: e,
-      time: new Date() - t
+      time: new Date().getTime() - t.getTime()
     }
   }
 })

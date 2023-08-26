@@ -68,11 +68,12 @@
     z-index: 10;
     width: 50vw;
     height: auto;
+    max-height: 90vh;
     /* max-height: 97vh; */
     background: #3e3d3e 3rem;
     transition: 500ms ease-in-out;
     overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-y: auto;
     border-radius: 5px;
 }
 

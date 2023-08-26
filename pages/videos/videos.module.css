@@ -444,6 +444,61 @@
     width: fit-content;
 }
 
+.transcript {
+    height: 200px;
+    overflow: hidden;
+}
+
+.transcript div {
+    background-color: #1a1a1a;
+    border-radius: 5px;
+    margin: 0.5rem;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: row;
+    height: 30px;
+    opacity: 0.5;
+    width: 500px;
+}
+
+.transcript div img {
+    margin: auto 0.5rem;
+    object-fit: cover;
+    width: 28px;
+    opacity: 1;
+    height: 28px;
+    border-radius: 50%;
+}
+
+.transcript div p {
+    margin: auto 0.5rem auto 0;
+}
+
+.transcript .highlightedSpan img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.highlightedSpan {
+    /* min-height: 50px !important; */
+    height: fit-content !important;
+    margin: 0 0.5rem;
+    opacity: 1 !important;
+    background-color: pink !important;
+    color: black !important;
+}
+
+.noDisplay {
+    display: none !important;
+}
+
+.hiddenSpan {
+    /* min-height: 0px !important; */
+    height: 0px !important;
+    opacity: 0 !important;
+}
+
 
 @media screen and (max-width: 1700px) {
     .viewport {
