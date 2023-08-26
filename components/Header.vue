@@ -181,7 +181,6 @@ function logout () {
             <h2>No Results Found</h2>
           </div>
         </template>
-        }">
         <hr>
         <h2>Episodes containing search</h2>
         <template v-for="(result, index) in episodeResults" :key="index">
