@@ -157,7 +157,7 @@ function logout () {
       <div
         :class="style.searchResults"
         :style="{
-          'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
+          // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
           opacity: visible ? '0.95' : '0'
         }"
       >
