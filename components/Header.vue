@@ -189,14 +189,6 @@ function logout () {
             <img :src="thumbs[result.id]">
             <span>
               <h2>{{ result.title }}</h2>
-              <ul>
-                <li v-for="idx in (result.matched_topics.length > 2 ? 2 : result.matched_topics.length)" :key="idx">
-                  {{ result.matched_topics[idx - 1].title }}
-                </li>
-                <li v-if="result.matched_topics.length > 2">
-                  as well as {{ (result.matched_topics.length - 2).toLocaleString() }} other topics
-                </li>
-              </ul>
             </span>
           </div>
           <div v-else :class="style.searchResultError">
