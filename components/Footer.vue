@@ -29,6 +29,8 @@ const { data, error } = await useAsyncData(async () => {
         <li>Noki1119 - "The Timestamp Guy" - For creating timestamp comments across over 100 episodes of the show, in real time</li>
         <li>kuyans3889 - Provided helpful timestamps for early WAN Show VODs, including some before it was called The WAN Show</li>
       </ul>
+
+      <span>Made using <Icon name="logos:nuxt-icon"/> by <a href="https://github.com/altriusrs" target="_blank">Altrius</a> - <a href="https://github.com/altriusrs/wandb">Contribute Here</a> </span>
     </p>
     <p v-else-if="error">
       {{ error }}
