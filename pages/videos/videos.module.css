@@ -469,7 +469,7 @@
     padding: 5px 10px;
     display: flex;
     flex-direction: row;
-    height: 30px;
+    height: fit-content;
     opacity: 0.75;
     width: 500px;
 }
