@@ -10,6 +10,11 @@ useHead({
   ],
   meta: [
     {
+      hid: 'theme-color',
+      name: 'theme-color',
+      content: '#bb2701'
+    },
+    {
       hid: 'robots',
       property: 'robots',
       content: 'index, archive'
@@ -42,7 +47,7 @@ useHead({
     {
       hid: 'og-image',
       property: 'og:image',
-      content:'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
+      content: 'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
     },
     {
       hid: 'twitter-image',
@@ -58,14 +63,6 @@ useHead({
       hid: 'og-type',
       property: 'og:type',
       content: 'website'
-    }
-  ],
-  script: [
-    {
-      src: 'https://www.youtube.com/iframe_api'
-    },
-    {
-      src: '/scripts/player.js'
     }
   ]
 })
