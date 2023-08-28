@@ -21,7 +21,7 @@ const filters = ref({
 
 let offset = 0
 
-function filter() {
+function filter () {
   offset = 0
   fd.value = []
   fdm.value = new Map()
@@ -45,7 +45,7 @@ function filter() {
   infinite()
 }
 
-async function infinite() {
+async function infinite () {
   try {
     const feed = await (await fetch('/api/v1/episodes', {
       method: 'POST',
