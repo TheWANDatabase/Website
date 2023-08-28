@@ -89,3 +89,7 @@
 .banner svg {
     margin: auto 1.5rem auto auto;
 }
+
+.hidden {
+    display: none;
+}

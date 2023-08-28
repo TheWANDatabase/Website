@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const show = ref(false)
+const hasOpened = ref(false)
 
 function close () {
   show.value = false
@@ -29,8 +30,10 @@ onMounted(() => {
     const st = window.localStorage.getItem('BNR-' + props.pid)
     if (st === 'y') {
       show.value = true
+      hasOpened.value = true
     } else if (!st) {
       show.value = true
+      hasOpened.value = true
       window.localStorage.setItem('BNR-' + props.pid, 'y')
     } else {
       show.value = false
@@ -42,7 +45,7 @@ onMounted(() => {
 
 <template>
   <div
-    :class="[style.banner, show ? undefined : style.hide]"
+    :class="show ? [style.banner] : hasOpened ? [style.banner, style.hide] : [style.hidden]"
     :style="{ backgroundColor: props.bg || '#2a2a2a', color: props.fg || 'orange' }"
   >
     <slot />
