@@ -618,20 +618,54 @@ function processTopicChanges() {
                           {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
                             : person.name }}
                         </h3>
-                        <h4>
+                        <div>
+                          <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
+                            target="_blank">
+                            <img src="/2018_Linus_Tech_Tips_logo.svg" />
+                          </a>
+                          <a v-else>
+                            <img src="/2018_Linus_Tech_Tips_logo_grey.svg" />
+                          </a>
+
+                          <a v-if="person.imdb" :href="'https://www.imdb.com/name/' + person.imdb" target="_blank">
+                            <Icon name="bxl:imdb" color="#f3ce13" />
+                          </a>
+                          <a v-else>
+                            <Icon name="bxl:imdb" color="#3a3a3a" />
+                          </a>
+
+                          <a v-if="person.wikipedia" :href="'https://en.wikipedia.org/wiki/' + person.wikipedia"
+                            target="_blank">
+                            <Icon name="mdi:wikipedia" />
+                          </a>
+                          <a v-else>
+                            <Icon name="mdi:wikipedia" color="#3a3a3a" />
+                          </a>
+
+                          <a v-if="person.instagram" :href="'https://www.instagram.com/' + person.instagram"
+                            target="_blank">
+                            <Icon name="mdi:instagram" color="#C13584" />
+                          </a>
+                          <a v-else>
+                            <Icon name="mdi:instagram" color="#3a3a3a" />
+                          </a>
+
                           <a v-if="person.twitter" :href="'https://twitter.com/' + person.twitter" target="_blank">
                             <Icon name="logos:twitter" />
                           </a>
-                          <Icon v-else name="mdi:twitter" color="#3a3a3a" />
-                          &nbsp;
+                          <a v-else>
+                            <Icon name="mdi:twitter" color="#3a3a3a" />
+                          </a>
 
                           <a v-if="person.linkedin" :href="'https://www.linkedin.com/in/' + person.linkedin"
                             target="_blank">
                             <Icon name="devicon:linkedin" />
                           </a>
-                          <Icon v-else name="devicon-plain:linkedin" color="#3a3a3a" />
-                          &nbsp;
-
+                          <a v-else>
+                            <Icon name="devicon-plain:linkedin" color="#3a3a3a" />
+                          </a>
+                        </div>
+                        <h4>
                           <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
                             {{ person.outlet ? person.outlet : 'No Affiliation' }}
                             <Icon name="ph:link" />
@@ -752,5 +786,4 @@ function processTopicChanges() {
   <div :class="style.error">
     <h3>This device is too small for this page to display correctly.</h3>
     <p>Please try viewing on a bigger device.</p>
-  </div>
-</template>
+  </div></template>
