@@ -6,15 +6,14 @@ import { parse } from 'node-webvtt'
 
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
-
-
+const canEdit = ref(false)
 
 const route = useRoute()
 
 
 useAsyncData(() => {
   if (profile.value) {
-    showEditor.value = ((profile.value.permissions && 1) === 1 || (profile.value.permissions && 2) === 1)
+    canEdit.value = ((profile.value.permissions && 1) === 1 || (profile.value.permissions && 2) === 1)
   }
 }, {
   watch: [profile]
@@ -461,101 +460,103 @@ function processTopicChanges() {
 
         <!-- Topic Section -->
         <ul :class="style.groups">
-          <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addGroup()">
+          <button v-if="canEdit" style="position:sticky;top:0rem;" @click="addGroup()">
             Add Group
           </button>
-          <div :class="[style.topicEditor, showTopicEditor ? undefined : style.hidden]">
-            <div :class="style.topicEditorInner">
-              <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">
-                Close
-              </button>
-              <div :class="style.editorHorizontal">
-                <h1>Topic Editor</h1>
-              </div>
-              <h3>Topic Type</h3>
-              <p>
-                <strong>Container</strong>
-                <br>
-                Collapsible topic container, used to show just a general topic.
-                <br>
-                (eg: Topic 1 - xQc's Reaction Called Out)
-                <br>
-                <br>
-                <strong>Topic</strong>
-                <br>
-                Used for more precise breakdowns of whats going on.
-                <br>(eg: specific Merch Message question)
-              </p>
-              <select v-model="topicEditor.type.value" placeholder="Topic Title Text">
-                <option value="category">
-                  Container
-                </option>
-                <option value="topic">
-                  Topic
-                </option>
-              </select>
-              <h3>Title</h3>
-              <input v-model="topicEditor.title.value" placeholder="Topic Title Text">
-              <h3>Start Timestamp</h3>
-              <p>
-                At which point should the topic be highlighted in the player view?
-              </p>
-              <div :class="style.editorHorizontal">
-                <input v-model="topicEditor.time.hh.value" type="number" placeholder="00">
-                <input v-model="topicEditor.time.mm.value" type="number" placeholder="00">
-                <input v-model="topicEditor.time.ss.value" type="number" placeholder="00">
-              </div>
-              <h3>End Timestamp</h3>
-              <p>
-                When should the highlight be disabled. This is usually about 1 second before the start time
-                of the next topic.
-              </p>
-              <div :class="style.editorHorizontal">
-                <input v-model="topicEditor.end.hh.value" type="number" placeholder="00">
-                <input v-model="topicEditor.end.mm.value" type="number" placeholder="00">
-                <input v-model="topicEditor.end.ss.value" type="number" placeholder="00">
-              </div>
-              <template v-if="topicEditor.type.value === 'topic'">
-                <h3>Parent Container</h3>
+          <template v-if="profile">
+            <div v-if="canEdit" :class="[style.topicEditor, showTopicEditor ? undefined : style.hidden]">
+              <div :class="style.topicEditorInner">
+                <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">
+                  Close
+                </button>
+                <div :class="style.editorHorizontal">
+                  <h1>Topic Editor</h1>
+                </div>
+                <h3>Topic Type</h3>
                 <p>
-                  Which primary topic this subtopic should be stored within (only works on 'Topic'
-                  entries,
-                  and not 'Container' entries)
+                  <strong>Container</strong>
+                  <br>
+                  Collapsible topic container, used to show just a general topic.
+                  <br>
+                  (eg: Topic 1 - xQc's Reaction Called Out)
+                  <br>
+                  <br>
+                  <strong>Topic</strong>
+                  <br>
+                  Used for more precise breakdowns of whats going on.
+                  <br>(eg: specific Merch Message question)
                 </p>
-                <select v-model="topicEditor.parent.value">
-                  <option v-for="(topic, index) in topicEditorList" :key="index" :value="topic.id">
-                    {{ topic.title }}
+                <select v-model="topicEditor.type.value" placeholder="Topic Title Text">
+                  <option value="category">
+                    Container
+                  </option>
+                  <option value="topic">
+                    Topic
                   </option>
                 </select>
-              </template>
-              <h4>Preview</h4>
-              <Accordion v-if="topicEditor.type.value === 'category'" :show="false">
-                <template #header>
-                  <h3>{{ topicEditor.title.value }} </h3>
-                  <button>Jump To Topic</button>
-                </template>
-                <h4>No sub-topics available</h4>
-              </Accordion>
-              <div v-else :class="[style.topic]">
-                <p :class="style.topicTitle">
-                  {{ topicEditor.title.value.length > 0 ? topicEditor.title.value
-                    : 'Topic Title Text' }}
+                <h3>Title</h3>
+                <input v-model="topicEditor.title.value" placeholder="Topic Title Text">
+                <h3>Start Timestamp</h3>
+                <p>
+                  At which point should the topic be highlighted in the player view?
                 </p>
-                <span :class="style.topicDetails">
-                  <p v-if="profile" :class="style.topicContributor">
-                    Contributor: {{
-                      profile.username }}
-                    <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                <div :class="style.editorHorizontal">
+                  <input v-model="topicEditor.time.hh.value" type="number" placeholder="00">
+                  <input v-model="topicEditor.time.mm.value" type="number" placeholder="00">
+                  <input v-model="topicEditor.time.ss.value" type="number" placeholder="00">
+                </div>
+                <h3>End Timestamp</h3>
+                <p>
+                  When should the highlight be disabled. This is usually about 1 second before the start time
+                  of the next topic.
+                </p>
+                <div :class="style.editorHorizontal">
+                  <input v-model="topicEditor.end.hh.value" type="number" placeholder="00">
+                  <input v-model="topicEditor.end.mm.value" type="number" placeholder="00">
+                  <input v-model="topicEditor.end.ss.value" type="number" placeholder="00">
+                </div>
+                <template v-if="topicEditor.type.value === 'topic'">
+                  <h3>Parent Container</h3>
+                  <p>
+                    Which primary topic this subtopic should be stored within (only works on 'Topic'
+                    entries,
+                    and not 'Container' entries)
                   </p>
-                  <p :class="style.topicTimestamp">{{ topicEditor.time.hh }} :
-                    {{ topicEditor.time.mm }} : {{ topicEditor.time.ss }}</p>
-                </span>
+                  <select v-model="topicEditor.parent.value">
+                    <option v-for="(topic, index) in topicEditorList" :key="index" :value="topic.id">
+                      {{ topic.title }}
+                    </option>
+                  </select>
+                </template>
+                <h4>Preview</h4>
+                <Accordion v-if="topicEditor.type.value === 'category'" :show="false">
+                  <template #header>
+                    <h3>{{ topicEditor.title.value }} </h3>
+                    <button>Jump To Topic</button>
+                  </template>
+                  <h4>No sub-topics available</h4>
+                </Accordion>
+                <div v-else :class="[style.topic]">
+                  <p :class="style.topicTitle">
+                    {{ topicEditor.title.value.length > 0 ? topicEditor.title.value
+                      : 'Topic Title Text' }}
+                  </p>
+                  <span :class="style.topicDetails">
+                    <p v-if="profile" :class="style.topicContributor">
+                      Contributor: {{
+                        profile.username }}
+                      <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                    </p>
+                    <p :class="style.topicTimestamp">{{ topicEditor.time.hh }} :
+                      {{ topicEditor.time.mm }} : {{ topicEditor.time.ss }}</p>
+                  </span>
+                </div>
+                <button @click="processTopicChanges()">
+                  Edit Topic
+                </button>
               </div>
-              <button @click="processTopicChanges()">
-                Edit Topic
-              </button>
             </div>
-          </div>
+          </template>
           <template v-if="data.topics.length > 0">
             <template v-for="(group, index) in data.topics" :key="index">
               <Accordion :show="(group.timestamp_raw <= time && group.endpoint - 1 >= time)">
@@ -568,7 +569,7 @@ function processTopicChanges() {
                     Jump To Topic
                   </button>
                 </template>
-                <span v-if="showEditor" :class="style.topicButtons">
+                <span v-if="canEdit" :class="style.topicButtons">
                   <button :class="[style.topicButton, style.hoverEffects]" @click="save(group.id, true)">Save
                     Changes</button>
                   <button :class="[style.topicButton, style.hoverEffects]" @click="addTopicToGroup(group.hash)">Add
@@ -608,103 +609,105 @@ function processTopicChanges() {
 
         <!-- Cast Section -->
         <div :class="style.cast">
-          <button v-if="showEditor" style="position:sticky;top:0rem;" @click="addPerson()">
+          <button v-if="canEdit" style="position:sticky;top:0rem;" @click="addPerson()">
             Add Person
           </button>
-          <div :class="[style.personEditorSearch, showPersonSearch ? undefined : style.hidden]">
-            <div :class="style.personEditorInner">
-              <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">
-                Close
-              </button>
-              <div :class="style.editorHorizontal">
-                <h1>Cast Editor</h1>
-              </div>
-              <div :class="style.editorHorizontal">
-                <input v-model="castSearchValue" :class="[style.searchBar, style.hoverEffects]" type="text"
-                  placeholder="Search...">
-                <button :class="[style.editorSave, style.hoverEffects]" @click="saveCastMembers()">
-                  Save
+          <template v-if="profile">
+            <div v-if="canEdit" :class="[style.personEditorSearch, showPersonSearch ? undefined : style.hidden]">
+              <div :class="style.personEditorInner">
+                <button :class="[style.editorClose, style.hoverEffects]" @click="closeEditor()">
+                  Close
                 </button>
-              </div>
-              <div :class="style.editorSearchContainer">
-                <template v-if="castSearchResults.data.value.length > 0">
-                  <template v-for="(person, index) in castSearchResults.data.value" :key="index">
-                    <div
-                      :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
-                      @click="toggleCastMember(person.id)">
-                      <img :src="person.avatar">
-                      <div>
-                        <h3>
-                          {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
-                            : person.name }}
-                        </h3>
+                <div :class="style.editorHorizontal">
+                  <h1>Cast Editor</h1>
+                </div>
+                <div :class="style.editorHorizontal">
+                  <input v-model="castSearchValue" :class="[style.searchBar, style.hoverEffects]" type="text"
+                    placeholder="Search...">
+                  <button :class="[style.editorSave, style.hoverEffects]" @click="saveCastMembers()">
+                    Save
+                  </button>
+                </div>
+                <div :class="style.editorSearchContainer">
+                  <template v-if="castSearchResults.data.value.length > 0">
+                    <template v-for="(person, index) in castSearchResults.data.value" :key="index">
+                      <div
+                        :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
+                        @click="toggleCastMember(person.id)">
+                        <img :src="person.avatar">
                         <div>
-                          <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
-                            target="_blank">
-                            <img src="/2018_Linus_Tech_Tips_logo.svg" />
-                          </a>
-                          <a v-else>
-                            <img src="/2018_Linus_Tech_Tips_logo_grey.svg" />
-                          </a>
+                          <h3>
+                            {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
+                              : person.name }}
+                          </h3>
+                          <div>
+                            <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
+                              target="_blank">
+                              <img src="/2018_Linus_Tech_Tips_logo.svg" />
+                            </a>
+                            <a v-else>
+                              <img src="/2018_Linus_Tech_Tips_logo_grey.svg" />
+                            </a>
 
-                          <a v-if="person.imdb" :href="'https://www.imdb.com/name/' + person.imdb" target="_blank">
-                            <Icon name="bxl:imdb" color="#f3ce13" />
-                          </a>
-                          <a v-else>
-                            <Icon name="bxl:imdb" color="#3a3a3a" />
-                          </a>
+                            <a v-if="person.imdb" :href="'https://www.imdb.com/name/' + person.imdb" target="_blank">
+                              <Icon name="bxl:imdb" color="#f3ce13" />
+                            </a>
+                            <a v-else>
+                              <Icon name="bxl:imdb" color="#3a3a3a" />
+                            </a>
 
-                          <a v-if="person.wikipedia" :href="'https://en.wikipedia.org/wiki/' + person.wikipedia"
-                            target="_blank">
-                            <Icon name="mdi:wikipedia" />
-                          </a>
-                          <a v-else>
-                            <Icon name="mdi:wikipedia" color="#3a3a3a" />
-                          </a>
+                            <a v-if="person.wikipedia" :href="'https://en.wikipedia.org/wiki/' + person.wikipedia"
+                              target="_blank">
+                              <Icon name="mdi:wikipedia" />
+                            </a>
+                            <a v-else>
+                              <Icon name="mdi:wikipedia" color="#3a3a3a" />
+                            </a>
 
-                          <a v-if="person.instagram" :href="'https://www.instagram.com/' + person.instagram"
-                            target="_blank">
-                            <Icon name="mdi:instagram" color="#C13584" />
-                          </a>
-                          <a v-else>
-                            <Icon name="mdi:instagram" color="#3a3a3a" />
-                          </a>
+                            <a v-if="person.instagram" :href="'https://www.instagram.com/' + person.instagram"
+                              target="_blank">
+                              <Icon name="mdi:instagram" color="#C13584" />
+                            </a>
+                            <a v-else>
+                              <Icon name="mdi:instagram" color="#3a3a3a" />
+                            </a>
 
-                          <a v-if="person.twitter" :href="'https://twitter.com/' + person.twitter" target="_blank">
-                            <Icon name="logos:twitter" />
-                          </a>
-                          <a v-else>
-                            <Icon name="mdi:twitter" color="#3a3a3a" />
-                          </a>
+                            <a v-if="person.twitter" :href="'https://twitter.com/' + person.twitter" target="_blank">
+                              <Icon name="logos:twitter" />
+                            </a>
+                            <a v-else>
+                              <Icon name="mdi:twitter" color="#3a3a3a" />
+                            </a>
 
-                          <a v-if="person.linkedin" :href="'https://www.linkedin.com/in/' + person.linkedin"
-                            target="_blank">
-                            <Icon name="devicon:linkedin" />
-                          </a>
-                          <a v-else>
-                            <Icon name="devicon-plain:linkedin" color="#3a3a3a" />
-                          </a>
+                            <a v-if="person.linkedin" :href="'https://www.linkedin.com/in/' + person.linkedin"
+                              target="_blank">
+                              <Icon name="devicon:linkedin" />
+                            </a>
+                            <a v-else>
+                              <Icon name="devicon-plain:linkedin" color="#3a3a3a" />
+                            </a>
+                          </div>
+                          <h4>
+                            <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
+                              {{ person.outlet ? person.outlet : 'No Affiliation' }}
+                              <Icon name="ph:link" />
+                            </a>
+                            <template v-else>
+                              {{ person.outlet ? person.outlet : 'No Affiliation'
+                              }}
+                            </template>
+                          </h4>
                         </div>
-                        <h4>
-                          <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
-                            {{ person.outlet ? person.outlet : 'No Affiliation' }}
-                            <Icon name="ph:link" />
-                          </a>
-                          <template v-else>
-                            {{ person.outlet ? person.outlet : 'No Affiliation'
-                            }}
-                          </template>
-                        </h4>
                       </div>
-                    </div>
+                    </template>
                   </template>
-                </template>
-                <div v-else>
-                  No Results
+                  <div v-else>
+                    No Results
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
 
           <template v-for="(person, index) in data.cast" :key="index">
             <div :class="style.castMember">
