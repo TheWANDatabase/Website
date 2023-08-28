@@ -213,6 +213,11 @@ const { data, error } = useAsyncData(async () => {
       ],
       meta: [
         {
+          hid: 'theme-color',
+          name: 'theme-color',
+          content: '#bb2701'
+        },
+        {
           hid: 'robots',
           property: 'robots',
           content: 'index, archive'
