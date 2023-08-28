@@ -213,10 +213,15 @@ const { data, error } = useAsyncData(async () => {
       ],
       meta: [
         {
+          hid: 'theme-color',
+          name: 'theme-color',
+          content: '#bb2701'
+        },
+        {
           hid: 'robots',
           property: 'robots',
           content: 'index, archive'
-        }, ,
+        },
         {
           hid: 'og-title',
           property: 'og:title',
@@ -786,4 +791,5 @@ function processTopicChanges() {
   <div :class="style.error">
     <h3>This device is too small for this page to display correctly.</h3>
     <p>Please try viewing on a bigger device.</p>
-  </div></template>
+  </div>
+</template>
