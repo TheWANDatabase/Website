@@ -435,6 +435,20 @@ function processTopicChanges() {
               (You've watched {{ timeHuman }} | That's {{ timePercentage }}%)
             </h4>
           </div>
+          <div :class="style.buttonContainer">
+            <a :class="style.watchButton" :href="data.episode.youtube" target="_blank">
+              <Icon name="mdi:youtube" color="#ff0000" />
+              <span>Watch On YouTube</span>
+            </a>
+            <a :class="style.watchButton" v-if="data.episode.floatplane" target="_blank" :href="data.episode.floatplane">
+              <Icon name="simple-icons:floatplane" color="#0d6efd" />
+              <span>Watch On Floatplane</span>
+            </a>
+            <a :class="style.watchButton" v-else>
+              <Icon name="simple-icons:floatplane" color="#fff" />
+              <span>VOD Unavailable</span>
+            </a>
+          </div>
         </div>
 
         <!-- Player Section -->
