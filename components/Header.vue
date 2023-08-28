@@ -159,7 +159,7 @@ function logout () {
         :style="{
           // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
           opacity: visible ? '0.95' : '0',
-          display: visible ? 'visible' : 'none'
+          display: visible ? 'block' : 'none'
         }"
       >
         <h2>Topics Matching Search</h2>
