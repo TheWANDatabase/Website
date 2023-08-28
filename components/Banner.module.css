@@ -15,6 +15,7 @@
         height: 0;
         opacity: 0;
     }
+
     to {
         height: 2rem;
         opacity: 1;
@@ -24,7 +25,53 @@
 .hide {
     height: 0;
     opacity: 0;
-    transition: 500ms;
+    animation: hide 1s;
+    overflow: hidden;
+}
+
+.hide p {
+    animation: hide_text 1s;
+}
+
+@keyframes hide_text {
+    0% {
+        opacity: 1;
+    }
+    20% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes hide {
+    0% {
+        width: 100vw;
+        height: 2rem;
+        opacity: 1;
+        margin: 0 auto;
+    }
+
+    50% {
+        height: 2rem;
+    }
+
+    70% {
+        width: 0;
+        margin: 0 auto;
+    }
+
+    99% {
+        height: 0;
+        opacity: 0;
+    }
+
+    100% {
+        height: 0;
+        opacity: 0;
+        display: none;
+    }
 }
 
 .banner p {
@@ -32,9 +79,11 @@
     width: 100vw;
     text-align: center;
     line-height: 2rem;
+    white-space: none;
     height: 2rem;
     vertical-align: middle;
     font-weight: bold;
+    overflow: hidden;
 }
 
 .banner svg {
