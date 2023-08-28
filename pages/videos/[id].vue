@@ -56,9 +56,11 @@ useAsyncData(async () => {
           }).eq('id', watch.value.id)
         }
       } else if (profile.value && watch.value) {
-        await sb.from('episode_progression').update({
-          viewed_seconds: Math.floor(time.value)
-        }).eq('id', watch.value.id)
+        if (time.value % 5 === 1) {
+          await sb.from('episode_progression').update({
+            viewed_seconds: Math.floor(time.value)
+          }).eq('id', watch.value.id)
+        }
       } else if (profile.value) {
         const x = await sb.from('episode_progression').select('*')
           .eq('viewer', profile.value.id)
@@ -123,7 +125,6 @@ const { data, error } = useAsyncData(async () => {
     const episode = data
 
     meta.value = episode.title
-    console.log(episode.title, meta.value)
 
     const cast = (await sb.from('cast').select('*').in('id', episode.cast)).data.sort((a, b) => {
       if (a.id > b.id) return 1;

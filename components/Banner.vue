@@ -13,11 +13,7 @@ const props = withDefaults(defineProps<Props>(), {
   fixed: false
 })
 
-let show = ref(false)
-
-if (props.pid) {
-  show = useState(`show-banner-${props.pid}`, () => true)
-}
+const show = ref(false)
 
 function close () {
   show.value = false
@@ -31,13 +27,11 @@ function close () {
 onMounted(() => {
   if (props.pid) {
     const st = window.localStorage.getItem('BNR-' + props.pid)
-    console.log(st)
-
-    if (!st) {
+    if (st === 'y') {
+      show.value = true
+    } else if (!st) {
       show.value = true
       window.localStorage.setItem('BNR-' + props.pid, 'y')
-    } else if (st === 'y') {
-      show.value = true
     } else {
       show.value = false
     }
