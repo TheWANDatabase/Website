@@ -499,6 +499,33 @@
     opacity: 0 !important;
 }
 
+.castMember h4 a,
+.castMember div a {
+    color: white;
+    text-decoration: none;
+}
+
+.castMember>div>div {
+    display: flex;
+    line-height: 30px;
+    margin: 2.5px 0;
+    vertical-align: middle;
+}
+
+.castMember div a {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    margin: 0 10px;
+}
+
+.castMember div img,
+.castMember div svg {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    margin: 2.5px 0;
+}
 
 @media screen and (max-width: 1700px) {
     .viewport {

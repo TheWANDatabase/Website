@@ -47,7 +47,6 @@ export interface HistoryDetails {
     last_watched: String | Date // (Returned as a string, but stored as a Timestamp)
 }
 
-
 /**
  * @interface
  * @name HistoryRequest
