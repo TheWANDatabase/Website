@@ -26,11 +26,31 @@ const { data, error } = await useAsyncData(async () => {
       It was compiled thanks to the tireless work of {{ data.contributors.toLocaleString() }} people.
       Thank you to the following legends who helped make this possible (knowingly or not)
       <ul>
-        <li>Noki1119 - "The Timestamp Guy" - For creating timestamp comments across over 100 episodes of the show, in real time</li>
-        <li>kuyans3889 - Provided helpful timestamps for early WAN Show VODs, including some before it was called The WAN Show</li>
+        <li>
+          Noki1119 - "The Timestamp Guy" - For creating timestamp comments across over 100 episodes of the show, in real
+          time
+        </li>
+        <li>
+          kuyans3889 - Provided helpful timestamps for early WAN Show VODs, including some before it was called The WAN
+          Show
+        </li>
       </ul>
 
-      <span>Made using <Icon name="logos:nuxt-icon"/> by <a href="https://github.com/altriusrs" target="_blank">Altrius</a> - <a href="https://github.com/altriusrs/wandb">Contribute Here</a> </span>
+      <span style="">Made using
+        <Icon name="logos:nuxt-icon" /> Nuxt.JS by
+        <a style="color: #7a5bfa; text-decoration: none;" href="https://github.com/altriusrs" target="_blank">Altrius</a>
+      </span>
+      <br>
+      <span>
+        <a style="color: #7a5bfa; text-decoration: none;" href="https://github.com/altriusrs/wandb">
+          <Icon name="mdi:github" />
+          Contribute Here
+        </a> |
+        <a style="color: #7a5bfa; text-decoration: none;" href="https://ko-fi.com/altrius">
+          <Icon name="simple-icons:kofi" />
+          Buy Me A Coffee
+        </a>
+      </span>
     </p>
     <p v-else-if="error">
       {{ error }}
