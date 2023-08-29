@@ -4,11 +4,30 @@ import style from './Header.module.css'
 const sb = useSupabaseClient()
 const user = useSupabaseUser()
 const config = useRuntimeConfig()
+const route = useRoute()
 
 const profile = useState('uprofile', () => undefined)
 const history = useState('history', () => new Map())
+const banners = useState('banners', () => [])
 
 useAsyncData(async () => {
+  const bannerReq = await (await fetch('/api/v1/banners')).json()
+  banners.value = bannerReq.data.map((b) => {
+    let show = true
+
+    if (b.paths) {
+      show = b.paths.includes(route.fullPath)
+    }
+
+    if (b.domains && show) {
+      show = b.domains.includes(config.public.domain)
+    }
+
+    b.show = show
+
+    return b
+  })
+
   if (user.value) {
     const { data } = await (await fetch('/api/v1/profiles', {
       method: 'POST',
@@ -106,24 +125,17 @@ function logout () {
 </script>
 <template>
   <div :class="style.headerContainer">
-    <Banner pid="sup" bg="#ff5d5a" fg="#fff">
-      <p>
-        This website is free, hosting it is not, please consider supporting me 
-        <a style="color: #fff;" target="_blank" href="https://ko-fi.com/altrius">
-          <Icon name="cib:ko-fi" /> Buy me a coffee?
-        </a>
-      </p>
-    </Banner>
-    <Banner v-if="config.public.domain === 'localhost:3000'" pid="ddb" :fixed="true" bg="#914f4f" fg="#fff">
-      <p>
-        You are using a development build of The WAN DB - Proceed with caution.
-      </p>
-    </Banner>
-    <Banner v-if="config.public.domain === 'beta.thewandb.com'" pid="eadb" :fixed="true" bg="#914f4f" fg="#fff">
-      <p>
-        You are using an early access build of The WAN DB - Proceed with caution.
-      </p>
-    </Banner>
+    <template v-for="(banner, index) in banners" :key="index">
+      
+      <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
+        <p>
+          {{ banner.message }}
+          <a :style="{ color: banner.fg }" target="_blank" :href="banner.url">
+            <Icon :name="banner.icon" /> {{ banner['icon-message'] }}
+          </a>
+        </p>
+      </Banner>
+    </template>
     <div :class="style.header">
       <h1 :class="[style.brand, style.wordmark]">
         THE
