@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
             .eq('accepted', true)
         ).data
 
-        episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
+        episode.thumbnail = 'https://cdn.thewandb.com/thumbs/' + episode.id + '.jpeg'
         episode.title = episode.title.split('- WAN Show')[0]
         videoCache.set(id, {
           episode,

@@ -131,7 +131,7 @@ const { data, error } = useAsyncData(async () => {
       return 0;
     })
     for (let i = 0; i < cast.length; i++) {
-      cast[i].mug = (await sb.storage.from('mugs').getPublicUrl(cast[i].mug)).data.publicUrl
+      cast[i].mug = 'https://cdn.thewandb.com/mugs/'+cast[i].mug
       castMap.set(cast[i].id, cast[i]);
     }
     const topics = (await sb.from('topics').select('*, contributors(*)').eq('episode', episode.id).order('timestamp_raw')).data
