@@ -18,26 +18,61 @@ const hasOpened = ref(false)
 
 function close () {
   show.value = false
+  const date = new Date()
   try {
-    if (props.pid) { window.localStorage.setItem('BNR-' + props.pid, 'n') }
+    if (props.pid) {
+      window.localStorage.setItem('BNR-' + props.pid, JSON.stringify({
+        value: 'n',
+        expiry: date.setDate(date.getDate() + 1)
+      }))
+    }
   } catch (e) {
     console.error(e)
   }
 }
 
 onMounted(() => {
-  if (props.pid) {
-    const st = window.localStorage.getItem('BNR-' + props.pid)
-    if (st === 'y') {
-      show.value = true
-      hasOpened.value = true
-    } else if (!st) {
-      show.value = true
-      hasOpened.value = true
-      window.localStorage.setItem('BNR-' + props.pid, 'y')
-    } else {
-      show.value = false
+  try {
+    if (props.pid) {
+      const raw = window.localStorage.getItem('BNR-' + props.pid)
+      if (raw) {
+        const st = JSON.parse(raw)
+        if (st.expiry > Date.now()) {
+          if (st.value === 'y') {
+            show.value = true
+            hasOpened.value = true
+          } else if (!st.value) {
+            show.value = true
+            hasOpened.value = true
+            const date = new Date()
+            window.localStorage.setItem('BNR-' + props.pid, JSON.stringify({
+              value: 'y',
+              expiry: date.setDate(date.getDate() + 1)
+            }))
+          } else {
+            show.value = false
+          }
+        } else {
+          show.value = true
+          hasOpened.value = true
+          const date = new Date()
+          window.localStorage.setItem('BNR-' + props.pid, JSON.stringify({
+            value: 'y',
+            expiry: date.setDate(date.getDate() + 1)
+          }))
+        }
+      } else {
+        show.value = true
+        hasOpened.value = true
+        const date = new Date()
+        window.localStorage.setItem('BNR-' + props.pid, JSON.stringify({
+          value: 'y',
+          expiry: date.setDate(date.getDate() + 1)
+        }))
+      }
     }
+  } catch (e) {
+    console.error(e)
   }
 })
 

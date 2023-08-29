@@ -106,18 +106,20 @@ function logout () {
 </script>
 <template>
   <div :class="style.headerContainer">
-    <Banner pid="eab">
+    <Banner pid="sup" bg="#ff5d5a" fg="#fff">
       <p>
-        This website is currently in early access. It is unfinished and many design elements
-        may change in upcoming updates.
+        This website is free, hosting it is not, please consider supporting me 
+        <a style="color: #fff;" target="_blank" href="https://ko-fi.com/altrius">
+          <Icon name="cib:ko-fi" /> Buy me a coffee?
+        </a>
       </p>
     </Banner>
-    <Banner v-if="config.public.domain === 'localhost:3000'" pid="gab" :fixed="true" bg="#914f4f" fg="#fff">
+    <Banner v-if="config.public.domain === 'localhost:3000'" pid="ddb" :fixed="true" bg="#914f4f" fg="#fff">
       <p>
         You are using a development build of The WAN DB - Proceed with caution.
       </p>
     </Banner>
-    <Banner v-if="config.public.domain === 'beta.thewandb.com'" pid="gbb" :fixed="true" bg="#914f4f" fg="#fff">
+    <Banner v-if="config.public.domain === 'beta.thewandb.com'" pid="eadb" :fixed="true" bg="#914f4f" fg="#fff">
       <p>
         You are using an early access build of The WAN DB - Proceed with caution.
       </p>
