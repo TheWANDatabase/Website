@@ -1,63 +1,25 @@
-# Nuxt 3 Minimal Starter
+# The WAN DB
+A project aiming to index every episode, topic, and cast member of the popular technology podcast ["The WAN Show"](https://www.imdb.com/title/tt11481658/)
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+## Goals
+- [ ] 100% coverage of episodes .
+- [ ] 100% coverage of topics.
+- [ ] 100% coverage of cast members.
+- [ ] 100% coverage of merch messages.
+- [ ] Community driven data.
+- [ ] Beautiful user interface to tie it all together
 
-Make sure to install the dependencies:
+## Screenshots
 
-```bash
-# npm
-npm install
+> Coming soon
 
-# pnpm
-pnpm install
 
-# yarn
-yarn install
-```
+## Contributing
 
-## Development Server
+> coming soon
 
-Start the development server on `http://localhost:3000`:
 
-```bash
-# npm
-npm run dev
+## Self Hosting
 
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+> Coming soon
