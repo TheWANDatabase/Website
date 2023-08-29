@@ -86,8 +86,12 @@
     overflow: hidden;
 }
 
-.banner svg {
+.banner > svg {
     margin: auto 1.5rem auto auto;
+}
+
+.banner p a svg {
+    margin: auto 0.25rem auto 0.5rem;
 }
 
 .hidden {
