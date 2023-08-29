@@ -4,6 +4,10 @@ export const castCache = new NodeCache({
   stdTTL: 600
 })
 
+export const bannerCache = new NodeCache({
+  stdTTL: 60
+})
+
 export const profileCache = new NodeCache({
   stdTTL: 60
 })

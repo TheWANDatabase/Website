@@ -62,9 +62,9 @@ const signInWithDiscord = async () => {
     <div class="form">
       <h3>Click one of the buttons below to sign up or log in.</h3>
       <div>
-        <button @click="signInWithGoogle">
+        <!-- <button @click="signInWithGoogle">
           <Icon name="devicon:google" />
-        </button>
+        </button> -->
         <button @click="signInWithDiscord">
           <Icon name="logos:discord-icon" />
         </button>
