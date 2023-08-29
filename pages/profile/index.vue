@@ -16,7 +16,7 @@ const { data } = useAsyncData(async () => {
   const stats = await sb.from('user_statistics').select('*')
   const history = await sb.from('episode_progression').select('viewed_seconds, last_watched, episode (*)').order('last_watched', { ascending: false })
   for (let i = 0; i < history.data.length; i++) {
-    history.data[i].episode.thumbnailURI = sb.storage.from('thumbs').getPublicUrl(history.data[i].episode.id + '.jpeg').data.publicUrl
+    history.data[i].episode.thumbnailURI = 'https://cdn.thewandb.com/thumbs/' + history.data[i].episode.id + '.jpeg'
   }
   return {
     history,
@@ -25,19 +25,19 @@ const { data } = useAsyncData(async () => {
   }
 })
 
-function calcStarted (history) {
+function calcStarted(history) {
   return history.filter(f => f.viewed_seconds > 0).length
 }
 
-function calcFinished (history) {
+function calcFinished(history) {
   return history.filter(f => Math.floor(f.viewed_seconds) === f.episode.duration).length
 }
 
-function calcWatchTime (history) {
+function calcWatchTime(history) {
   return (history.map(f => f.viewed_seconds).reduce((partialSum, a) => partialSum + a, 0)) / history.length
 }
 
-function calcCompletion (history) {
+function calcCompletion(history) {
   return parseFloat((history.map(f => (Math.floor(f.viewed_seconds) / f.episode.duration) * 100).reduce((partialSum, a) => partialSum + a, 0) / history.length).toFixed(2))
 }
 
@@ -61,7 +61,7 @@ useAsyncData(async () => {
 
 onMounted(drawGraphs)
 
-function drawGraphs () {
+function drawGraphs() {
   useAsyncData(() => {
     window.setTimeout(() => {
       drawEpisodesStarted()
@@ -75,7 +75,7 @@ function drawGraphs () {
   })
 }
 
-function drawEpisodesStarted () {
+function drawEpisodesStarted() {
   const arc = d3
     .arc()
     .innerRadius(50 * 0.8)
@@ -136,7 +136,7 @@ function drawEpisodesStarted () {
   document.getElementById('episodesStartedChartValue').innerHTML = `<span style="color:#ffa500;">${dta[0].value.toLocaleString()}</span> / <span style="color:#444;">${dta[1].value.toLocaleString()}</span>`
 }
 
-function drawEpisodesFinished () {
+function drawEpisodesFinished() {
   const arc = d3
     .arc()
     .innerRadius(50 * 0.8)
@@ -197,15 +197,15 @@ function drawEpisodesFinished () {
   document.getElementById('episodesFinishedChartValue').innerHTML = `<span style="color:#ffa500;">${dta[0].value.toLocaleString()}</span> / <span style="color:#444;">${dta[1].value.toLocaleString()}</span>`
 }
 
-function drawTotalWatchTime () {
+function drawTotalWatchTime() {
   document.getElementById('totalWatchTimeChartBox').innerHTML = `<h1>${toTimestamp(data.value.stats.data[0].total_watch_time)}</h1>`
 }
 
-function drawavgWatchTime () {
+function drawavgWatchTime() {
   document.getElementById('avgWatchTimeChartBox').innerHTML = `<h1>${toTimestamp(calcWatchTime(data.value.history.data))}</h1>`
 }
 
-function drawavgCompletion () {
+function drawavgCompletion() {
   const arc = d3
     .arc()
     .innerRadius(50 * 0.8)
@@ -265,7 +265,7 @@ function drawavgCompletion () {
   // document.getElementById('avgCompletionChartBox').innerHTML = `<h1>${calcCompletion(data.value.history.data)}%</h1>`;
 }
 
-function relocate (id) {
+function relocate(id) {
   window.location.href = `/videos/${id}`
 }
 
@@ -317,12 +317,12 @@ useHead({
     {
       hid: 'og-image',
       property: 'og:image',
-      content: 'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
+      content: 'https://cdn.thewandb.com/mugs/6i7htvrnka731.png'
     },
     {
       hid: 'twitter-image',
       property: 'twitter:image',
-      content: 'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
+      content: 'https://cdn.thewandb.com/mugs/6i7htvrnka731.png'
     },
     {
       hid: 'twitter-card',
@@ -351,13 +351,8 @@ useHead({
             <span :class="style.tooltiptext">This name is what other users will see when you interact with them.
             </span>
           </span>
-          <TextEditorSetting
-            :current="profile.username"
-            :editor="settingValues.username"
-            placeholder="No Username Set"
-            vname="Username"
-            @saved="(e) => { console.log(e); settingValues.username.value = e; }"
-          />
+          <TextEditorSetting :current="profile.username" :editor="settingValues.username" placeholder="No Username Set"
+            vname="Username" @saved="(e) => { console.log(e); settingValues.username.value = e; }" />
         </div>
         <div :class="style.setting">
           <span :class="style.tooltip">
@@ -367,13 +362,8 @@ useHead({
               service you signed in with for the first time.
             </span>
           </span>
-          <TextEditorSetting
-            :current="profile.full_name"
-            :editor="settingValues.name"
-            placeholder="No Name Set"
-            vname="Login Name"
-            @saved="(e) => { settingValues.name.value = e }"
-          />
+          <TextEditorSetting :current="profile.full_name" :editor="settingValues.name" placeholder="No Name Set"
+            vname="Login Name" @saved="(e) => { settingValues.name.value = e }" />
         </div>
       </div>
       <div v-if="data.stats.data[0]" :class="style.profileStatistics">
