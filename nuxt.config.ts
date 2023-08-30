@@ -15,7 +15,8 @@ export default defineNuxtConfig({
         '/',
         '/sitemap*',
         '/videos/*',
-        '/openapi-spec.json'
+        '/openapi-spec.json',
+        '/privacy'
       ]
     }
   },
