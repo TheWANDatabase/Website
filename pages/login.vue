@@ -102,7 +102,7 @@ const signInWithDiscord = async () => {
     </p>
     <br>
     <h4>
-      And if all that still leaves you unsure, you can view the legalese of our <NuxtLink href="/privacy">
+      And if all that still leaves you unsure, you can view the legalese of our <NuxtLink style="color: #fff" href="/privacy">
         Privacy Policy
       </NuxtLink>
     </h4>
