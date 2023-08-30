@@ -11,7 +11,7 @@ const r = useRoute()
     <h1>My Profile</h1>
     <hr>
     <a href="/profile" :class="[r.path === '/profile' ? 'active' : undefined]">Profile</a>
-    <a href="/profile/settings" :class="[r.path === '/profile/settings' ? 'active' : undefined]">Settings</a>
+    <!-- <a href="/profile/settings" :class="[r.path === '/profile/settings' ? 'active' : undefined]">Settings</a> -->
     <a href="/profile/data" :class="[r.path === '/profile/data' ? 'active' : undefined]">My Data</a>
   </div>
 </template>

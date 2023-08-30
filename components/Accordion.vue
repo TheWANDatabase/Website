@@ -58,6 +58,7 @@ function leave (el) {
     margin: 0 0 20px;
     background-color: #3b3b3b;
     border-radius: 5px;
+    height: fit-content;
 }
 
 .accordion .header {
