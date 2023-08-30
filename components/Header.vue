@@ -84,7 +84,7 @@ async function search (d) {
       }]
     } else {
       for (let i = 0; i < res.data.topics.length; i++) {
-        thumbs.value[res.data.topics[i].id] = sb.storage.from('thumbs').getPublicUrl(res.data.topics[i].id + '.jpeg').data.publicUrl
+        thumbs.value[res.data.topics[i].id] = 'https://cdn.thewandb.com/thumbs/' + res.data.topics[i].id + '.jpeg'
       }
 
       results.value = res.data.topics
@@ -96,7 +96,7 @@ async function search (d) {
       }]
     } else {
       for (let i = 0; i < res.data.topics.length; i++) {
-        thumbs.value[res.data.episodes[i].id] = sb.storage.from('thumbs').getPublicUrl(res.data.episodes[i].id + '.jpeg').data.publicUrl
+        thumbs.value[res.data.episodes[i].id] = 'https://cdn.thewandb.com/thumbs/' + res.data.episodes[i].id + '.jpeg'
       }
 
       episodeResults.value = res.data.episodes

@@ -47,12 +47,12 @@ useHead({
     {
       hid: 'og-image',
       property: 'og:image',
-      content: 'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
+      content: 'https://cdn.thewandb.com/mugs/6i7htvrnka731.png'
     },
     {
       hid: 'twitter-image',
       property: 'twitter:image',
-      content: 'https://tnhnbqvtxzrrcfpsjsfq.supabase.co/storage/v1/object/public/mugs/6i7htvrnka731.png'
+      content: 'https://cdn.thewandb.com/mugs/6i7htvrnka731.png'
     },
     {
       hid: 'twitter-card',

@@ -62,9 +62,9 @@ const signInWithDiscord = async () => {
     <div class="form">
       <h3>Click one of the buttons below to sign up or log in.</h3>
       <div>
-        <!-- <button @click="signInWithGoogle">
+        <button @click="signInWithGoogle">
           <Icon name="devicon:google" />
-        </button> -->
+        </button>
         <button @click="signInWithDiscord">
           <Icon name="logos:discord-icon" />
         </button>
@@ -100,13 +100,12 @@ const signInWithDiscord = async () => {
       We do strongly encourage you to make your first task as a new user to be setting a new name for us to identify
       you by.
     </p>
-    <!--
-        <button @click="signInWithOtp">
-            Sign In with E-Mail
-        </button>
-        <input v-model="email" type="email" />
-        <input v-model="password" type="password" />
-        -->
+    <br>
+    <h4>
+      And if all that still leaves you unsure, you can view the legalese of our <NuxtLink href="/privacy">
+        Privacy Policy
+      </NuxtLink>
+    </h4>
   </div>
 </template>
 <style scoped>
