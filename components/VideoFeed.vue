@@ -30,7 +30,7 @@ const { data } = useAsyncData(async () => {
 }, { watch: [fd] })
 const filters = ref({
   order: 'release-desc',
-  startDate: new Date('2012-10-19T00:00:00.000Z'),
+  startDate: new Date('2012-08-28T00:00:00.000Z'),
   endDate: new Date(),
   members: []
 })
