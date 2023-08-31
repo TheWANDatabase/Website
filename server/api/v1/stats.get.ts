@@ -1,5 +1,5 @@
 import { serverSupabaseClient } from '#supabase/server'
-import { castCache, profileCache, videoCache, searchCache, episodeCache, historyCache, bannerCache } from '~/utils/cache'
+import { /* castCache, profileCache, videoCache, searchCache, episodeCache, historyCache, */ bannerCache } from '~/utils/cache'
 
 /**
  * Method | GET
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       cast: (await sb.from('cast').select('*', { count: 'exact', head: true })).count,
       topics: (await sb.from('topics').select('*', { count: 'exact', head: true })).count,
       contributors: (await sb.from('contributors').select('*', { count: 'exact', head: true })).count,
-      seconds: (await sb.rpc('get_total_duration')).data,
+      seconds: (await sb.rpc('get_total_duration')).data
     }
 
     bannerCache.set('2', d)
