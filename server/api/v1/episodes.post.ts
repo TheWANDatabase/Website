@@ -31,46 +31,73 @@ export default defineEventHandler(async (event) => {
         time: new Date().getTime() - t.getTime()
       }
     } else {
+      const q2 = sb.from('episodes')
+        .select('id', { head: true, count: 'exact' })
+        .not('aired', 'is', 'null')
+
       const query = sb.from('episodes')
         .select('*')
         .not('aired', 'is', 'null')
-        .range(offset, offset + (limit - 1))
 
-      if (filters.startDate) { query.gte('aired', filters.startDate) }
-      if (filters.endDate) { query.lte('aired', filters.endDate) }
+      // if (process.env.DOMAIN === 'localhost:3000') {
+      //   q2.eq('cast', '{}')
+      //   query.eq('cast', '{}')
+      // }
+
+      if (filters.startDate) {
+        query.gte('aired', filters.startDate)
+        q2.gte('aired', filters.startDate)
+      }
+      if (filters.endDate) {
+        query.lte('aired', filters.endDate)
+        q2.lte('aired', filters.endDate)
+      }
 
       switch (filters.order) {
         case 'release':
           query.order('aired', { ascending: true })
+          q2.order('aired', { ascending: true })
           break
         case 'release-desc':
           query.order('aired', { ascending: false })
+          q2.order('aired', { ascending: false })
           break
         case 'title':
           query.order('title', { ascending: true })
+          q2.order('title', { ascending: true })
           break
         case 'title-desc':
           query.order('title', { ascending: false })
+          q2.order('title', { ascending: false })
           break
         case 'topics':
           query.order('topic_count', { ascending: true })
+          q2.order('topic_count', { ascending: true })
           break
         case 'topics-desc':
           query.order('topic_count', { ascending: false })
+          q2.order('topic_count', { ascending: false })
           break
         case 'duration':
           query.order('duration', { ascending: true })
+          q2.order('duration', { ascending: true })
           break
         case 'duration-desc':
           query.order('duration', { ascending: false })
+          q2.order('duration', { ascending: false })
           break
       }
 
       if (filters.members.length > 0) {
         query.filter('cast', 'ov', `{"${filters.members.join('","')}"}`)
+        q2.filter('cast', 'ov', `{"${filters.members.join('","')}"}`)
       }
+      query.range(offset, offset + (limit - 1))
 
-      const feed = (await query).data
+      const feed = {
+        episodes: (await query).data,
+        count: (await q2).count
+      }
       episodeCache.set(batch, feed)
       return {
         data: feed,
