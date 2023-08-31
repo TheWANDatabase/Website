@@ -13,7 +13,9 @@ const route = useRoute()
 
 useAsyncData(() => {
   if (profile.value) {
-    canEdit.value = ((profile.value.permissions && 1) === 1 || (profile.value.permissions && 2) === 1)
+    canEdit.value = ((profile.value.permissions & 1) === 1 || (profile.value.permissions & 2) === 1);
+    console.log(profile.value.permissions);
+    console.log(canEdit.value)
   }
 }, {
   watch: [profile]
@@ -131,7 +133,7 @@ const { data, error } = useAsyncData(async () => {
       return 0;
     })
     for (let i = 0; i < cast.length; i++) {
-      cast[i].mug = 'https://cdn.thewandb.com/mugs/'+cast[i].mug
+      cast[i].mug = 'https://cdn.thewandb.com/mugs/' + cast[i].mug
       castMap.set(cast[i].id, cast[i]);
     }
     const topics = (await sb.from('topics').select('*, contributors(*)').eq('episode', episode.id).order('timestamp_raw')).data
@@ -199,7 +201,7 @@ const { data, error } = useAsyncData(async () => {
         })
       }
     }
-    episode.thumbnail = (await sb.storage.from('thumbs').getPublicUrl(episode.id + '.jpeg')).data.publicUrl
+    episode.thumbnail = `https://cdn.thewandb.com/thumbs/` + episode.id + '.jpeg'
     topicEditorList.value = tpcs
 
     useHead({
@@ -348,7 +350,7 @@ const castSearchResults = useAsyncData(async () => {
       search_term: castSearchValue.value
     })
     for (let i = 0; i < d.data.length; i++) {
-      d.data[i].avatar = (await sb.storage.from('mugs').getPublicUrl(d.data[i].mug)).data.publicUrl
+      d.data[i].avatar = 'https://cdn.thewandb.com/mugs/' + d.data[i].mug
     }
     return d.data
   }
@@ -636,10 +638,15 @@ function processTopicChanges() {
                         @click="toggleCastMember(person.id)">
                         <img :src="person.avatar">
                         <div>
-                          <h3>
-                            {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
-                              : person.name }}
-                          </h3>
+                          <span>
+                            <h3>
+                              {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
+                                : person.name }}
+                            </h3>
+                            <p>
+                              {{ person.role }}
+                            </p>
+                          </span>
                           <div>
                             <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
                               target="_blank">
@@ -713,10 +720,15 @@ function processTopicChanges() {
             <div :class="style.castMember">
               <img :src="person.mug">
               <div>
-                <h3>
-                  {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
-                    : person.name }}
-                </h3>
+                <span>
+                  <h3>
+                    {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
+                      : person.name }}
+                  </h3>
+                  <p>
+                    {{ person.role }}
+                  </p>
+                </span>
                 <div>
                   <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
                     target="_blank">

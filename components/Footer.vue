@@ -1,25 +1,10 @@
 <script async setup>
 import style from './Footer.module.css'
-
-const sb = useSupabaseClient()
-const { data, error } = await useAsyncData(async () => {
-  const e = (await sb.from('episodes').select('*', { count: 'exact', head: true })).count
-  const c = (await sb.from('cast').select('*', { count: 'exact', head: true })).count
-  const t = (await sb.from('topics').select('*', { count: 'exact', head: true })).count
-  const co = (await sb.from('contributors').select('*', { count: 'exact', head: true })).count
-
-  return {
-    episodes: e,
-    cast: c,
-    topics: t,
-    contributors: co
-  }
-})
 </script>
 <template>
   <div :class="style.footer">
-    <p v-if="data">
-      This database contains {{ data.topics.toLocaleString() }} topics, covered over
+    <p>
+      <!-- This database contains {{ data.topics.toLocaleString() }} topics, covered over
       {{ data.episodes.toLocaleString() }} episodes of The WAN Show featuring
       {{ data.cast.toLocaleString() }} people.
 
@@ -34,7 +19,7 @@ const { data, error } = await useAsyncData(async () => {
           kuyans3889 - Provided helpful timestamps for early WAN Show VODs, including some before it was called The WAN
           Show
         </li>
-      </ul>
+      </ul> -->
 
       <span style="">Made using
         <Icon name="logos:nuxt-icon" /> Nuxt.JS by
@@ -51,12 +36,6 @@ const { data, error } = await useAsyncData(async () => {
           Buy Me A Coffee
         </a>
       </span>
-    </p>
-    <p v-else-if="error">
-      {{ error }}
-    </p>
-    <p v-else>
-      Loading facts
     </p>
     <span class="style.copyright">
       The WAN DB is not affiliated with Linus Media Group or any of its employees, partners, or otherwise.

@@ -190,7 +190,12 @@
     transition: 500ms;
 }
 
+.header a {
+    text-decoration: none;
+}
+
 .wordmark {
+    
     display: block;
     opacity: 1;
     width: fit-content;

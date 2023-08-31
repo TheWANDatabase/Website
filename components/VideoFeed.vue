@@ -2,15 +2,31 @@
 import InfiniteLoading from 'v3-infinite-loading'
 import style from './VideoFeed.module.css'
 
+const sb =useSupabaseClient()
+
 const fd = ref([])
 const fdm = ref(new Map())
-
+const episodeCount = ref(0)
 const { data } = useAsyncData(async () => {
-  const cast = await (await fetch('/api/v1/cast', {
-    method: 'POST'
-  })).json()
+  try {
+    const cast = await (await fetch('/api/v1/cast', {
+      method: 'POST'
+    })).json()
+    const e = (await sb.from('episodes').select('*', { count: 'exact', head: true })).count
+    const c = (await sb.from('cast').select('*', { count: 'exact', head: true })).count
+    const t = (await sb.from('topics').select('*', { count: 'exact', head: true })).count
+    const co = (await sb.from('contributors').select('*', { count: 'exact', head: true })).count
 
-  return cast.data
+    return {
+      episodes: e,
+      cast: c,
+      topics: t,
+      contributors: co,
+      cdata: cast.data
+    }
+  } catch (e) {
+    console.error(e)
+  }
 }, { watch: [fd] })
 const filters = ref({
   order: 'release-desc',
@@ -21,7 +37,7 @@ const filters = ref({
 
 let offset = 0
 
-function filter () {
+function filter() {
   offset = 0
   fd.value = []
   fdm.value = new Map()
@@ -45,7 +61,7 @@ function filter () {
   infinite()
 }
 
-async function infinite () {
+async function infinite() {
   try {
     const feed = await (await fetch('/api/v1/episodes', {
       method: 'POST',
@@ -56,8 +72,9 @@ async function infinite () {
       })
     })).json()
 
-    feed.data.filter(({ id }) => !fdm.value.has(id))
-    fd.value = fd.value.concat(feed.data)
+    feed.data.episodes.filter(({ id }) => !fdm.value.has(id))
+    fd.value = fd.value.concat(feed.data.episodes)
+    episodeCount.value = feed.data.count
     offset += 20
   } catch (e) {
     // console.error(e)
@@ -145,14 +162,38 @@ infinite()
         <div :class="style.input">
           <p>Show only episodes featuring:</p>
           <ul id="castFilter">
-            <template v-for="(member, index) in data" :key="index">
-              <li :class="style.inlineCheck">
-                <input :id="member.id" type="checkbox" :checked="filters.members.includes(member.id)">
-                <p>{{ member.name }} ({{ member.outlet }})</p>
-              </li>
+            <template v-if="data">
+              <template v-for="(member, index) in data.cdata" :key="index">
+                <li :class="style.inlineCheck">
+                  <input :id="member.id" type="checkbox" :checked="filters.members.includes(member.id)">
+                  <p>{{ member.name }} ({{ member.outlet }})</p>
+                </li>
+              </template>
+            </template>
+            <template v-else>
+              <li>Loading Cast</li>
             </template>
           </ul>
         </div>
+        <p>
+          Showing episodes 1 to {{ fd.length.toLocaleString() }} of {{ (episodeCount).toLocaleString() }}
+        </p>
+        <h4 style="margin: 0 auto -0.5rem 0.5rem">Statistics</h4>
+        <p v-if="data">
+          Archive currently contains:
+          <br>
+          - {{ data.episodes.toLocaleString() }} Episodes
+          <br>
+          - {{ data.topics.toLocaleString() }} Topics
+          <br>
+          - {{ data.cast.toLocaleString() }} Guests / Hosts
+          <br>
+          - Contributions from {{ data.contributors.toLocaleString() }} people
+          <br>
+        </p>
+        <p v-else>
+          Loading Statistics
+        </p>
         <!-- </input> -->
       </div>
       <div :class="style.videobox">

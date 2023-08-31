@@ -67,7 +67,7 @@ const episodeResults = ref([])
 const visible = ref(false)
 const thumbs = ref({})
 
-async function search (d) {
+async function search(d) {
   const term = d.target.value
   if (term.length > 1) {
     const res = await (await fetch('/api/v1/search', {
@@ -110,15 +110,15 @@ async function search (d) {
   }
 }
 
-function openVideo (id) {
+function openVideo(id) {
   window.location.pathname = '/videos/' + id
 }
 
-function login () {
+function login() {
   window.location.href = '/login'
 }
 
-function logout () {
+function logout() {
   sb.auth.signOut()
   profile.value = undefined
 }
@@ -126,7 +126,6 @@ function logout () {
 <template>
   <div :class="style.headerContainer">
     <template v-for="(banner, index) in banners" :key="index">
-      
       <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
         <p>
           {{ banner.message }}
@@ -137,13 +136,15 @@ function logout () {
       </Banner>
     </template>
     <div :class="style.header">
-      <h1 :class="[style.brand, style.wordmark]">
-        THE
-        <span :class="style.grey1">W</span>
-        <span :class="style.orange">A</span>
-        <span :class="style.grey2">N</span>
-        DB
-      </h1>
+      <a href="/">
+        <h1 :class="[style.brand, style.wordmark]">
+          THE
+          <span :class="style.grey1">W</span>
+          <span :class="style.orange">A</span>
+          <span :class="style.grey2">N</span>
+          DB
+        </h1>
+      </a>
       <h1 :class="[style.brand, style.miniLogo]">
         <span :class="style.grey1">W</span>
         <span :class="style.orange">A</span>
@@ -168,14 +169,11 @@ function logout () {
         </button>
       </template>
       <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search">
-      <div
-        :class="style.searchResults"
-        :style="{
-          // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
-          opacity: visible ? '0.95' : '0',
-          display: visible ? 'block' : 'none'
-        }"
-      >
+      <div :class="style.searchResults" :style="{
+        // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
+        opacity: visible ? '0.95' : '0',
+        display: visible ? 'block' : 'none'
+      }">
         <h2>Topics Matching Search</h2>
         <template v-for="(result, index) in results" :key="index">
           <div v-if="!result.error" :class="style.searchResult" @click="openVideo(result.id)">

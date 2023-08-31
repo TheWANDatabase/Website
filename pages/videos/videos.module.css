@@ -210,8 +210,14 @@
     border-radius: 50%;
 }
 
-.castMember h3 {
-    margin: 1rem auto 0.5rem 0;
+.castMember span h3 {
+    margin: 1rem auto 0 0;
+    text-align: left;
+}
+
+.castMember span p {
+    color: grey;
+    margin: 0 auto 0.5rem 0;
     text-align: left;
 }
 
@@ -379,8 +385,14 @@
     border-radius: 50%;
 }
 
-.castSearchResult h3 {
-    margin: 1rem auto 0.5rem 0;
+.castSearchResult span h3 {
+    margin: 1rem auto 0 0;
+    text-align: left;
+}
+
+.castSearchResult span p {
+    color: grey;
+    margin: 0 auto 0.5rem 0;
     text-align: left;
 }
 
