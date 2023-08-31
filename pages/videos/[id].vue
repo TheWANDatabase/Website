@@ -10,6 +10,7 @@ const canEdit = ref(false)
 
 const route = useRoute()
 
+const modalMessage = ref(undefined)
 
 useAsyncData(() => {
   if (profile.value) {
@@ -201,7 +202,7 @@ const { data, error } = useAsyncData(async () => {
         })
       }
     }
-    episode.thumbnail = `https://cdn.thewandb.com/thumbs/` + episode.id + '.jpeg'
+    episode.thumbnail = `https://cdn.thewandb.com/thumbs/`+episode.id + '.jpeg'
     topicEditorList.value = tpcs
 
     useHead({
@@ -350,7 +351,7 @@ const castSearchResults = useAsyncData(async () => {
       search_term: castSearchValue.value
     })
     for (let i = 0; i < d.data.length; i++) {
-      d.data[i].avatar = 'https://cdn.thewandb.com/mugs/' + d.data[i].mug
+      d.data[i].avatar = 'https://cdn.thewandb.com/mugs/'+d.data[i].mug
     }
     return d.data
   }

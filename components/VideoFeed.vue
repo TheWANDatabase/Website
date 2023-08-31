@@ -2,7 +2,7 @@
 import InfiniteLoading from 'v3-infinite-loading'
 import style from './VideoFeed.module.css'
 
-const sb =useSupabaseClient()
+const sb = useSupabaseClient()
 
 const fd = ref([])
 const fdm = ref(new Map())
@@ -12,16 +12,9 @@ const { data } = useAsyncData(async () => {
     const cast = await (await fetch('/api/v1/cast', {
       method: 'POST'
     })).json()
-    const e = (await sb.from('episodes').select('*', { count: 'exact', head: true })).count
-    const c = (await sb.from('cast').select('*', { count: 'exact', head: true })).count
-    const t = (await sb.from('topics').select('*', { count: 'exact', head: true })).count
-    const co = (await sb.from('contributors').select('*', { count: 'exact', head: true })).count
-
+    const stats = (await (await fetch('/api/v1/stats')).json()).data
     return {
-      episodes: e,
-      cast: c,
-      topics: t,
-      contributors: co,
+      ...stats,
       cdata: cast.data
     }
   } catch (e) {
@@ -181,6 +174,8 @@ infinite()
         <h4 style="margin: 0 auto -0.5rem 0.5rem">Statistics</h4>
         <p v-if="data">
           Archive currently contains:
+          <br>
+          - Total Duration Archived: {{ toTimestamp(data.seconds) }}
           <br>
           - {{ data.episodes.toLocaleString() }} Episodes
           <br>
