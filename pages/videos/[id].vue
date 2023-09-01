@@ -10,8 +10,8 @@ const { id } = route.params
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
 const canEdit = ref(false)
-const showCorruptionModal = ref(true)
-const showContentWarningModal = ref(true)
+const showCorruptionModal = ref(false)
+const showContentWarningModal = ref(false)
 const meta = ref('Video Viewer')
 const time = ref(0)
 const watch = ref()
@@ -54,17 +54,6 @@ useAsyncData(() => {
   watch: [profile]
 })
 
-function hash(str) {
-  let h = 0
-  let i; let chr
-  if (str.length === 0) { return h }
-  for (i = 0; i < str.length; i++) {
-    chr = str.charCodeAt(i)
-    h = ((h << 5) - h) + chr
-    h |= 0 // Convert to 32bit integer
-  }
-  return h
-}
 
 
 useAsyncData(async () => {
@@ -88,7 +77,7 @@ useAsyncData(async () => {
           .eq('episode', id).maybeSingle()
         if (x.data) {
           watch.value = x.data
-          if (!route.query.t) {
+          if (!route.query.t && player) {
             player.seekTo(watch.value.viewed_seconds)
           }
         } else {
@@ -110,7 +99,7 @@ useAsyncData(async () => {
 
 onMounted(() => {
   setTimeout(() => {
-    if (player) {
+    if (player !== null) {
       if (route.query.t) {
         let t = parseInt(route.query.t)
         console.log("Time Query Provided, skipping to", t)
@@ -118,14 +107,17 @@ onMounted(() => {
         player.playVideo()
       }
     }
-  }, 200)
+  }, 500)
   itv.player = setInterval(() => {
-    if (player) {
+    if (player !== null) {
       try {
-        time.value = player.getCurrentTime()
-        timeHuman.value = toTimestamp(player.getCurrentTime())
-        timePercentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2)
+        if (player.getCurrentTime) {
+          time.value = player.getCurrentTime()
+          timeHuman.value = toTimestamp(player.getCurrentTime())
+          timePercentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2)
+        }
       } catch (e) {
+        console.log(e)
       }
     }
   }, 50)
@@ -137,172 +129,88 @@ onUnmounted(() => {
 })
 
 const { data, error } = useAsyncData(async () => {
-  const { data, error } = await sb.from('episodes').select('*').eq('id', id).single()
-  if (data) {
-    const episode = data
-    episode.flags = new VideoFlags(episode.flags).toJson()
-    showCorruptionModal.value = episode.flags.corrupt
-    showContentWarningModal.value = episode.flags.cw
-    meta.value = episode.title
+  const data = await (await fetch('http://localhost:3000/api/v1/videos/detailed/' + id)).json()
+  const episode = data.episode
+  showCorruptionModal.value = episode.flags.corrupt
+  showContentWarningModal.value = episode.flags.cw
 
-    const cast = (await sb.from('cast').select('*').in('id', episode.cast)).data.sort((a, b) => {
-      if (a.id > b.id) return 1;
-      if (a.id < b.id) return -1;
-      return 0;
-    })
-    for (let i = 0; i < cast.length; i++) {
-      cast[i].mug = 'https://cdn.thewandb.com/mugs/' + cast[i].mug
-      castMap.set(cast[i].id, cast[i]);
-    }
-    const topics = (await sb.from('topics').select('*, contributors(*)').eq('episode', episode.id).order('timestamp_raw')).data
-
-    const transcript = (
-      await sb.from('transcriptions')
-        .select('*')
-        .eq('id', episode.id)
-        .single()
-    ).data;
-
-    if (transcript) {
-      if (transcript.mappings) {
-        for (let i = 0; i < transcript.mappings.length; i++) {
-          let m = transcript.mappings[i];
-          let cm = m.pop();
-          for (let j = 0; j < m.length; j++) {
-            tsMap.set(m[j], cm);
-          }
-        }
+  useHead({
+    title: episode.title + ' | The WAN DB',
+    link: [
+      {
+        hid: 'canonical',
+        property: 'canonical',
+        content: 'https://thewandb.com/videos/' + episode.id
       }
-      if (transcript.vtt) transcript.vtt = parse(transcript.vtt);
-      if (transcript.vtt) transcript.vtt.cues.map((cue) => {
-        let speaker = cue.text.split(']: ')[0].split('[')[1];
-        cue.va = castMap.get(tsMap.get(speaker))
-        if (cue.va) {
-          cue.text = cue.text.split(']: ')[1];
-        }
-      })
-    }
-
-    const tpcs = []
-
-    for (let i = 0; i < topics.length; i++) {
-      const topic = topics[i]
-
-      if (topic.title === 'Chapters' || topic.title === 'Intro') { continue }
-
-      if (topic.section) {
-        tpcs.push({
-          ...topic,
-          hash: hash(topic.title),
-          children: []
-        })
-      } else if (tpcs[tpcs.length - 1]) {
-        if (topic.title.startsWith('Sponsor') && tpcs[tpcs.length - 1].title !== 'Sponsor Spots') {
-          tpcs.push({
-            title: 'Sponsor Spots',
-            hash: hash('Sponsor Spots'),
-            timestamp: topic.timestamp,
-            timestamp_raw: topic.timestamp_raw,
-            url: null,
-            children: [topic]
-          })
-        } else {
-          tpcs[tpcs.length - 1].endpoint = topic.endpoint
-          tpcs[tpcs.length - 1].children.push(topic)
-        }
-      } else {
-        tpcs.push({
-          ...topic,
-          hash: hash(topic.title),
-          endpoint: 0,
-          children: []
-        })
+    ],
+    meta: [
+      {
+        hid: 'theme-color',
+        name: 'theme-color',
+        content: '#bb2701'
+      },
+      {
+        hid: 'robots',
+        property: 'robots',
+        content: 'index, archive'
+      },
+      {
+        hid: 'og-title',
+        property: 'og:title',
+        content: episode.title + ' | The WAN DB'
+      },
+      {
+        hid: 'twitter-title',
+        property: 'twitter:title',
+        content: episode.title + ' | The WAN DB'
+      },
+      {
+        hid: 'description',
+        property: 'description',
+        content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+      },
+      {
+        hid: 'og-description',
+        property: 'og:description',
+        content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+      },
+      {
+        hid: 'twitter-description',
+        property: 'twitter:description',
+        content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
+      },
+      {
+        hid: 'og-image',
+        property: 'og:image',
+        content: episode.thumbnail
+      },
+      {
+        hid: 'twitter-image',
+        property: 'twitter:image',
+        content: episode.thumbnail
+      },
+      {
+        hid: 'twitter-card',
+        property: 'twitter:card',
+        content: 'summary_large_image'
+      },
+      {
+        hid: 'og-type',
+        property: 'og:type',
+        content: 'website'
       }
-    }
-    episode.thumbnail = `https://cdn.thewandb.com/thumbs/` + episode.id + '.jpeg'
-    topicEditorList.value = tpcs
+    ],
+    script: [
+      {
+        src: 'https://www.youtube.com/iframe_api'
+      },
+      {
+        src: '/scripts/player.js'
+      }
+    ]
+  })
+  return data
 
-    useHead({
-      title: episode.title + ' | The WAN DB',
-      link: [
-        {
-          hid: 'canonical',
-          property: 'canonical',
-          content: 'https://thewandb.com/videos/' + episode.id
-        }
-      ],
-      meta: [
-        {
-          hid: 'theme-color',
-          name: 'theme-color',
-          content: '#bb2701'
-        },
-        {
-          hid: 'robots',
-          property: 'robots',
-          content: 'index, archive'
-        },
-        {
-          hid: 'og-title',
-          property: 'og:title',
-          content: episode.title + ' | The WAN DB'
-        },
-        {
-          hid: 'twitter-title',
-          property: 'twitter:title',
-          content: episode.title + ' | The WAN DB'
-        },
-        {
-          hid: 'description',
-          property: 'description',
-          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-        },
-        {
-          hid: 'og-description',
-          property: 'og:description',
-          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-        },
-        {
-          hid: 'twitter-description',
-          property: 'twitter:description',
-          content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-        },
-        {
-          hid: 'og-image',
-          property: 'og:image',
-          content: episode.thumbnail
-        },
-        {
-          hid: 'twitter-image',
-          property: 'twitter:image',
-          content: episode.thumbnail
-        },
-        {
-          hid: 'twitter-card',
-          property: 'twitter:card',
-          content: 'summary_large_image'
-        },
-        {
-          hid: 'og-type',
-          property: 'og:type',
-          content: 'website'
-        }
-      ],
-      script: [
-        {
-          src: 'https://www.youtube.com/iframe_api'
-        },
-        {
-          src: '/scripts/player.js'
-        }
-      ]
-    })
-    return {
-      episode, cast, topics: tpcs, transcript
-    }
-  } else {
-    throw error
-  }
 })
 
 function addGroup() {
@@ -497,7 +405,7 @@ function processTopicChanges() {
         </div>
       </div>
     </template>
-    <template v-else>
+    <template v-else-if="!showCorruptionModal && !showContentWarningModal">
       <div :class="style.container">
         <div :class="style.viewport">
           <!-- Title Bar Section -->
@@ -529,6 +437,30 @@ function processTopicChanges() {
 
           <!-- Player Section -->
           <div :class="style.video">
+            <!-- Transcript Section -->
+            <div :class="style.transcript">
+              <div :class="style.transcriptInner">
+                <template v-if="data.transcript">
+                  <template v-for="(segment, index) in data.transcript.vtt.cues" :key="index">
+                    <div
+                      :class="(time >= segment.start && time <= segment.end) ? style.highlightedSpan : (time >= segment.end) ? (time >= segment.end) ? style.noDisplay : style.hiddenSpan : undefined">
+                      <template v-if="segment.va">
+                        <img :src="segment.va.mug" />
+                        <p>{{ segment.text }}</p>
+                      </template>
+                      <template v-else>
+                        <p>{{ segment.text }}</p>
+                      </template>
+                    </div>
+                  </template>
+                  <span>Note: These subtitles are generated using OpenAI&apos;s <a
+                      href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span>
+                </template>
+                <template v-else>
+                  Transcript unavailable
+                </template>
+              </div>
+            </div>
             <iframe id="videoplayerviewportsector" :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
               title="YouTube video player" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -663,9 +595,9 @@ function processTopicChanges() {
                           {{ topic.title }}
                         </p>
                         <span :class="style.topicDetails">
-                          <p v-if="topic.contributors" :class="style.topicContributor">
+                          <p v-if="topic.contributor" :class="style.topicContributor">
                             Contributor: {{
-                              topic.contributors.name }}
+                              topic.contributor.username }}
                             <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
                               color="#1DA1F2" />
                           </p>
@@ -865,30 +797,6 @@ function processTopicChanges() {
               </div>
             </template>
           </div>
-        </div>
-
-
-        <!-- Cast Section -->
-        <div :class="style.transcript">
-          <template v-if="data.transcript">
-            <span>Note: These subtitles are generated using OpenAI&apos;s <a
-                href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span>
-            <template v-for="(segment, index) in data.transcript.vtt.cues" :key="index">
-              <div
-                :class="(time >= segment.start && time <= segment.end) ? style.highlightedSpan : (time >= segment.end) ? (time >= segment.end) ? style.noDisplay : style.hiddenSpan : undefined">
-                <template v-if="segment.va">
-                  <img :src="segment.va.mug" />
-                  <p>{{ segment.text }}</p>
-                </template>
-                <template v-else>
-                  <p>{{ segment.text }}</p>
-                </template>
-              </div>
-            </template>
-          </template>
-          <template v-else>
-            Transcript unavailable
-          </template>
         </div>
       </div>
     </template>
