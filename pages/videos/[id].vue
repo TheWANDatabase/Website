@@ -129,7 +129,7 @@ onUnmounted(() => {
 })
 
 const { data, error } = useAsyncData(async () => {
-  const data = await (await fetch('http://localhost:3000/api/v1/videos/detailed/' + id)).json()
+  const data = await (await fetch('/api/v1/videos/detailed/' + id)).json()
   const episode = data.episode
   showCorruptionModal.value = episode.flags.corrupt
   showContentWarningModal.value = episode.flags.cw
