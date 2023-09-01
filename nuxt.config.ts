@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  // ssr: false,
+  ssr: process.env.SSR !== undefined || true,
   modules: [
     '@nuxtjs/supabase',
     '@nuxtjs/color-mode',
