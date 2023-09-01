@@ -2,8 +2,6 @@
 import InfiniteLoading from 'v3-infinite-loading'
 import style from './VideoFeed.module.css'
 
-const sb = useSupabaseClient()
-
 const fd = ref([])
 const fdm = ref(new Map())
 const episodeCount = ref(0)
@@ -30,7 +28,7 @@ const filters = ref({
 
 let offset = 0
 
-function filter() {
+function filter () {
   offset = 0
   fd.value = []
   fdm.value = new Map()
@@ -54,7 +52,7 @@ function filter() {
   infinite()
 }
 
-async function infinite() {
+async function infinite () {
   try {
     const feed = await (await fetch('/api/v1/episodes', {
       method: 'POST',
@@ -184,6 +182,8 @@ infinite()
           - {{ data.cast.toLocaleString() }} Guests / Hosts
           <br>
           - Contributions from {{ data.contributors.toLocaleString() }} people
+          <br>
+          - The WAN Show first aired {{ getRelativeTime(new Date('2012-08-28')) }}
           <br>
         </p>
         <p v-else>

@@ -1,4 +1,4 @@
-var player;
+var player = null;
 var pr = false;
 
 function onYouTubeIframeAPIReady() {
@@ -13,5 +13,5 @@ function onYouTubeIframeAPIReady() {
         } catch (e) {
             console.log(e);
         }
-    })
+    }, 200)
 }

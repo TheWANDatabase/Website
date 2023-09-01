@@ -39,10 +39,10 @@ export default defineEventHandler(async (event) => {
         .select('*')
         .not('aired', 'is', 'null')
 
-      if (process.env.DOMAIN === 'localhost:3000') {
-        q2.eq('cast', '{}')
-        query.eq('cast', '{}')
-      }
+      // if (process.env.DOMAIN === 'localhost:3000') {
+      //   q2.eq('cast', '{}')
+      //   query.eq('cast', '{}')
+      // }
 
       if (filters.startDate) {
         query.gte('aired', filters.startDate)

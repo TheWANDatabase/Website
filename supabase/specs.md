@@ -24,7 +24,7 @@ The current specifications for all of these can be found in this file.
 | `0000001000000000` | 512     | Guest     | Video features one or more guests to the show (non LMG staff)                                                              |
 | `0000010000000000` | 1,024   | LTX/Trade | This show was streamed from an LTX or other industry event                                                                 |
 | `0000100000000000` | 2,048   | MM        | Video features the use of Merch Messages                                                                                   |
-| `0001000000000000` | 4,096   | PL        | Video features the launch of a product by LMG/Creator Warehouse                                                             |
+| `0001000000000000` | 4,096   | PL        | Video features the launch of a product by LMG/Creator Warehouse                                                            |
 | `0010000000000000` | 8,192   |           |                                                                                                                            |
 | `0100000000000000` | 16,384  |           |                                                                                                                            |
 | `1000000000000000` | 32,768  |           |                                                                                                                            |
