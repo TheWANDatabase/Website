@@ -453,8 +453,8 @@ function processTopicChanges() {
                       </template>
                     </div>
                   </template>
-                  <span>Note: These subtitles are generated using OpenAI&apos;s <a
-                      href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span>
+                  <!-- <span>Note: These subtitles are generated using OpenAI&apos;s <a
+                      href="https://openai.com/research/whisper">Whisper</a> Automatic Speech Recognition</span> -->
                 </template>
                 <template v-else>
                   Transcript unavailable
