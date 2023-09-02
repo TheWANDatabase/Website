@@ -1,11 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-console.log(process.env.DOMAIN)
-
-if (process.env.DOMAIN === null) { process.env.DOMAIN = process.env.VERCEL_URL }
-if (process.env.DOMAIN === null) { process.env.DOMAIN = process.env.VERCEL_BRANCH_URL }
-
-console.log(process.env.DOMAIN)
+if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_URL }
+if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_BRANCH_URL }
 
 export default defineNuxtConfig({
   // ssr: false,
