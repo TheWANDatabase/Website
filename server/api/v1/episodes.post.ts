@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
         q2.lte('aired', filters.endDate)
       }
 
-      switch (filters.order) {
+      switch (filters.order.id) {
         case 'release':
           query.order('aired', { ascending: true })
           q2.order('aired', { ascending: true })

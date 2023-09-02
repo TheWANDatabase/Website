@@ -1,6 +1,28 @@
 var player = null;
 var pr = false;
 
+var playerType = 0;
+
+// Run check on which player is loaded (stream or YT)
+setTimeout(() => {
+    let x = document.getElementById('videoplayeryoutube');
+    if (x) {
+        playerType = 0
+    } else {
+        x = document.getElementById('videoplayerstream');
+        if (x) {
+            console.log("Loading Stream Player")
+            playerType = 1
+            player = Stream(x);
+            player.addEventListener('play', () => {
+                console.log('playing!');
+            });
+
+        }
+    }
+}, 200)
+
+
 function onYouTubeIframeAPIReady() {
     pr = true;
     setTimeout(() => {

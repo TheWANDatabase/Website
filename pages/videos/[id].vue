@@ -6,6 +6,7 @@ import { parse } from 'node-webvtt'
 const sb = useSupabaseClient()
 const route = useRoute()
 const { id } = route.params
+const config = useRuntimeConfig();
 
 const profile = useState('uprofile', () => undefined)
 const showEditor = ref(false)
@@ -78,7 +79,11 @@ useAsyncData(async () => {
         if (x.data) {
           watch.value = x.data
           if (!route.query.t && player) {
-            player.seekTo(watch.value.viewed_seconds)
+            if (playerType === 1) {
+              player.currentTime = watch.value.viewed_seconds
+            } else {
+              player.seekTo(watch.value.viewed_seconds)
+            }
           }
         } else {
           const a = await sb.from('episode_progression').insert({
@@ -103,17 +108,21 @@ onMounted(() => {
       if (route.query.t) {
         let t = parseInt(route.query.t)
         console.log("Time Query Provided, skipping to", t)
-        player.seekTo(t)
-        player.playVideo()
+        if (playerType === 1) {
+          player.currentTime = t
+        } else {
+          player.seekTo(t)
+        }
       }
     }
-  }, 500)
+  }, 1000)
   itv.player = setInterval(() => {
     if (player !== null) {
       try {
         if (player.getCurrentTime) {
-          time.value = player.getCurrentTime()
-          timeHuman.value = toTimestamp(player.getCurrentTime())
+          if (playerType === 0) time.value = player.getCurrentTime()
+          if (playerType === 1) time.value = player.currentTime
+          timeHuman.value = toTimestamp(time.value)
           timePercentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2)
         }
       } catch (e) {
@@ -129,10 +138,12 @@ onUnmounted(() => {
 })
 
 const { data, error } = useAsyncData(async () => {
-  const data = await (await fetch('/api/v1/videos/detailed/' + id)).json()
+  let url = config.public.api_base + '/videos/detailed/' + id;
+  console.log(url)
+  const data = await (await fetch(url)).json()
   const episode = data.episode
-  showCorruptionModal.value = episode.flags.corrupt
-  showContentWarningModal.value = episode.flags.cw
+  // showCorruptionModal.value = episode.flags.corrupt
+  // showContentWarningModal.value = episode.flags.cw
 
   useHead({
     title: episode.title + ' | The WAN DB',
@@ -203,6 +214,9 @@ const { data, error } = useAsyncData(async () => {
     script: [
       {
         src: 'https://www.youtube.com/iframe_api'
+      },
+      {
+        src: 'https://embed.cloudflarestream.com/embed/sdk.latest.js'
       },
       {
         src: '/scripts/player.js'
@@ -460,11 +474,15 @@ function processTopicChanges() {
                   Transcript unavailable
                 </template>
               </div>
-            </div>
-            <iframe id="videoplayerviewportsector" :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`"
-              title="YouTube video player" frameborder="0"
+            </div>=
+            <iframe v-if="data.episode.flags.corrupt && !data.episode.stream_id" id="videoplayeryoutube"
+              :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`" title="YouTube video player" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen />
+            <iframe v-else-if="data.episode.flags.corrupt && data.episode.stream_id" id="videoplayerstream"
+              :src="`https://customer-${config.public.stream_cid}.cloudflarestream.com/${data.episode.stream_id}/iframe`"
+              style="border: none" height="720" width="1280"
+              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen="true" />
           </div>
 
           <!-- Topic Section -->

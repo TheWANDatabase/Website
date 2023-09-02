@@ -1,4 +1,4 @@
-<script setup>
+<script async setup>
 import style from './Header.module.css'
 
 const sb = useSupabaseClient()
@@ -62,18 +62,128 @@ useAsyncData(async () => {
   watch: [user]
 })
 
+const signInWithGoogle = async () => {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      //     queryParams: {
+      //         access_type: 'offline',
+      //         prompt: 'consent',
+      //     },
+      redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
+    }
+  })
+  if (error) { alert(error) }
+}
+
+const signInWithDiscord = async () => {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'discord',
+    options: {
+      redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
+    }
+  })
+  if (error) { alert(error) }
+}
+
+const items = ref([])
+
+await useAsyncData(() => {
+  if (profile.value) {
+    items.value = [
+      [
+        {
+          label: 'My Profile',
+          icon: 'i-heroicons-arrow-top-right-on-square',
+          click: () => {
+            window.location.href = '/profile'
+          }
+        },
+        {
+          label: 'My Data',
+          icon: 'i-heroicons-arrow-top-right-on-square',
+          click: () => {
+            window.location.href = '/profile/data'
+          }
+        }
+      ],
+      [
+        {
+          label: 'Log Out',
+          icon: 'i-heroicons-arrow-left-on-rectangle',
+          click: () => {
+            sb.auth.signOut()
+            profile.value = undefined
+            user.value = undefined
+            if (window.location.href.startsWith('/profile')) { window.location.href = '/' }
+          }
+        }
+      ],
+      [
+        {
+          label: 'Contribute',
+          icon: 'i-heroicons-code-bracket',
+          click: () => {
+            window.open('https://github.com/TheWANDatabase', '_blank')
+          }
+        },
+        {
+          label: 'Donate',
+          icon: 'i-heroicons-banknotes',
+          click: () => {
+            window.open('https://ko-fi.com/altrius', '_blank')
+          }
+        }
+      ]
+    ]
+  } else {
+    items.value = [
+      [
+        {
+          label: 'Log In With Google',
+          click: signInWithGoogle,
+          icon: 'i-logos-google-icon'
+        },
+        {
+          label: 'Log In With Discord',
+          click: signInWithDiscord,
+          icon: 'i-logos-discord'
+        }
+      ],
+      [
+        {
+          label: 'Contribute',
+          icon: 'i-heroicons-code-bracket',
+          click: () => {
+            window.open('https://github.com/TheWANDatabase', '_blank')
+          }
+        },
+        {
+          label: 'Donate',
+          icon: 'i-heroicons-banknotes',
+          click: () => {
+            window.open('https://ko-fi.com/altrius', '_blank')
+          }
+        }
+      ]
+    ]
+  }
+}, {
+  watch: [profile]
+})
+
 const results = ref([])
 const episodeResults = ref([])
 const visible = ref(false)
 const thumbs = ref({})
+const query = ref('')
 
-async function search(d) {
-  const term = d.target.value
-  if (term.length > 1) {
+const { pending } = useAsyncData(async () => {
+  if (query.value.length > 1) {
     const res = await (await fetch('/api/v1/search', {
       method: 'POST',
       body: JSON.stringify({
-        phrase: term,
+        phrase: query.value,
         lmt: 5,
         ofst: 0
       })
@@ -108,23 +218,17 @@ async function search(d) {
     visible.value = results.value.length > 0
     thumbs.value = {}
   }
-}
+}, {
+  watch: [query]
+})
 
-function openVideo(id) {
+function openVideo (id) {
   window.location.pathname = '/videos/' + id
 }
 
-function login() {
-  window.location.href = '/login'
-}
-
-function logout() {
-  sb.auth.signOut()
-  profile.value = undefined
-}
 </script>
 <template>
-  <div :class="style.headerContainer">
+  <div class="shadow-md shadow-black bg-slate-500 w-100 flex-col">
     <template v-for="(banner, index) in banners" :key="index">
       <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
         <p>
@@ -135,45 +239,66 @@ function logout() {
         </p>
       </Banner>
     </template>
-    <div :class="style.header">
-      <a href="/">
-        <h1 :class="[style.brand, style.wordmark]">
-          THE
-          <span :class="style.grey1">W</span>
-          <span :class="style.orange">A</span>
-          <span :class="style.grey2">N</span>
-          DB
+    <div class="flex w-100">
+      <a
+        href="/"
+        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+      >
+        <h1 class="uppercase font-bold text-xl">
+          The WAN DB
         </h1>
+        <p class="text-base">
+          The go-to place for WAN
+        </p>
       </a>
-      <h1 :class="[style.brand, style.miniLogo]">
-        <span :class="style.grey1">W</span>
-        <span :class="style.orange">A</span>
-        <span :class="style.grey2">N</span>
-      </h1>
-      <ul :class="style.navcontainer">
-        <a :class="style.navlink" href="/">Video Index</a>
-        <!-- <a :class="style.navlink" href="/contributors">Contributors</a>
-            <a :class="style.navlink" href="/cast">Cast & Crew</a> -->
-      </ul>
+      <a
+        href="/contributors"
+        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+      >
+        <h3 class="hover:font-bold py-3 text-l transition-all">
+          Contributors
+        </h3>
+      </a>
+      <a
+        href="/cast"
+        class="uppercase mr-auto flex-col justify-center pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+      >
+        <h3 class="hover:font-bold h-fit py-3 text-center text-l transition-all">
+          Cast
+        </h3>
+      </a>
 
-      <button v-if="!user" :class="style.login" @click="login">
-        Login
-      </button>
-      <template v-else>
-        <a v-if="profile" href="/profile" :class="style.profilePill">
-          <img :src="profile.avatar_url">
-          {{ profile.username ? profile.username : profile.full_name }}
-        </a>
-        <button :class="style.logout" @click="logout">
-          Logout
-        </button>
+      <template v-if="profile">
+        <UDropdown :items="items" mode="hover">
+          <UButton color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
+            <UAvatar :src="profile.avatar_url" alt="Avatar" /> {{ profile.username }}
+          </UButton>
+        </UDropdown>
       </template>
-      <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search">
-      <div :class="style.searchResults" :style="{
-        // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
-        opacity: visible ? '0.95' : '0',
-        display: visible ? 'block' : 'none'
-      }">
+      <template v-else>
+        <UDropdown :items="items" mode="hover">
+          <UButton color="none" label="Options" trailing-icon="i-heroicons-chevron-down-20-solid" />
+        </UDropdown>
+      </template>
+      <div class="my-auto mx-2">
+        <UInput
+          v-model="query"
+          variant="outline"
+          color="white"
+          icon="i-heroicons-magnifying-glass-20-solid"
+          size="sm"
+          placeholder="Search..."
+        />
+      </div>
+      <!-- <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search"> -->
+      <!-- <div
+        :class="style.searchResults"
+        :style="{
+          // 'max-height': visible ? ((results.length * 110) + ((episodeResults.length * 110))) + 'px' : '0px',
+          opacity: visible ? '0.95' : '0',
+          display: visible ? 'block' : 'none'
+        }"
+      >
         <h2>Topics Matching Search</h2>
         <template v-for="(result, index) in results" :key="index">
           <div v-if="!result.error" :class="style.searchResult" @click="openVideo(result.id)">
@@ -207,7 +332,7 @@ function logout() {
             <h2>No Results Found</h2>
           </div>
         </template>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

@@ -11,7 +11,7 @@ export enum VideoFlagMasks {
   GUEST = 512,
   LTX = 1024,
   MM = 2048,
-  PL = 40962
+  PL = 4096
 }
 
 export class VideoFlags {

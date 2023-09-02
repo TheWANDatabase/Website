@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         time: new Date().getTime() - t.getTime()
       }
     } else {
-      const feed = (await sb.from('cast').select('id, name, outlet').order('id')).data
+      const feed = (await sb.from('cast').select('id, name, outlet, mug').order('id')).data
       castCache.set('cast', feed)
       return {
         data: feed,

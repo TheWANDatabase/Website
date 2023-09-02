@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/supabase',
     '@nuxtjs/color-mode',
+    '@nuxthq/ui',
     'nuxt-icon',
     'nuxt-simple-sitemap'
   ],

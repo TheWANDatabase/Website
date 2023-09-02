@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-slate-300 text-amber-800">
     <Header />
     <NuxtPage />
     <Footer />
@@ -14,10 +14,10 @@
 }
 
 body {
-  background: #1a1a1a;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: #cbd5e1
 }
 </style>
