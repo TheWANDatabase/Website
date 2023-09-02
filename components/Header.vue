@@ -242,14 +242,9 @@ function openVideo (id) {
     <div class="flex w-100">
       <a
         href="/"
-        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+        class="uppercase mr-1 pt-1 pb-1 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
       >
-        <h1 class="uppercase font-bold text-xl">
-          The WAN DB
-        </h1>
-        <p class="text-base">
-          The go-to place for WAN
-        </p>
+        <img class="w-32" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg">
       </a>
       <a
         href="/contributors"

@@ -25,32 +25,12 @@ export default defineEventHandler(async (event) => {
       ).data
 
       if (episode) {
-        const cast = (
-          await sb.from('cast')
-            .select('id')
-            .in('id', episode.cast)
-        ).data
-
-        const topics = (
-          await sb.from('topics')
-            .select('id')
-            .eq('episode', episode.id)
-            .eq('accepted', true)
-        ).data
-
         episode.thumbnail = 'https://cdn.thewandb.com/thumbs/' + episode.id + '.jpeg'
         episode.title = episode.title.split('- WAN Show')[0]
-        videoCache.set(id, {
-          episode,
-          cast,
-          topics
-        })
 
-        return {
-          episode,
-          cast,
-          topics
-        }
+        videoCache.set(id, episode)
+
+        return episode
       } else {
         return {
           error: 'Unable to locate episode matching id: ' + id

@@ -27,3 +27,7 @@ export const episodeCache = new NodeCache({
 export const historyCache = new NodeCache({
   stdTTL: 60
 })
+
+export const integrationCache = new NodeCache({
+  stdTTL: 60 * 5
+})

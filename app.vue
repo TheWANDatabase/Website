@@ -18,6 +18,12 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #cbd5e1
+  background-color: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #cbd5e1;
+  }
 }
 </style>
