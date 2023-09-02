@@ -227,7 +227,7 @@ const { data, error } = useAsyncData(async () => {
 
 })
 
-function addGroup() {
+function addGroup () {
   showTopicEditor.value = true
   // data.value.topics.push({
   //     id: v4(),
@@ -244,7 +244,7 @@ function addGroup() {
   // })
 }
 
-function addTopicToGroup(id) {
+function addTopicToGroup (id) {
   for (let i = 0; i < data.value.topics.length; i++) {
     if (data.value.topics[i].hash === id) {
       data.value.topics[i].children.push({
