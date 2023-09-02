@@ -34,14 +34,4 @@ export default defineEventHandler(async (event) => {
       time: new Date().getTime() - t.getTime()
     }
   }
-
-  // return {
-  //   cast: castCache.getStats(),
-  //   profile: profileCache.getStats(),
-  //   video: videoCache.getStats(),
-  //   search: searchCache.getStats(),
-  //   episode: episodeCache.getStats(),
-  //   history: historyCache.getStats(),
-  //   banner: bannerCache.getStats()
-  // }
 })
