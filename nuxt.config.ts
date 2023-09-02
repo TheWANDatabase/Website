@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: false,
+  // ssr: false,
   modules: [
     '@nuxtjs/supabase',
     '@nuxtjs/color-mode',
@@ -23,7 +23,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      domain: process.env.DOMAIN
+      domain: process.env.DOMAIN,
+      stream_cid: process.env.STREAM_ID,
+      api_base: 'http' + (!process.env.DOMAIN.startsWith('localhost') ? 's' : '') + '://' + process.env.DOMAIN + '/api/v1'
     }
   },
   sitemap: {
