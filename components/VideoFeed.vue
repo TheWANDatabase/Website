@@ -81,8 +81,6 @@ const { data } = useAsyncData(async () => {
   } catch (e) {
     console.error(e)
   }
-}, {
-  watch: [fd]
 })
 
 const filters = ref({
@@ -110,6 +108,7 @@ async function infinite () {
   loading.value = true
   try {
     const f = filters.value
+    console.log(f)
     f.members = f.members.map(m => m.id)
 
     const feed = await (await fetcher(config.public.api_base + '/episodes', {
