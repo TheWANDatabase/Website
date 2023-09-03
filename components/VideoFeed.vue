@@ -163,7 +163,6 @@ infinite()
         <USelectMenu
           v-model="filters.order"
           :options="orderOptions"
-          :ui="{width: 'w-96 min-w-fit'}"
         >
           <template #label>
             <template v-if="selected">
@@ -180,8 +179,7 @@ infinite()
           :options="cst"
           placeholder="Select Cast Members"
           searchable
-
-          class="w-72"
+          class="w-72 min-w-fit"
         >
           <template #label>
             <template v-if="selected">
