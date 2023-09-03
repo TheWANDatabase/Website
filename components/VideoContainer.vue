@@ -4,7 +4,7 @@ import style from './Video.module.css'
 const sb = useSupabaseClient()
 
 const csm = useState('csm')
-
+const issueURI = ref('https://github.com/TheWANDatabase/Website/issues/new')
 const props = defineProps({
   id: {
     type: String,
@@ -47,6 +47,8 @@ const { pending } = useAsyncData(async () => {
     if (cast.value.length === 0) {
       const x = (await sb.from('cast').select('*').in('id', data.c1).order('id')).data
       cast.value = x
+      issueURI.value = issueURI.value + `?title=${encodeURIComponent(`Issue with cast of episode (${data.id})`)}&body=${encodeURIComponent(`There appears to be an issue with the cast assigned to episode [${data.id}](https://thewandb.com/video/${data.id})`) + '%0A%0ACurrent Value:%0A' + encodeURIComponent('```json') + '%0A' + encodeURIComponent(`${JSON.stringify(cast.value, undefined, '  ')}`) + '%0A' + encodeURIComponent('```') + '%0A%0AI (Reporter) believe that this episode should feature the following person(s)%0A> [EDIT ME]'}`
+      console.log(issueURI)
     }
   } catch (e) {
     console.error(e)
@@ -62,13 +64,14 @@ const { pending } = useAsyncData(async () => {
     <USlideover
       v-model="popoverOpen"
       :ui="{
-        background: 'bg-slate-900',
+        base: 'relative m-2 flex-1 flex flex-col w-full focus:outline-none',
+        background: 'bg-transparent',
         overlay: {
           background: 'bg-gray-800/75'
         }
       }"
     >
-      <UCard class="flex flex-col flex-1 bg-slate-900 text-white" :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-800' }">
+      <UCard class="flex flex-col flex-1 bg-slate-900 text-white" :ui="{ body: { base: 'flex-1 bg-slate-900' }, header: { base: 'bg-slate-800'}, footer: { base: 'bg-slate-800'}, ring: '', divide: 'divide-y divide-slate-800' }">
         <template #header>
           <h1 class="text-2xl font-extrabold">
             Cast Viewer
@@ -78,82 +81,105 @@ const { pending } = useAsyncData(async () => {
           Please wait, loading cast members
         </template>
         <template v-else>
-          <div>
-            <template v-for="(p,i) in cast" :key="i">
-              <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-800 rounded-lg p-2">
-                <div class="flex ml-2 mr-4 my-auto align-middle">
-                  <UAvatar class="object-cover" size="3xl" :alt="p.name" :src="'https://cdn.thewandb.com/mugs/'+p.mug" />
-                </div>
-                <div class="flex-col w-52">
-                  <h1 class="text-xl font-bold -mb-1">
-                    {{ p.name }}
-                  </h1>
-                  <h2 class="font-bold">
-                    {{ p.role }}
-                  </h2>
-                  <a v-if="p.outlet_uri" class="text-lg my-5 h-5" :href="p.outlet_uri">{{ p.outlet }}</a>
-                  <a v-else class="text-lg my-5 h-5">{{ p.outlet }}</a>
-                  <div>
-                    <a
-                      v-if="p.ltt_forum"
-                      :href="'https://linustechtips.com/profile/' + p.ltt_forum"
-                      target="_blank"
-                    >
-                      <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo.svg">
-                    </a>
-                    <a v-else>
-                      <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo_grey.svg">
-                    </a>
+          <div class="h-max flex-col">
+            <template v-if="cast.length > 0">
+              <template v-for="(p,i) in cast" :key="i">
+                <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-800 rounded-lg p-2">
+                  <div class="flex ml-2 mr-4 my-auto align-middle">
+                    <UAvatar class="object-cover" size="3xl" :alt="p.name" :src="'https://cdn.thewandb.com/mugs/'+p.mug" />
+                  </div>
+                  <div class="flex-col w-52">
+                    <h1 class="text-xl font-bold -mb-1">
+                      {{ p.name }}
+                    </h1>
+                    <h2 class="font-bold">
+                      {{ p.role }}
+                    </h2>
+                    <a v-if="p.outlet_uri" class="text-lg my-5 h-5" :href="p.outlet_uri">{{ p.outlet }}</a>
+                    <a v-else class="text-lg my-5 h-5">{{ p.outlet }}</a>
+                    <div>
+                      <UTooltip v-if="p.ltt_forum" text="Click to open the LinusTechTips Forum">
+                        <a
 
-                    <a v-if="p.imdb" :href="'https://www.imdb.com/name/' + p.imdb" target="_blank">
-                      <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#f3ce13" />
-                    </a>
-                    <a v-else>
-                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="bxl:imdb" />
-                    </a>
+                          :href="'https://linustechtips.com/profile/' + p.ltt_forum"
+                          target="_blank"
+                        >
+                          <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo.svg">
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known LinusTechTips Forum account">
+                        <a>
+                          <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo_grey.svg">
+                        </a>
+                      </UTooltip>
 
-                    <a
-                      v-if="p.wikipedia"
-                      :href="'https://en.wikipedia.org/wiki/' + p.wikipedia"
-                      target="_blank"
-                    >
-                      <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" />
-                    </a>
-                    <a v-else>
-                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:wikipedia" />
-                    </a>
+                      <UTooltip v-if="p.linkedin" text="Click to open on LinkedIn">
+                        <a
+                          :href="'https://www.linkedin.com/in/' + p.linkedin"
+                          target="_blank"
+                        >
+                          <Icon class="w-7 h-7 mx-1" name="devicon:linkedin" />
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known IMDB profile">
+                        <a><Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" /></a>
+                      </UTooltip>
 
-                    <a
-                      v-if="p.instagram"
-                      :href="'https://www.instagram.com/' + p.instagram"
-                      target="_blank"
-                    >
-                      <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#C13584" />
-                    </a>
-                    <a v-else>
-                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:instagram" />
-                    </a>
+                      <UTooltip v-if="p.wikipedia" text="Click to open on Wikipedia">
+                        <a
+                          :href="'https://en.wikipedia.org/wiki/' + p.wikipedia"
+                          target="_blank"
+                        >
+                          <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" />
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known Wikipedia page">
+                        <a><Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:wikipedia" /></a>
+                      </UTooltip>
 
-                    <a v-if="p.twitter" :href="'https://twitter.com/' + p.twitter" target="_blank">
-                      <Icon class="w-7 h-7 mx-1" name="logos:twitter" />
-                    </a>
-                    <a v-else>
-                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:twitter" />
-                    </a>
+                      <UTooltip v-if="p.instagram" text="Click to open on profile on Instagram">
+                        <a
+                          :href="'https://www.instagram.com/' + p.instagram"
+                          target="_blank"
+                        >
+                          <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#C13584" />
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known Instagram profile">
+                        <a><Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:instagram" /></a>
+                      </UTooltip>
 
-                    <a
-                      v-if="p.linkedin"
-                      :href="'https://www.linkedin.com/in/' + p.linkedin"
-                      target="_blank"
-                    >
-                      <Icon class="w-7 h-7 mx-1" name="devicon:linkedin" />
-                    </a>
-                    <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" />
-                    </a>
+                      <UTooltip v-if="p.twitter" text="Click to open on on Twitter">
+                        <a :href="'https://twitter.com/' + p.twitter" target="_blank">
+                          <Icon class="w-7 h-7 mx-1" name="logos:twitter" />
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known Twitter profile">
+                        <a><Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:twitter" /></a>
+                      </UTooltip>
+
+                      <UTooltip v-if="p.imdb" text="Click to open on the IMDB website">
+                        <a :href="'https://www.imdb.com/name/' + p.imdb" target="_blank">
+                          <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#f3ce13" />
+                        </a>
+                      </UTooltip>
+                      <UTooltip v-else text="This person does not have a known IMDB profile">
+                        <a><Icon class="w-7 h-7 mx-1 fill-slate-400" name="bxl:imdb" /></a>
+                      </UTooltip>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </template>
+              <p class="mt-auto mb-0">
+                Spotted a problem? <a class="py-2 px-4" :href="issueURI" target="_blank">Report an Issue</a>
+              </p>
+            </template>
+            <template v-else>
+              <h2 class="text-xl font-bold">
+                This is embarrasing!
+              </h2>
+              <h3>We don't seem to have any cast data for this episode.</h3>
+              <a class="py-2 px-4" :href="issueURI" target="_blank">Report an Issue</a>
             </template>
           </div>
         </template>

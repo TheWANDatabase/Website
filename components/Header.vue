@@ -247,13 +247,21 @@ function openVideo (id) {
         <img class="w-32" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg">
       </a>
       <a
+        href="/"
+        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+      >
+        <h3 class="hover:font-bold py-3 text-l transition-all">
+          Video Feed
+        </h3>
+      </a>
+      <!-- <a
         href="/contributors"
         class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
       >
         <h3 class="hover:font-bold py-3 text-l transition-all">
           Contributors
         </h3>
-      </a>
+      </a> -->
       <a
         href="/cast"
         class="uppercase mr-auto flex-col justify-center pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
