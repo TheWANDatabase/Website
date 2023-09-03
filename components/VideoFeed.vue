@@ -2,6 +2,7 @@
 import InfiniteLoading from 'v3-infinite-loading'
 import style from './VideoFeed.module.css'
 
+const allowInfinite = ref(true)
 const fd = ref([])
 const fdm = ref(new Map())
 const episodeCount = ref(0)
@@ -102,7 +103,7 @@ async function infinite () {
     const f = filters.value
     f.members = f.members.map(m => m.id)
 
-    const feed = await (await fetch(config.public.api_base + '/episodes', {
+    const feed = await (await fetcher(config.public.api_base + '/episodes', {
       method: 'POST',
       body: JSON.stringify({
         filters: f,
@@ -129,9 +130,12 @@ infinite()
     <div class="z-10 flex-col mt-3 mx-auto mb-2 bg-slate-800 p-2 rounded justify-evenly max-w-fit sticky top-1" style="top: 0.25rem;">
       <div class="flex max-w-fit mt-3 mx-auto mb-2 p-2 justify-evenly">
         <UTooltip text="Apply Filters">
-          <UButton :loading="loading" icon="i-heroicons-magnifying-glass-20-solid" color="orange" variant="soft" @click="filter" />
+          <UButton :loading="loading" icon="i-heroicons-magnifying-glass-20-solid" variant="soft" @click="filter" />
         </UTooltip>
-        <div class="w-24 flex justify-between mt-1.5 mx-10">
+        <div class="w-32 flex justify-between mt-1.5 mx-10">
+          <UTooltip text="Enable Infinity Scroll">
+            <UToggle v-model="allowInfinite" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+          </UTooltip>
           <UTooltip text="Hide videos with content warnings">
             <UToggle v-model="filters.hideCW" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
           </UTooltip>
@@ -151,7 +155,15 @@ infinite()
           v-model="filters.order"
           :options="orderOptions"
           :ui="{width: 'w-96 min-w-fit'}"
-        />
+        >
+          <template #label>
+            <template v-if="selected">
+              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+              {{ selected.label }}
+            </template>
+          </template>
+        </USelectMenu>
         <div class="mx-5" />
         <USelectMenu
           v-model="filters.members"
@@ -170,93 +182,6 @@ infinite()
             </template>
           </template>
         </USelectMenu>
-
-      <!-- <div :class="style.input">
-        <button type="submit" @click="filter()">
-          Load Results
-        </button>
-      </div>
-      <div :class="style.input">
-        <label for="orderBy">Order By:</label>
-        <select id="orderBy" name="orderBy">
-          <option value="release">
-            Stream Date (Ascending)
-          </option>
-          <option value="release-desc" selected>
-            Stream Date (Descending)
-          </option>
-          <option value="duration">
-            Duration (Ascending)
-          </option>
-          <option value="duration-desc">
-            Duration (Descending)
-          </option>
-          <option value="title">
-            Title (Ascending)
-          </option>
-          <option value="title-desc">
-            Title (Descending)
-          </option>
-          <option value="topics">
-            Topic Count (Ascending)
-          </option>
-          <option value="topics-desc">
-            Topic Count (Descending)
-          </option>
-        </select>
-      </div>
-      <div :class="style.inputDuplicate">
-        <div :class="style.input">
-          <label for="searchStart">Start Cutoff:</label>
-          <input id="searchStart" type="date" name="searchStart" :valueAsDate="filters.startDate">
-        </div>
-        <div :class="style.input">
-          <label for="searchEnd">End Cutoff:</label>
-          <input id="searchEnd" type="date" name="searchEnd" :valueAsDate="filters.endDate">
-        </div>
-      </div>
-      <div :class="style.input">
-        <p>Show only episodes featuring:</p>
-        <ul id="castFilter">
-          <template v-if="data">
-            <template v-for="(member, index) in data.cdata" :key="index">
-              <li :class="style.inlineCheck">
-                <input :id="member.id" type="checkbox" :checked="filters.members.includes(member.id)">
-                <p>{{ member.name }} ({{ member.outlet }})</p>
-              </li>
-            </template>
-          </template>
-          <template v-else>
-            <li>Loading Cast</li>
-          </template>
-        </ul>
-      </div>
-      <p>
-        Showing episodes 1 to {{ fd.length.toLocaleString() }} of {{ (episodeCount).toLocaleString() }}
-      </p>
-      <h4 style="margin: 0 auto -0.5rem 0.5rem">
-        Statistics
-      </h4>
-      <p v-if="data">
-        Archive currently contains:
-        <br>
-        - Total Duration Archived: {{ toTimestamp(data.seconds) }}
-        <br>
-        - {{ data.episodes.toLocaleString() }} Episodes
-        <br>
-        - {{ data.topics.toLocaleString() }} Topics
-        <br>
-        - {{ data.cast.toLocaleString() }} Guests / Hosts
-        <br>
-        - Contributions from {{ data.contributors.toLocaleString() }} people
-        <br>
-        - The WAN Show first aired {{ getRelativeTime(new Date('2012-08-28')) }}
-        <br>
-      </p>
-      <p v-else>
-        Loading Statistics
-      </p> -->
-      <!-- </input> -->
       </div>
       <div class="flex mt-3 mx-auto mb-1 p-0 justify-evenly">
         <UBadge variant="subtle" :label="`Showing episodes ${ fd.length.toLocaleString() } / ${ episodeCount.toLocaleString() }`" />
@@ -270,7 +195,10 @@ infinite()
       <template v-for="(video, index) in fd" :key="index">
         <VideoContainer :id="video.id" />
       </template>
-      <InfiniteLoading v-if="fd.length > 19" @infinite="infinite" />
+    </div>
+    <div class="flex align-middle mx-auto w-fit my-5">
+      <InfiniteLoading v-if="fd.length > 19 && allowInfinite" @infinite="infinite" />
+      <UButton v-else-if="fd.length > 19 && !allowInfinite" label="Load More" @click="infinite" />
     </div>
   </div>
 </template>

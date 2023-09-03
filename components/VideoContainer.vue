@@ -163,7 +163,7 @@ const { pending } = useAsyncData(async () => {
         </template>
       </UCard>
     </USlideover>
-    <NuxtLink class="w-fit overflow-hidden min-h-16 m-1" :href="`/videos/${data.id}`">
+    <NuxtLink class="w-fit overflow-hidden min-h-16 m-1 bg-slate-200 rounded-lg pt-2 hover:bg-slate-400 transition-all" :href="`/videos/${data.id}`">
       <div class="w-80 m-2 h-72">
         <img class="w-max mx-auto rounded-md my-0" style="width: 300px; height: auto; object-fit: cover;" :src="data.thumbnail">
         <h1 class="text-xl mx-2 h-16 my-0">

@@ -267,12 +267,28 @@ function openVideo (id) {
         <UDropdown :items="items">
           <UButton color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
             <UAvatar :src="profile.avatar_url" alt="Avatar" /> {{ profile.username }}
+            <template #item="{ item }">
+              <template v-if="item">
+                <UIcon v-if="item.icon" :name="item.icon" class="w-4 h-4" />
+                <UAvatar v-else-if="item.avatar" v-bind="item.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+                {{ item.label }}
+              </template>
+              {{ console.log(item) }}
+            </template>
           </UButton>
         </UDropdown>
       </template>
       <template v-else>
         <UDropdown :items="items">
           <UButton color="none" label="Options" trailing-icon="i-heroicons-chevron-down-20-solid" />
+          <template #item>
+            <template v-if="selected">
+              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+              {{ selected.label }}
+              {{ console.log(selected) }}
+            </template>
+          </template>
         </UDropdown>
       </template>
       <div class="my-auto mx-2">
