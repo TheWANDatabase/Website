@@ -9,6 +9,7 @@ const episodeCount = ref(0)
 const cst = ref([])
 const csm = useState('csm', () => new Map())
 const config = useRuntimeConfig()
+const xsm = ref([])
 const loading = ref(false)
 const orderOptions = ref([
   {
@@ -47,35 +48,43 @@ const orderOptions = ref([
 
 const { data } = useAsyncData(async () => {
   try {
-    const cast = await (await fetch(config.public.api_base + '/cast', {
-      method: 'POST'
-    })).json()
     const stats = (await (await fetch(config.public.api_base + '/stats')).json()).data
 
-    cst.value = cast.data.map((m) => {
-      csm.value.set(m.id, {
-        id: m.id,
-        label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
-        mug: `https://cdn.thewandb.com/mugs/${m.mug}`
+    if (cst.value.length === 0) {
+      const cast = await (await fetch(config.public.api_base + '/cast', {
+        method: 'POST'
+      })).json()
+
+      cst.value = cast.data.map((m) => {
+        csm.value.set(m.id, {
+          id: m.id,
+          label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+          mug: `https://cdn.thewandb.com/mugs/${m.mug}`
+        })
+
+        return {
+          id: m.id,
+          label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+          avatar: {
+            src: `https://cdn.thewandb.com/mugs/${m.mug}`
+          }
+        }
       })
 
-      return {
-        id: m.id,
-        label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
-        avatar: {
-          src: `https://cdn.thewandb.com/mugs/${m.mug}`
-        }
-      }
-    })
+      xsm.value = cast.data
+    }
 
     return {
       ...stats,
-      cdata: cast.data
+      cdata: xsm.value
     }
   } catch (e) {
     console.error(e)
   }
+}, {
+  watch: [fd]
 })
+
 const filters = ref({
   order: {
     id: 'release-desc',
@@ -183,7 +192,7 @@ infinite()
           </template>
         </USelectMenu>
       </div>
-      <div class="flex mt-3 mx-auto mb-1 p-0 justify-evenly">
+      <div v-if="data" class="flex mt-3 mx-auto mb-1 p-0 justify-evenly">
         <UBadge variant="subtle" :label="`Showing episodes ${ fd.length.toLocaleString() } / ${ episodeCount.toLocaleString() }`" />
         <UBadge variant="subtle" :label="`Total Air Time: ${ toTimestamp(data.seconds) }`" />
         <UBadge variant="subtle" :label="`Guest Count: ${ data.cast.toLocaleString() }`" />
@@ -198,7 +207,7 @@ infinite()
     </div>
     <div class="flex align-middle mx-auto w-fit my-5">
       <InfiniteLoading v-if="fd.length > 19 && allowInfinite" @infinite="infinite" />
-      <UButton :loading="loading" v-else-if="fd.length > 19 && !allowInfinite" label="Load More" @click="infinite" />
+      <UButton v-else-if="fd.length > 19 && !allowInfinite" :loading="loading" label="Load More" @click="infinite" />
     </div>
   </div>
 </template>
