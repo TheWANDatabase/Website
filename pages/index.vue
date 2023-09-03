@@ -47,12 +47,12 @@ useHead({
     {
       hid: 'og-image',
       property: 'og:image',
-      content: 'https://cdn.thewandb.com/assets/WANDB_darkBackground.svg'
+      content: 'https://cdn.thewandb.com/assets/WANDB_whiteBackground.png'
     },
     {
       hid: 'twitter-image',
       property: 'twitter:image',
-      content: 'https://cdn.thewandb.com/assets/WANDB_darkBackground.svg'
+      content: 'https://cdn.thewandb.com/assets/WANDB_whiteBackground.png'
     },
     {
       hid: 'twitter-card',
