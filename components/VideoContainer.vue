@@ -174,14 +174,17 @@ const { pending } = useAsyncData(async () => {
             <UBadge variant="subtle" :label="new Date(data.aired).toLocaleDateString()" />
           </UTooltip>
 
-          <UTooltip text="Click to open the preview panel">
-            <UButton label="Open" @click.prevent="popoverOpen = true">
+          <UTooltip v-if="data.cast.length > 0" text="Click to open the preview panel">
+            <UButton label="Open" variant="ghost" @click.prevent="popoverOpen = true">
               <UAvatarGroup class="mr-auto ml-0" size="md" :max="2">
                 <template v-for="(c, i) in data.cast" :key="i">
                   <UAvatar class="object-cover" :src="c.mug" :alt="c.label" />
                 </template>
               </UAvatarGroup>
             </UButton>
+          </UTooltip>
+          <UTooltip v-else text="Click to open the preview panel">
+            <UButton variant="soft" label="Cast Unknown" @click.prevent="popoverOpen = true" />
           </UTooltip>
         </div>
       </div>
