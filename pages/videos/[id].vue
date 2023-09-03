@@ -140,7 +140,7 @@ onUnmounted(() => {
 const { data, error } = useAsyncData(async () => {
   let url = config.public.api_base + '/videos/detailed/' + id;
   console.log(url)
-  const data = await (await fetch(url)).json()
+  const data = await (await fetcher(url)).json()
   const episode = data.episode
   // showCorruptionModal.value = episode.flags.corrupt
   // showContentWarningModal.value = episode.flags.cw

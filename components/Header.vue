@@ -29,7 +29,7 @@ useAsyncData(async () => {
   })
 
   if (user.value) {
-    const { data } = await (await fetch('/api/v1/profiles', {
+    const { data } = await (await fetcher('/api/v1/profiles', {
       method: 'POST',
       body: JSON.stringify({
         id: user.value.id
@@ -142,12 +142,12 @@ await useAsyncData(() => {
         {
           label: 'Log In With Google',
           click: signInWithGoogle,
-          icon: 'i-logos-google-icon'
+          icon: 'i-mdi-google'
         },
         {
           label: 'Log In With Discord',
           click: signInWithDiscord,
-          icon: 'i-logos-discord'
+          icon: 'i-mdi-discord'
         }
       ],
       [
@@ -264,14 +264,14 @@ function openVideo (id) {
       </a>
 
       <template v-if="profile">
-        <UDropdown :items="items" mode="hover">
+        <UDropdown :items="items">
           <UButton color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
             <UAvatar :src="profile.avatar_url" alt="Avatar" /> {{ profile.username }}
           </UButton>
         </UDropdown>
       </template>
       <template v-else>
-        <UDropdown :items="items" mode="hover">
+        <UDropdown :items="items">
           <UButton color="none" label="Options" trailing-icon="i-heroicons-chevron-down-20-solid" />
         </UDropdown>
       </template>

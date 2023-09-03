@@ -60,7 +60,10 @@ const { data } = useAsyncData(async () => {
 
       return {
         id: m.id,
-        label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`
+        label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+        avatar: {
+          src: `https://cdn.thewandb.com/mugs/${m.mug}`
+        }
       }
     })
 
@@ -71,7 +74,7 @@ const { data } = useAsyncData(async () => {
   } catch (e) {
     console.error(e)
   }
-}, { watch: [fd] })
+})
 const filters = ref({
   order: {
     id: 'release-desc',
@@ -88,36 +91,21 @@ let offset = 0
 
 function filter () {
   offset = 0
-  console.log(filters)
   fd.value = []
   fdm.value = new Map()
-  // filters.value.order = document.getElementById('orderBy').value
-  // const start = document.getElementById('searchStart').valueAsDate
-  // const end = document.getElementById('searchEnd').valueAsDate
-
-  // if (start) { filters.value.startDate = start }
-  // if (end) { filters.value.endDate = end }
-
-  // const cast = []
-  // const cf = document.getElementById('castFilter')
-
-  // for (let i = 0; i < cf.children.length; i++) {
-  //   const node = cf.children[i].children[0]
-  //   if (node.checked) { cast.push(node.id) }
-  // }
-
-  // filters.value.members = cast
-
   infinite()
 }
 
 async function infinite () {
   loading.value = true
   try {
+    const f = filters.value
+    f.members = f.members.map(m => m.id)
+
     const feed = await (await fetch(config.public.api_base + '/episodes', {
       method: 'POST',
       body: JSON.stringify({
-        filters: filters.value,
+        filters: f,
         offset,
         limit: 20
       })
@@ -171,7 +159,17 @@ infinite()
           :options="cst"
           placeholder="Select Cast Members"
           searchable
-        />
+
+          class="w-72"
+        >
+          <template #label>
+            <template v-if="selected">
+              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+              {{ selected.label }}
+            </template>
+          </template>
+        </USelectMenu>
 
       <!-- <div :class="style.input">
         <button type="submit" @click="filter()">
