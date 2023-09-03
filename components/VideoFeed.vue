@@ -45,6 +45,16 @@ const orderOptions = ref([
     label: 'Topic Count (Descending)'
   }
 ])
+const filters = useState('filter', () => {
+  return {
+    order: orderOptions.value[1],
+    hideCW: false,
+    hideCorrupt: false,
+    startDate: new Date('2012-08-28T00:00:00.000Z').toDateString(),
+    endDate: new Date().toDateString(),
+    members: []
+  }
+})
 
 const { data } = useAsyncData(async () => {
   try {
@@ -55,21 +65,23 @@ const { data } = useAsyncData(async () => {
         method: 'POST'
       })).json()
 
-      cst.value = cast.data.map((m) => {
-        csm.value.set(m.id, {
-          id: m.id,
-          label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
-          mug: `https://cdn.thewandb.com/mugs/${m.mug}`
-        })
+      if (filters.value.members.length === 0) {
+        cst.value = cast.data.map((m) => {
+          csm.value.set(m.id, {
+            id: m.id,
+            label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+            mug: `https://cdn.thewandb.com/mugs/${m.mug}`
+          })
 
-        return {
-          id: m.id,
-          label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
-          avatar: {
-            src: `https://cdn.thewandb.com/mugs/${m.mug}`
+          return {
+            id: m.id,
+            label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+            avatar: {
+              src: `https://cdn.thewandb.com/mugs/${m.mug}`
+            }
           }
-        }
-      })
+        })
+      }
 
       xsm.value = cast.data
     }
@@ -83,34 +95,39 @@ const { data } = useAsyncData(async () => {
   }
 })
 
-const filters = useState('filter', () => {
-  return {
-    order: {
-      id: 'release-desc',
-      label: 'Stream Date (Descending)'
-    },
-    hideCW: false,
-    hideCorrupt: false,
-    startDate: new Date('2012-08-28T00:00:00.000Z').toDateString(),
-    endDate: new Date().toDateString(),
-    members: []
+let offset = 0
+
+onMounted(() => {
+  try {
+    const raw = window.sessionStorage.getItem('FLTR')
+    if (raw) {
+      const fltr = JSON.parse(raw)
+      fltr.members = []
+      filters.value = fltr
+    } else {
+      window.sessionStorage.setItem('FLTR', JSON.stringify(filters.value))
+    }
+  } catch (e) {
+    console.error(e)
   }
 })
-
-let offset = 0
 
 function filter () {
   offset = 0
   fd.value = []
   fdm.value = new Map()
+  try {
+    window.sessionStorage.setItem('FLTR', JSON.stringify(filters.value))
+  } catch (e) {
+    console.error(e)
+  }
   infinite()
 }
 
 async function infinite () {
   loading.value = true
   try {
-    const f = filters.value
-    console.log(f)
+    const f = JSON.parse(JSON.stringify(filters.value))
     f.members = f.members.map(m => m.id)
 
     const feed = await (await fetcher(config.public.api_base + '/episodes', {
