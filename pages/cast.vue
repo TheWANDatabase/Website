@@ -66,9 +66,10 @@ useHead({
     }
   ]
 })
+const config = useRuntimeConfig()
 
 const { data } = useAsyncData(async () => {
-  return (await (await fetcher('http://localhost:3000/api/v1/cast?detailed=true', { method: 'POST' })).json()).data
+  return (await (await fetcher(config.public.api_base + '/cast?detailed=true', { method: 'POST' })).json()).data
 })
 
 </script>
