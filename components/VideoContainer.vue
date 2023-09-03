@@ -62,8 +62,9 @@ const { pending } = useAsyncData(async () => {
     <USlideover v-model="popoverOpen">
       <UCard class="flex flex-col flex-1" :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
         <template #header>
-          <h1>Cast Viewer</h1>
-          <h2>Episode: {{ data.title }}</h2>
+          <h1 class="text-2xl font-extrabold">
+            Cast Viewer
+          </h1>
         </template>
         <template v-if="pending">
           Please wait, loading cast members
@@ -71,23 +72,94 @@ const { pending } = useAsyncData(async () => {
         <template v-else>
           <div>
             <template v-for="(p,i) in cast" :key="i">
-              <div class="flex-col w-32 mx-auto my-2">
-                <div class="flex mx-auto my-2 align-middle">
-                  <UAvatar class="object-cover" size="xl" :alt="p.name" :src="'https://cdn.thewandb.com/mugs/'+p.mug" />
+              <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-200 rounded-lg p-2">
+                <div class="flex ml-2 mr-4 my-auto align-middle">
+                  <UAvatar class="object-cover" size="3xl" :alt="p.name" :src="'https://cdn.thewandb.com/mugs/'+p.mug" />
                 </div>
                 <div class="flex-col w-52">
-                  <h1>{{ p.name }}</h1>
-                  <h2>{{ p.role }}</h2>
-                  <a v-if="p.outlet_uri" :href="p.outlet_uri">{{ p.outlet }}</a>
-                  <a v-else>{{ p.outlet }}</a>
-                  <pre><code class="block whitespace-pre overflow-x-scroll">{{ p }}</code></pre>
+                  <h1 class="text-xl font-bold -mb-1">
+                    {{ p.name }}
+                  </h1>
+                  <h2 class="font-bold">
+                    {{ p.role }}
+                  </h2>
+                  <a v-if="p.outlet_uri" class="text-lg my-5 h-5" :href="p.outlet_uri">{{ p.outlet }}</a>
+                  <a v-else class="text-lg my-5 h-5">{{ p.outlet }}</a>
+                  <div>
+                    <a
+                      v-if="p.ltt_forum"
+                      :href="'https://linustechtips.com/profile/' + p.ltt_forum"
+                      target="_blank"
+                    >
+                      <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo.svg">
+                    </a>
+                    <a v-else>
+                      <img class="w-5 inline mx-1" src="/2018_Linus_Tech_Tips_logo_grey.svg">
+                    </a>
+
+                    <a v-if="p.imdb" :href="'https://www.imdb.com/name/' + p.imdb" target="_blank">
+                      <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#f3ce13" />
+                    </a>
+                    <a v-else>
+                      <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#3a3a3a" />
+                    </a>
+
+                    <a
+                      v-if="p.wikipedia"
+                      :href="'https://en.wikipedia.org/wiki/' + p.wikipedia"
+                      target="_blank"
+                    >
+                      <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" />
+                    </a>
+                    <a v-else>
+                      <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" color="#3a3a3a" />
+                    </a>
+
+                    <a
+                      v-if="p.instagram"
+                      :href="'https://www.instagram.com/' + p.instagram"
+                      target="_blank"
+                    >
+                      <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#C13584" />
+                    </a>
+                    <a v-else>
+                      <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#3a3a3a" />
+                    </a>
+
+                    <a v-if="p.twitter" :href="'https://twitter.com/' + p.twitter" target="_blank">
+                      <Icon class="w-7 h-7 mx-1" name="logos:twitter" />
+                    </a>
+                    <a v-else>
+                      <Icon class="w-7 h-7 mx-1" name="mdi:twitter" color="#3a3a3a" />
+                    </a>
+
+                    <a
+                      v-if="p.linkedin"
+                      :href="'https://www.linkedin.com/in/' + p.linkedin"
+                      target="_blank"
+                    >
+                      <Icon class="w-7 h-7 mx-1" name="devicon:linkedin" />
+                    </a>
+                    <a v-else>
+                      <Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" color="#3a3a3a" />
+                    </a>
+                  </div>
+                  <!-- <pre><code class="block whitespace-pre overflow-x-scroll">{{ p }}</code></pre> -->
                 </div>
               </div>
             </template>
           </div>
         </template>
         <template #footer>
-          <!-- Content -->
+          <div class="flex justify-between">
+            <h2>
+              Episode: <NuxtLink :href="`/videos/${data.id}`">
+                {{ data.title }}
+              </NuxtLink>
+            </h2>
+
+            <UBadge variant="subtle" :label="new Date(data.aired).toLocaleDateString()" />
+          </div>
         </template>
       </UCard>
     </USlideover>
