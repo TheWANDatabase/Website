@@ -33,6 +33,9 @@ export default defineNuxtConfig({
       api_base: 'http' + (!process.env.DOMAIN.startsWith('localhost') ? 's' : '') + '://' + process.env.DOMAIN + '/api/v1'
     }
   },
+  colorMode: {
+    preference: 'dark'
+  },
   sitemap: {
     siteUrl: 'https://thewandb.com',
     urls: ['https://thewandb.com'],

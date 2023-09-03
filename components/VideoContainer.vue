@@ -59,8 +59,16 @@ const { pending } = useAsyncData(async () => {
 
 <template>
   <template v-if="data">
-    <USlideover v-model="popoverOpen">
-      <UCard class="flex flex-col flex-1" :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
+    <USlideover
+      v-model="popoverOpen"
+      :ui="{
+        background: 'bg-slate-900',
+        overlay: {
+          background: 'bg-gray-800/75'
+        }
+      }"
+    >
+      <UCard class="flex flex-col flex-1 bg-slate-900 text-white" :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-800' }">
         <template #header>
           <h1 class="text-2xl font-extrabold">
             Cast Viewer
@@ -72,7 +80,7 @@ const { pending } = useAsyncData(async () => {
         <template v-else>
           <div>
             <template v-for="(p,i) in cast" :key="i">
-              <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-200 rounded-lg p-2">
+              <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-800 rounded-lg p-2">
                 <div class="flex ml-2 mr-4 my-auto align-middle">
                   <UAvatar class="object-cover" size="3xl" :alt="p.name" :src="'https://cdn.thewandb.com/mugs/'+p.mug" />
                 </div>
@@ -101,7 +109,7 @@ const { pending } = useAsyncData(async () => {
                       <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#f3ce13" />
                     </a>
                     <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="bxl:imdb" color="#3a3a3a" />
+                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="bxl:imdb" />
                     </a>
 
                     <a
@@ -112,7 +120,7 @@ const { pending } = useAsyncData(async () => {
                       <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" />
                     </a>
                     <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="mdi:wikipedia" color="#3a3a3a" />
+                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:wikipedia" />
                     </a>
 
                     <a
@@ -123,14 +131,14 @@ const { pending } = useAsyncData(async () => {
                       <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#C13584" />
                     </a>
                     <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="mdi:instagram" color="#3a3a3a" />
+                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:instagram" />
                     </a>
 
                     <a v-if="p.twitter" :href="'https://twitter.com/' + p.twitter" target="_blank">
                       <Icon class="w-7 h-7 mx-1" name="logos:twitter" />
                     </a>
                     <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="mdi:twitter" color="#3a3a3a" />
+                      <Icon class="w-7 h-7 mx-1 fill-slate-400" name="mdi:twitter" />
                     </a>
 
                     <a
@@ -141,7 +149,7 @@ const { pending } = useAsyncData(async () => {
                       <Icon class="w-7 h-7 mx-1" name="devicon:linkedin" />
                     </a>
                     <a v-else>
-                      <Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" color="#3a3a3a" />
+                      <Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" />
                     </a>
                   </div>
                   <!-- <pre><code class="block whitespace-pre overflow-x-scroll">{{ p }}</code></pre> -->
@@ -163,7 +171,7 @@ const { pending } = useAsyncData(async () => {
         </template>
       </UCard>
     </USlideover>
-    <NuxtLink class="w-fit overflow-hidden min-h-16 m-1 bg-slate-200 rounded-lg pt-2 hover:bg-slate-400 transition-all" :href="`/videos/${data.id}`">
+    <NuxtLink class="w-fit overflow-hidden min-h-16 m-1 bg-slate-700 rounded-lg pt-2 hover:bg-slate-500 transition-all text-white" :href="`/videos/${data.id}`">
       <div class="w-80 m-2 h-72">
         <img class="w-max mx-auto rounded-md my-0" style="width: 300px; height: auto; object-fit: cover;" :src="data.thumbnail">
         <h1 class="text-xl mx-2 h-16 my-0">
