@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import { videoCache } from '~/utils/cache'
+import { VideoMarkers } from '~/utils/bitDecoders'
 
 /**
  * Method | GET
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
       if (episode) {
         episode.thumbnail = 'https://cdn.thewandb.com/thumbs/' + episode.id + '.jpeg'
         episode.title = episode.title.split('- WAN Show')[0]
+        episode.markers = new VideoMarkers(episode.markers).toJson()
 
         videoCache.set(id, episode)
 

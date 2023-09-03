@@ -2,7 +2,7 @@ import { parse } from 'node-webvtt'
 
 import { serverSupabaseClient } from '#supabase/server'
 import { videoCache } from '~/utils/cache'
-import { VideoFlags } from '~/utils/bitDecoders'
+import { VideoFlags, VideoMarkers } from '~/utils/bitDecoders'
 import { getRelativeTime } from '~/utils/time'
 
 /**
@@ -14,7 +14,7 @@ import { getRelativeTime } from '~/utils/time'
  *        | strain on supabase server (and minimise bandwidth costs)
  */
 
-function hash (str: string): any {
+function hash(str: string): any {
   let h = 0
   let i; let chr
   if (str.length === 0) { return h }
@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
         episode.thumbnail = 'https://cdn.thewandb.com/thumbs/' + episode.id + '.jpeg'
         episode.title = episode.title.split('- WAN Show')[0]
         episode.flags = new VideoFlags(episode.flags).toJson()
+        episode.markers = new VideoMarkers(episode.markers).toJson()
         episode.age = getRelativeTime(new Date(episode.aired))
 
         const castMap = new Map()
@@ -60,7 +61,7 @@ export default defineEventHandler(async (event) => {
           return m
         })
 
-        const topics:any[] = (
+        const topics: any[] = (
           await sb.from('topics')
             .select('*, profiles(*)')
             .eq('episode', episode.id)

@@ -30,7 +30,7 @@ export class VideoFlags {
   mm: boolean
   pl: boolean
 
-  constructor (int: number) {
+  constructor(int: number) {
     this._raw = int
     this.thumb = (int & VideoFlagMasks.THUMB) === VideoFlagMasks.THUMB
     this.aod = (int & VideoFlagMasks.AOD) === VideoFlagMasks.AOD
@@ -47,7 +47,7 @@ export class VideoFlags {
     this.pl = (int & VideoFlagMasks.PL) === VideoFlagMasks.PL
   }
 
-  encode (): number {
+  encode(): number {
     let x = 0
 
     if (this.thumb) { x = x | VideoFlagMasks.THUMB }
@@ -66,7 +66,62 @@ export class VideoFlags {
     return x
   }
 
-  toJson () {
+  toJson() {
+    return {
+      ...this
+    }
+  }
+}
+
+export enum VideoMarkerMasks {
+  TAI_WAN = 1,
+  LTX2023 = 2,
+  LTX2019 = 4,
+  LTX2018 = 8,
+  LTX2017 = 16,
+  WFH = 32,
+
+}
+
+export class VideoMarkers {
+  _raw: number
+  taiWAN: boolean
+  LTX2023: boolean
+  LTX2019: boolean
+  LTX2018: boolean
+  LTX2017: boolean
+  WFH: boolean
+
+  constructor(int: number) {
+    this._raw = int
+    this.taiWAN = (int & VideoMarkerMasks.TAI_WAN) === VideoMarkerMasks.TAI_WAN
+    this.LTX2023 = (int & VideoMarkerMasks.LTX2023) === VideoMarkerMasks.LTX2023
+    this.LTX2019 = (int & VideoMarkerMasks.LTX2019) === VideoMarkerMasks.LTX2019
+    this.LTX2018 = (int & VideoMarkerMasks.LTX2018) === VideoMarkerMasks.LTX2018
+    this.LTX2017 = (int & VideoMarkerMasks.LTX2017) === VideoMarkerMasks.LTX2017
+    this.WFH = (int & VideoMarkerMasks.WFH) === VideoMarkerMasks.WFH
+  }
+
+  encode(): number {
+    let x = 0
+
+    if (this.thumb) { x = x | VideoFlagMasks.THUMB }
+    if (this.aod) { x = x | VideoFlagMasks.AOD }
+    if (this.vod) { x = x | VideoFlagMasks.VOD }
+    if (this.webvtt) { x = x | VideoFlagMasks.WEBVTT }
+    if (this.private) { x = x | VideoFlagMasks.PRIVATE }
+    if (this.stream) { x = x | VideoFlagMasks.STREAM }
+    if (this.live) { x = x | VideoFlagMasks.LIVE }
+    if (this.corrupt) { x = x | VideoFlagMasks.CORRUPT }
+    if (this.cw) { x = x | VideoFlagMasks.CW }
+    if (this.guest) { x = x | VideoFlagMasks.GUEST }
+    if (this.ltx) { x = x | VideoFlagMasks.LTX }
+    if (this.mm) { x = x | VideoFlagMasks.MM }
+    if (this.pl) { x = x | VideoFlagMasks.PL }
+    return x
+  }
+
+  toJson() {
     return {
       ...this
     }
