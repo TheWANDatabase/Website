@@ -83,16 +83,18 @@ const { data } = useAsyncData(async () => {
   }
 })
 
-const filters = ref({
-  order: {
-    id: 'release-desc',
-    label: 'Stream Date (Descending)'
-  },
-  hideCW: false,
-  hideCorrupt: false,
-  startDate: new Date('2012-08-28T00:00:00.000Z').toDateString(),
-  endDate: new Date().toDateString(),
-  members: []
+const filters = useState('filter', () => {
+  return {
+    order: {
+      id: 'release-desc',
+      label: 'Stream Date (Descending)'
+    },
+    hideCW: false,
+    hideCorrupt: false,
+    startDate: new Date('2012-08-28T00:00:00.000Z').toDateString(),
+    endDate: new Date().toDateString(),
+    members: []
+  }
 })
 
 let offset = 0
