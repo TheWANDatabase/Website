@@ -180,6 +180,12 @@ infinite()
           placeholder="Select Cast Members"
           searchable
           class="w-72 min-w-fit"
+          :ui="{
+            width: 'w-72'
+          }"
+          :ui-menu="{
+            width: 'w-72'
+          }"
         >
           <template #label>
             <template v-if="selected">
