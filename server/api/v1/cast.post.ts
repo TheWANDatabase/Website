@@ -17,8 +17,25 @@ export interface CastRequest {
 export default defineEventHandler(async (event) => {
   const t = new Date()
   const sb = await serverSupabaseClient(event)
+  const rt = getRequestURL(event)
 
   try {
+    if (rt.searchParams.get('detailed') === 'true') {
+      if (castCache.has('cast-d')) {
+        return {
+          data: castCache.get('cast-d'),
+          time: new Date().getTime() - t.getTime()
+        }
+      } else {
+        const feed = (await sb.from('cast').select('*').order('id')).data
+        castCache.set('cast-d', feed)
+        return {
+          data: feed,
+          time: new Date().getTime() - t.getTime()
+        }
+      }
+    }
+
     if (castCache.has('cast')) {
       return {
         data: castCache.get('cast'),

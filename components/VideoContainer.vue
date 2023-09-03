@@ -152,7 +152,6 @@ const { pending } = useAsyncData(async () => {
                       <Icon class="w-7 h-7 mx-1" name="devicon-plain:linkedin" />
                     </a>
                   </div>
-                  <!-- <pre><code class="block whitespace-pre overflow-x-scroll">{{ p }}</code></pre> -->
                 </div>
               </div>
             </template>
