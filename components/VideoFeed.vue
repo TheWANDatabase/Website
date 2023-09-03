@@ -198,7 +198,7 @@ infinite()
     </div>
     <div class="flex align-middle mx-auto w-fit my-5">
       <InfiniteLoading v-if="fd.length > 19 && allowInfinite" @infinite="infinite" />
-      <UButton v-else-if="fd.length > 19 && !allowInfinite" label="Load More" @click="infinite" />
+      <UButton :loading="loading" v-else-if="fd.length > 19 && !allowInfinite" label="Load More" @click="infinite" />
     </div>
   </div>
 </template>
