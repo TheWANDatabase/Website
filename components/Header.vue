@@ -228,7 +228,7 @@ function openVideo (id) {
 
 </script>
 <template>
-  <div class="shadow-md shadow-black bg-slate-500 w-100 flex-col">
+  <div class="shadow-md shadow-black bg-slate-800 w-100 flex-col">
     <template v-for="(banner, index) in banners" :key="index">
       <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
         <p>
