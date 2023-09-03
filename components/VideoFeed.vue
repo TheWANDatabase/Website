@@ -126,7 +126,7 @@ async function infinite () {
     episodeCount.value = feed.data.count
     offset += 20
   } catch (e) {
-    // console.error(e)
+    console.error(e)
   }
   loading.value = false
 }
