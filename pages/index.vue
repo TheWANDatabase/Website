@@ -1,4 +1,5 @@
 <script setup>
+
 useHead({
   title: 'Home | The WAN DB',
   link: [

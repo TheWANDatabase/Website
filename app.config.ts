@@ -1,7 +1,11 @@
 export default defineAppConfig({
   ui: {
+    safelistcolors: [
+      'scorch',
+      'poppy'
+    ],
     icons: ['mdi'],
-    primary: 'red',
-    gray: 'slate'
+    primary: 'poppy',
+    gray: 'zinc'
   }
 })

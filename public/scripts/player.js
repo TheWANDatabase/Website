@@ -13,27 +13,28 @@ setTimeout(() => {
         if (x) {
             console.log("Loading Stream Player")
             playerType = 1
-            player = Stream(x);
-            player.addEventListener('play', () => {
-                console.log('playing!');
-            });
+            
+            // player = Stream(x);
+            // player.addEventListener('play', () => {
+            //     console.log('playing!');
+            // });
 
         }
     }
 }, 200)
 
 
-function onYouTubeIframeAPIReady() {
-    pr = true;
-    setTimeout(() => {
-        try {
-            console.log("YouTube Player is Ready");
-            let id = window.location.href.split('/').pop();
-            console.log("Loading YouTube video with ID", id);
+// function onYouTubeIframeAPIReady() {
+//     pr = true;
+//     setTimeout(() => {
+//         try {
+//             console.log("YouTube Player is Ready");
+//             let id = window.location.href.split('/').pop();
+//             console.log("Loading YouTube video with ID", id);
 
-            player = new YT.Player('videoplayerviewportsector');
-        } catch (e) {
-            console.log(e);
-        }
-    }, 200)
-}
+//             player = new YT.Player('videoplayerviewportsector');
+//         } catch (e) {
+//             console.log(e);
+//         }
+//     }, 200)
+// }

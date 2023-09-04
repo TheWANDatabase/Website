@@ -228,7 +228,7 @@ function openVideo (id) {
 
 </script>
 <template>
-  <div class="shadow-md shadow-black bg-slate-800 w-100 flex-col">
+  <div class="shadow-sm shadow-black bg-zinc-800 w-100 flex-col">
     <template v-for="(banner, index) in banners" :key="index">
       <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
         <p>
@@ -242,21 +242,21 @@ function openVideo (id) {
     <div class="flex w-100">
       <a
         href="/"
-        class="uppercase mr-1 pt-1 pb-1 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+        class="uppercase pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
       >
         <img class="w-32" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg">
       </a>
       <a
         href="/"
-        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+        class="uppercase pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
       >
-        <h3 class="hover:font-bold py-3 text-l transition-all">
+        <h3 class="py-3 text-l transition-all">
           Video Feed
         </h3>
       </a>
       <!-- <a
         href="/contributors"
-        class="uppercase mr-1 pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+        class="uppercase pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
       >
         <h3 class="hover:font-bold py-3 text-l transition-all">
           Contributors
@@ -264,9 +264,9 @@ function openVideo (id) {
       </a> -->
       <a
         href="/cast"
-        class="uppercase mr-auto flex-col justify-center pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-orange-500 hover:bg-slate-800 transition-all drop-shadow-xl"
+        class="uppercase mr-auto pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
       >
-        <h3 class="hover:font-bold h-fit py-3 text-center text-l transition-all">
+        <h3 class="h-fit py-3 text-center text-l transition-all">
           Cast
         </h3>
       </a>

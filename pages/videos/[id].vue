@@ -213,10 +213,7 @@ const { data, error } = useAsyncData(async () => {
     ],
     script: [
       {
-        src: 'https://www.youtube.com/iframe_api'
-      },
-      {
-        src: 'https://embed.cloudflarestream.com/embed/sdk.latest.js'
+        src: 'https://cdn.plyr.io/3.7.8/plyr.js'
       },
       {
         src: '/scripts/player.js'

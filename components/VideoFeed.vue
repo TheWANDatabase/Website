@@ -1,6 +1,5 @@
 <script setup>
 import InfiniteLoading from 'v3-infinite-loading'
-import style from './VideoFeed.module.css'
 
 const allowInfinite = ref(true)
 const fd = ref([])
@@ -154,72 +153,90 @@ infinite()
 
 <template>
   <div class="flex-col">
-    <div class="z-10 flex-col mt-3 mx-auto mb-2 bg-slate-800 p-2 rounded justify-evenly max-w-fit sticky top-1" style="top: 0.25rem;">
-      <div class="flex max-w-fit mt-3 mx-auto mb-2 p-2 justify-evenly">
-        <UTooltip text="Apply Filters">
-          <UButton :loading="loading" icon="i-heroicons-magnifying-glass-20-solid" variant="soft" @click="filter" />
-        </UTooltip>
-        <div class="w-32 flex justify-between mt-1.5 mx-10">
-          <UTooltip text="Enable Infinity Scroll">
-            <UToggle v-model="allowInfinite" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
-          </UTooltip>
-          <UTooltip text="Hide videos with content warnings">
-            <UToggle v-model="filters.hideCW" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
-          </UTooltip>
-          <UTooltip text="Hide corrupted videos">
-            <UToggle v-model="filters.hideCorrupt" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
-          </UTooltip>
+    <div class="shadow-sm shadow-black z-10 flex-col mt-3 mx-auto mb-2 bg-zinc-800 rounded justify-evenly max-w-fit sticky top-1" style="top: 0.25rem;">
+      <div class="flex p-2">
+        <div class="w-42 flex-col my-auto mr-4 justify-evenly">
+          <span class="flex w-56 justify-between my-1">
+            <p class="text-slate-400 h-5 inline align-middle">Enable infinity scrolling</p>
+            <UTooltip text="Enable Infinity Scroll">
+              <UToggle v-model="allowInfinite" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+            </UTooltip>
+          </span>
+          <span class="flex w-56 justify-between my-1">
+            <p class="text-slate-400 h-5 inline align-middle">Hide Content Warnings</p>
+            <UTooltip text="Hide videos with content warnings">
+              <UToggle v-model="filters.hideCW" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+            </UTooltip>
+          </span>
+          <span class="flex w-56 justify-between my-1">
+            <p class="text-slate-400 h-5 inline align-middle">Hide Corrupted Content</p>
+            <UTooltip text="Hide corrupted videos">
+              <UToggle v-model="filters.hideCorrupt" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+            </UTooltip>
+          </span>
         </div>
-        <UTooltip text="Only show videos after this date">
-          <UInput v-model="filters.startDate" type="date" />
-        </UTooltip>
-        <div class="mx-5" />
-        <UTooltip text="Only show videos before this date">
-          <UInput v-model="filters.endDate" type="date" />
-        </UTooltip>
-        <div class="mx-5" />
-        <USelectMenu
-          v-model="filters.order"
-          :options="orderOptions"
-        >
-          <template #label>
-            <template v-if="selected">
-              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
-              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
-              {{ selected.label }}
-            </template>
-          </template>
-        </USelectMenu>
-        <div class="mx-5" />
-        <USelectMenu
-          v-model="filters.members"
-          multiple
-          :options="cst"
-          placeholder="Select Cast Members"
-          searchable
-          class="w-72 min-w-fit"
-          :ui="{
-            width: 'w-72'
-          }"
-          :ui-menu="{
-            width: 'w-72'
-          }"
-        >
-          <template #label>
-            <template v-if="selected">
-              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
-              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
-              {{ selected.label }}
-            </template>
-          </template>
-        </USelectMenu>
-      </div>
-      <div v-if="data" class="flex mt-3 mx-auto mb-1 p-0 justify-evenly">
-        <UBadge variant="subtle" :label="`Showing episodes ${ fd.length.toLocaleString() } / ${ episodeCount.toLocaleString() }`" />
-        <UBadge variant="subtle" :label="`Total Air Time: ${ toTimestamp(data.seconds) }`" />
-        <UBadge variant="subtle" :label="`Guest Count: ${ data.cast.toLocaleString() }`" />
-        <UBadge variant="subtle" :label="`Topic Count: ${ data.topics.toLocaleString() }`" />
-        <UBadge variant="subtle" :label="`First Show: ${ getRelativeTime(new Date('2012-08-28')) }`" />
+        <div class="flex-col mb-auto mt-0">
+          <div class="flex max-w-fit mt-3 mx-auto mb-2 p-2 justify-evenly">
+            <UTooltip text="Only show videos after this date">
+              <UInput v-model="filters.startDate" type="date" />
+            </UTooltip>
+            <div class="mx-5" />
+            <UTooltip text="Only show videos before this date">
+              <UInput v-model="filters.endDate" type="date" />
+            </UTooltip>
+            <div class="mx-5" />
+            <USelectMenu
+              v-model="filters.order"
+              :options="orderOptions"
+            >
+              <template #label>
+                <template v-if="selected">
+                  <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+                  <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+                  {{ selected.label }}
+                </template>
+              </template>
+            </USelectMenu>
+            <div class="mx-5" />
+            <USelectMenu
+              v-model="filters.members"
+              multiple
+              :options="cst"
+              placeholder="Select Cast Members"
+              searchable
+              class="w-72 min-w-fit"
+              :ui="{
+                width: 'w-72'
+              }"
+              :ui-menu="{
+                width: 'w-72'
+              }"
+            >
+              <template #label>
+                <template v-if="selected">
+                  <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+                  <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+                  {{ selected.label }}
+                </template>
+              </template>
+            </USelectMenu>
+            <UButton
+              class="ml-10"
+              label="Apply Filters"
+              :loading="loading"
+              icon="i-heroicons-magnifying-glass-20-solid"
+              variant="soft"
+              @click="filter"
+            />
+          </div>
+          <div v-if="data" class="flex mt-3 mx-auto mb-1 p-0">
+            <CoreUICustomBadge class="ml-2 mr-5" :label="`Showing episodes ${ fd.length.toLocaleString() } / ${ episodeCount.toLocaleString() }`" />
+            <CoreUICustomBadge class="mx-5" :label="`Total Air Time: ${ toTimestamp(data.seconds) }`" />
+            <CoreUICustomBadge class="mx-5" :label="`Guest Count: ${ data.cast.toLocaleString() }`" />
+            <CoreUICustomBadge class="mx-5" :label="`Topic Count: ${ data.topics.toLocaleString() }`" />
+            <CoreUICustomBadge class="mx-5" :label="`First Show: ${ getRelativeTime(new Date('2012-08-28')) }`" />
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex flex-wrap justify-center">

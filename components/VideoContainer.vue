@@ -66,12 +66,9 @@ const { pending } = useAsyncData(async () => {
       :ui="{
         base: 'relative m-2 flex-1 flex flex-col w-full focus:outline-none',
         background: 'bg-transparent',
-        overlay: {
-          background: 'bg-gray-800/75'
-        }
       }"
     >
-      <UCard class="flex flex-col flex-1 bg-slate-900 text-white" :ui="{ body: { base: 'flex-1 bg-slate-900' }, header: { base: 'bg-slate-800'}, footer: { base: 'bg-slate-800'}, ring: '', divide: 'divide-y divide-slate-800' }">
+      <UCard class="flex flex-col flex-1 bg-zinc-900 text-white" :ui="{ body: { base: 'flex-1 bg-zinc-900' }, header: { base: 'bg-zinc-800'}, footer: { base: 'bg-zinc-800'}, ring: '', divide: 'divide-y divide-slate-800' }">
         <template #header>
           <h1 class="text-2xl font-extrabold">
             Cast Viewer
@@ -107,12 +104,12 @@ const { pending } = useAsyncData(async () => {
               </NuxtLink>
             </h2>
 
-            <UBadge variant="subtle" :label="new Date(data.aired).toLocaleDateString()" />
+            <CoreUICustomBadge :label="new Date(data.aired).toLocaleDateString()" />
           </div>
         </template>
       </UCard>
     </USlideover>
-    <NuxtLink class="w-fit overflow-hidden min-h-16 m-1 bg-slate-700 rounded-lg pt-2 hover:bg-slate-500 transition-all text-white" :href="`/videos/${data.id}`">
+    <NuxtLink class="shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-zinc-700 text-primary-500 rounded-lg pt-2 hover:bg-primary-700 hover:text-primary-100 transition-all font-semibold" :href="`/videos/${data.id}`">
       <div class="w-80 m-2 h-72">
         <img class="w-max mx-auto rounded-md my-0" style="width: 300px; height: auto; object-fit: cover;" :src="data.thumbnail">
         <h1 class="text-xl mx-2 h-16 my-0">
@@ -120,7 +117,7 @@ const { pending } = useAsyncData(async () => {
         </h1>
         <div class="flex justify-between mx-2">
           <UTooltip class="px-2 py-1" text="The date this episode first streamed">
-            <UBadge class="px-2 py-1" variant="subtle" :label="new Date(data.aired).toLocaleDateString()" />
+            <CoreUICustomBadge class="my-auto mr-0 -ml-3" :label="new Date(data.aired).toLocaleDateString()" />
           </UTooltip>
 
           <UTooltip v-if="data.cast.length > 0" text="Click to open the preview panel">
@@ -133,7 +130,7 @@ const { pending } = useAsyncData(async () => {
             </UButton>
           </UTooltip>
           <UTooltip v-else class="px-2 py-1" text="Click to open the preview panel">
-            <UButton variant="soft" label="Cast Unknown" @click.prevent="popoverOpen = true" />
+            <CoreUICustomBadge label="Cast Unknown" @click.prevent="popoverOpen = true" />
           </UTooltip>
         </div>
       </div>

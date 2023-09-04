@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-slate-600 text-amber-800">
+  <div class="bg-zinc-900 text-zinc-200">
     <Header />
     <NuxtPage />
     <Footer />
@@ -7,10 +7,10 @@
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 
 * {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 body {
@@ -18,12 +18,12 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #475569;
+  background-color: #18181b;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #475569;
+    background-color: #18181b;
   }
 }
 </style>
