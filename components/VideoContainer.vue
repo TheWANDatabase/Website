@@ -1,6 +1,4 @@
 <script async setup>
-import style from './Video.module.css'
-
 const sb = useSupabaseClient()
 const cfg = useState('uconf')
 const csm = useState('csm')

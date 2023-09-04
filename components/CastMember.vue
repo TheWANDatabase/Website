@@ -1,9 +1,10 @@
 <script setup>
 const props = defineProps(['person'])
+const cfg = useState('uconf')
 </script>
 
 <template>
-  <div class="flex w-82 mx-auto mt-2 mb-5 bg-slate-800 rounded-lg p-2">
+  <div :class="`flex w-82 mx-auto mt-2 mb-5 bg-${cfg.theme.greyscale}-800 rounded-lg p-2`">
     <div class="flex ml-2 mr-4 my-auto align-middle">
       <UAvatar class="object-cover" size="3xl" :alt="props.person.name" :src="'https://cdn.thewandb.com/mugs/'+props.person.mug" />
     </div>

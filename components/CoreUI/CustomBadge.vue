@@ -1,6 +1,6 @@
 <template>
   <div :class="['w-fit', 'h-fit', 'p-1', 'rounded-md', 'border-2', 'border-' + base + '-700', 'shadow-inner', 'shadow-' + base + '-800', 'bg-' + base + '-900'].concat(i.split(' '))">
-    <p :class="['text-sm', 'overflow-hidden', 'text-' + textBase + '-300'].concat(o.split(' '))">
+    <p :class="['text-sm', 'overflow-hidden', 'text-' + textBase + '-200'].concat(o.split(' '))">
       {{ props.label }}
     </p>
   </div>

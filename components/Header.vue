@@ -1,6 +1,4 @@
 <script async setup>
-import style from './Header.module.css'
-
 const sb = useSupabaseClient()
 const user = useSupabaseUser()
 const config = useRuntimeConfig()
