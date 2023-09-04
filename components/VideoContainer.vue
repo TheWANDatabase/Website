@@ -112,7 +112,7 @@ const { pending } = useAsyncData(async () => {
     <NuxtLink :class="`shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-${cfg.theme.greyscale}-800 text-${cfg.theme.primary}-400 rounded-lg pt-2 hover:bg-${cfg.theme.primary}-700 hover:text-${cfg.theme.primary}-100 transition-all font-semibold`" :href="`/videos/${data.id}`">
       <div class="w-80 m-2 h-80">
         <img class="w-max mx-auto rounded-md -mt-2 mb-1" style="object-fit: cover;" :src="data.thumbnail">
-        <h1 class="text-xl mx-2 h-16 my-0">
+        <h1 class="text-xl mx-2 h-16 mt-1 mb-0">
           {{ data.title }}
         </h1>
         <div class="flex justify-between mx-2">
