@@ -8,6 +8,7 @@ const episodeCount = ref(0)
 const cst = useState('cst', () => [])
 const csm = useState('csm', () => new Map())
 const config = useRuntimeConfig()
+const cfg = useState('uconf')
 const xsm = ref([])
 const loading = ref(false)
 const orderOptions = ref([
@@ -153,40 +154,41 @@ infinite()
 
 <template>
   <div class="flex-col">
-    <div class="shadow-sm shadow-black z-10 flex-col mt-3 mx-auto mb-2 bg-zinc-800 rounded justify-evenly max-w-fit sticky top-1" style="top: 0.25rem;">
+    <div :class="`shadow-sm shadow-black z-10 flex-col mt-3 mx-auto mb-2 bg-${cfg.theme.greyscale}-800 rounded justify-evenly max-w-fit sticky top-1`" style="top: 0.25rem;">
       <div class="flex p-2">
         <div class="w-42 flex-col my-auto mr-4 justify-evenly">
           <span class="flex w-56 justify-between my-1">
-            <p class="text-slate-400 h-5 inline align-middle">Enable infinity scrolling</p>
+            <p :class="`text-${cfg.theme.greyscale}-400 h-5 inline align-middle`">Enable infinity scrolling</p>
             <UTooltip text="Enable Infinity Scroll">
-              <UToggle v-model="allowInfinite" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+              <UToggle v-model="allowInfinite" :color="cfg.theme.primary" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" :ui="{inactive: `bg-${cfg.theme.greyscale}-200 dark:bg-${cfg.theme.greyscale}-700`}" />
             </UTooltip>
           </span>
           <span class="flex w-56 justify-between my-1">
-            <p class="text-slate-400 h-5 inline align-middle">Hide Content Warnings</p>
+            <p :class="`text-${cfg.theme.greyscale}-400 h-5 inline align-middle`">Hide Content Warnings</p>
             <UTooltip text="Hide videos with content warnings">
-              <UToggle v-model="filters.hideCW" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+              <UToggle v-model="filters.hideCW" :color="cfg.theme.primary" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" :ui="{inactive: `bg-${cfg.theme.greyscale}-200 dark:bg-${cfg.theme.greyscale}-700`}" />
             </UTooltip>
           </span>
           <span class="flex w-56 justify-between my-1">
-            <p class="text-slate-400 h-5 inline align-middle">Hide Corrupted Content</p>
+            <p :class="`text-${cfg.theme.greyscale}-400 h-5 inline align-middle`">Hide Corrupted Content</p>
             <UTooltip text="Hide corrupted videos">
-              <UToggle v-model="filters.hideCorrupt" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" />
+              <UToggle v-model="filters.hideCorrupt" :color="cfg.theme.primary" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" :ui="{inactive: `bg-${cfg.theme.greyscale}-200 dark:bg-${cfg.theme.greyscale}-700`}" />
             </UTooltip>
           </span>
         </div>
         <div class="flex-col mb-auto mt-0">
           <div class="flex max-w-fit mt-3 mx-auto mb-2 p-2 justify-evenly">
             <UTooltip text="Only show videos after this date">
-              <UInput v-model="filters.startDate" type="date" />
+              <UInput v-model="filters.startDate" :color="cfg.theme.primary" type="date" />
             </UTooltip>
             <div class="mx-5" />
             <UTooltip text="Only show videos before this date">
-              <UInput v-model="filters.endDate" type="date" />
+              <UInput v-model="filters.endDate" :color="cfg.theme.primary" type="date" />
             </UTooltip>
             <div class="mx-5" />
             <USelectMenu
               v-model="filters.order"
+              :color="cfg.theme.primary"
               :options="orderOptions"
             >
               <template #label>
@@ -205,6 +207,7 @@ infinite()
               placeholder="Select Cast Members"
               searchable
               class="w-72 min-w-fit"
+              :color="cfg.theme.primary"
               :ui="{
                 width: 'w-72'
               }"
@@ -226,6 +229,7 @@ infinite()
               :loading="loading"
               icon="i-heroicons-magnifying-glass-20-solid"
               variant="soft"
+              :color="cfg.theme.primary"
               @click="filter"
             />
           </div>
@@ -246,7 +250,7 @@ infinite()
     </div>
     <div class="flex align-middle mx-auto w-fit my-5">
       <InfiniteLoading v-if="fd.length > 19 && allowInfinite" @infinite="infinite" />
-      <UButton v-else-if="fd.length > 19 && !allowInfinite" :loading="loading" label="Load More" @click="infinite" />
+      <UButton v-else-if="fd.length > 19 && !allowInfinite" :loading="loading" :color="cfg.theme.primary" label="Load More" @click="infinite" />
     </div>
   </div>
 </template>

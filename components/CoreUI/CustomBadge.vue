@@ -7,9 +7,17 @@
 </template>
 
 <script setup>
+const cfg = useState('uconf')
 const props = defineProps(['id', 'class', 'innerclass', 'label', 'color', 'text'])
-const base = ref(props.color ? props.color : 'poppy')
-const textBase = ref(props.text ? props.text : 'poppy')
+const base = ref(props.color ? props.color : (cfg.value ? cfg.value.theme.primary : 'poppy'))
+const textBase = ref(props.text ? props.text : (cfg.value ? cfg.value.theme.primary : 'poppy'))
+
+useAsyncData(() => {
+  base.value = props.color ? props.color : (cfg.value ? cfg.value.theme.primary : 'poppy')
+  textBase.value = props.text ? props.text : (cfg.value ? cfg.value.theme.primary : 'poppy')
+}, {
+  watch: [cfg, props]
+})
 
 const i = props.class ? props.class : ''
 const o = props.innerclass ? props.innerclass : ''

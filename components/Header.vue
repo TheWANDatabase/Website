@@ -9,6 +9,32 @@ const route = useRoute()
 const profile = useState('uprofile', () => undefined)
 const history = useState('history', () => new Map())
 const banners = useState('banners', () => [])
+const cfg = useState('uconf', () => {
+  return {
+    theme: {
+      name: 'poppy',
+      primary: 'poppy',
+      greyscale: 'zinc'
+    }
+  }
+})
+
+onMounted(() => {
+  function getConfig () {
+    const raw = window.localStorage.getItem('cfgix')
+    if (raw) {
+      cfg.value = JSON.parse(raw)
+    } else {
+      window.localStorage.setItem('cfgix', JSON.stringify(cfg.value))
+    }
+  }
+
+  try {
+    getConfig()
+  } catch (e) {
+    console.error(e)
+  }
+})
 
 useAsyncData(async () => {
   const bannerReq = await (await fetch('/api/v1/banners')).json()
@@ -133,6 +159,13 @@ await useAsyncData(() => {
           click: () => {
             window.open('https://ko-fi.com/altrius', '_blank')
           }
+        },
+        {
+          label: 'Join Our Discord',
+          icon: 'i-mdi-discord',
+          click: () => {
+            window.open('https://discord.gg/sVQm5f35VF', '_blank')
+          }
         }
       ]
     ]
@@ -163,6 +196,13 @@ await useAsyncData(() => {
           icon: 'i-heroicons-banknotes',
           click: () => {
             window.open('https://ko-fi.com/altrius', '_blank')
+          }
+        },
+        {
+          label: 'Join Our Discord',
+          icon: 'i-mdi-discord',
+          click: () => {
+            window.open('https://discord.gg/sVQm5f35VF', '_blank')
           }
         }
       ]
@@ -228,7 +268,7 @@ function openVideo (id) {
 
 </script>
 <template>
-  <div class="shadow-sm shadow-black bg-zinc-800 w-100 flex-col">
+  <div :class="`shadow-sm shadow-black bg-${cfg.theme.greyscale}-800 w-100 flex-col`">
     <template v-for="(banner, index) in banners" :key="index">
       <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
         <p>
@@ -242,13 +282,13 @@ function openVideo (id) {
     <div class="flex w-100">
       <a
         href="/"
-        class="uppercase pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
+        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
       >
         <img class="w-32" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg">
       </a>
       <a
         href="/"
-        class="uppercase pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
+        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
       >
         <h3 class="py-3 text-l transition-all">
           Video Feed
@@ -256,7 +296,7 @@ function openVideo (id) {
       </a>
       <!-- <a
         href="/contributors"
-        class="uppercase pt-2 pb-2 pl-5 pr-5 text-slate-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
+        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
       >
         <h3 class="hover:font-bold py-3 text-l transition-all">
           Contributors
@@ -264,7 +304,7 @@ function openVideo (id) {
       </a> -->
       <a
         href="/cast"
-        class="uppercase mr-auto pt-1 pb-1 pl-5 pr-5 text-zinc-100 hover:text-primary-500 hover:bg-zinc-600 transition-all drop-shadow-xl"
+        :class="`uppercase pt-1 pb-1 pl-5 pr-5 mr-auto text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
       >
         <h3 class="h-fit py-3 text-center text-l transition-all">
           Cast
@@ -273,8 +313,10 @@ function openVideo (id) {
 
       <template v-if="profile">
         <UDropdown :items="items">
-          <UButton color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
-            <UAvatar :src="profile.avatar_url" alt="Avatar" /> {{ profile.username }}
+          <UButton :class="`rounded-none hover:bg-${cfg.theme.greyscale}-600 text-${cfg.theme.greyscale}-100`" color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
+            <UAvatar :src="profile.avatar_url" alt="Avatar" /> <p :class="`text-${cfg.theme.greyscale}-100`">
+              {{ profile.username }}
+            </p>
             <template #item="{ item }">
               <template v-if="item">
                 <UIcon v-if="item.icon" :name="item.icon" class="w-4 h-4" />
@@ -303,7 +345,7 @@ function openVideo (id) {
         <UInput
           v-model="query"
           variant="outline"
-          color="white"
+          :color="cfg.theme.greyscale"
           icon="i-heroicons-magnifying-glass-20-solid"
           size="sm"
           placeholder="Search..."

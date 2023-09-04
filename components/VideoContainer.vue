@@ -2,7 +2,7 @@
 import style from './Video.module.css'
 
 const sb = useSupabaseClient()
-
+const cfg = useState('uconf')
 const csm = useState('csm')
 const issueURI = ref('https://github.com/TheWANDatabase/Website/issues/new')
 const props = defineProps({
@@ -109,9 +109,9 @@ const { pending } = useAsyncData(async () => {
         </template>
       </UCard>
     </USlideover>
-    <NuxtLink class="shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-zinc-700 text-primary-500 rounded-lg pt-2 hover:bg-primary-700 hover:text-primary-100 transition-all font-semibold" :href="`/videos/${data.id}`">
-      <div class="w-80 m-2 h-72">
-        <img class="w-max mx-auto rounded-md my-0" style="width: 300px; height: auto; object-fit: cover;" :src="data.thumbnail">
+    <NuxtLink :class="`shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-${cfg.theme.greyscale}-800 text-${cfg.theme.primary}-400 rounded-lg pt-2 hover:bg-${cfg.theme.primary}-700 hover:text-${cfg.theme.primary}-100 transition-all font-semibold`" :href="`/videos/${data.id}`">
+      <div class="w-80 m-2 h-80">
+        <img class="w-max mx-auto rounded-md -mt-2 mb-1" style="object-fit: cover;" :src="data.thumbnail">
         <h1 class="text-xl mx-2 h-16 my-0">
           {{ data.title }}
         </h1>
@@ -121,7 +121,7 @@ const { pending } = useAsyncData(async () => {
           </UTooltip>
 
           <UTooltip v-if="data.cast.length > 0" text="Click to open the preview panel">
-            <UButton label="Open" variant="ghost" @click.prevent="popoverOpen = true">
+            <UButton :color="cfg.theme.primary" label="Open" variant="ghost" @click.prevent="popoverOpen = true">
               <UAvatarGroup class="mr-auto ml-0" size="md" :max="data.cast.length > 3 ? 2 : 3">
                 <template v-for="(c, i) in data.cast" :key="i">
                   <UAvatar class="object-cover" :src="c.mug" :alt="c.label" />

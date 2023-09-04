@@ -1,10 +1,14 @@
 <template>
-  <div class="bg-zinc-900 text-zinc-200">
+  <div :class="`bg-${cfg ? cfg.theme.greyscale : 'zinc'}-900 text-${cfg ? cfg.theme.greyscale : 'zinc'}-200`">
     <Header />
     <NuxtPage />
     <Footer />
   </div>
 </template>
+
+<script setup>
+const cfg = useState('uconf')
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
