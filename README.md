@@ -3,7 +3,7 @@ A project aiming to index every episode, topic, and cast member of the popular t
 
 
 ## Goals
-- [ ] 100% coverage of episodes .
+- [x] 100% coverage of episodes .
 - [ ] 100% coverage of topics.
 - [ ] 100% coverage of cast members.
 - [ ] 100% coverage of merch messages.
