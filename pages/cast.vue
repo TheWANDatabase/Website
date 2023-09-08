@@ -69,12 +69,12 @@ useHead({
 const config = useRuntimeConfig()
 
 const { data } = useAsyncData(async () => {
-  return (await (await fetcher(config.public.api_base + '/cast?detailed=true', { method: 'POST' })).json()).data
+  return (await (await fetcher('cast')).json()).data
 })
 
 </script>
 <template>
-  <div class="w-10/12 mx-auto my-2 flex-col justify-center text-white">
+  <div class="mx-auto my-2 flex-col justify-center text-white">
     <h1 class="w-fit mx-auto font-bold text-3xl">
       Cast
     </h1>
@@ -84,7 +84,7 @@ const { data } = useAsyncData(async () => {
     <p class="text-justify w-fit mx-auto">
       (according to our sources)
     </p>
-    <div class="w-100 flex justify-center flex-wrap">
+    <div class="flex w-11/12 mx-auto px-0 justify-evenly flex-wrap">
       <template v-for="(p,i) in data" :key="i">
         <CastMember :person="p" />
       </template>

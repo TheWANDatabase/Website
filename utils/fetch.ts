@@ -1,7 +1,13 @@
 /* eslint-disable no-console */
 export function fetcher (url: string, options: any = {}, retries: number = 3): any {
-  console.debug(`Fetching URL ${url} `)
-  return fetch(url, options)
+  const cfg = useRuntimeConfig()
+
+  const uri = `${cfg.public.api_base}/${url}`
+
+  if (options.headers) { options.headers['Content-Type'] = 'application/json' }
+  if (!options.headers) { options.headers = { 'Content-Type': 'application/json' } }
+
+  return fetch(uri, options)
     .then((res: any) => {
       if (res.ok) {
         return res

@@ -58,26 +58,24 @@ const filters = useState('filter', () => {
 
 const { data } = useAsyncData(async () => {
   try {
-    const stats = (await (await fetch(config.public.api_base + '/stats')).json()).data
+    // const stats = (await (await fetch(config.public.api_base + '/stats')).json()).data
 
     if (cst.value.length === 0) {
-      const cast = await (await fetch(config.public.api_base + '/cast', {
-        method: 'POST'
-      })).json()
+      const cast = await (await fetcher('cast')).json()
 
       if (filters.value.members.length === 0) {
         cst.value = cast.data.map((m) => {
           csm.value.set(m.id, {
             id: m.id,
-            label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
-            mug: `https://cdn.thewandb.com/mugs/${m.mug}`
+            label: `${m.forename} ${m.surname} ${m.outlet ? ' (' + m.outlet.name + ')' : ''}`,
+            mug: `https://cdn.thewandb.com/mugs/${m.avatar}`
           })
 
           return {
             id: m.id,
-            label: `${m.name} ${m.outlet ? ' (' + m.outlet + ')' : ''}`,
+            label: `${m.forename} ${m.surname} ${m.outlet ? ' (' + m.outlet.name + ')' : ''}`,
             avatar: {
-              src: `https://cdn.thewandb.com/mugs/${m.mug}`
+              src: `https://cdn.thewandb.com/mugs/${m.avatar}`
             }
           }
         })
@@ -87,7 +85,7 @@ const { data } = useAsyncData(async () => {
     }
 
     return {
-      ...stats,
+      // ...stats,
       cdata: xsm.value
     }
   } catch (e) {
@@ -130,7 +128,7 @@ async function infinite () {
     const f = JSON.parse(JSON.stringify(filters.value))
     f.members = f.members.map(m => m.id)
 
-    const feed = await (await fetcher(config.public.api_base + '/episodes', {
+    const feed = await (await fetcher('episodes', {
       method: 'POST',
       body: JSON.stringify({
         filters: f,
@@ -138,10 +136,9 @@ async function infinite () {
         limit: 20
       })
     })).json()
-
-    feed.data.episodes.filter(({ id }) => !fdm.value.has(id))
+    feed.data.episodes = feed.data.episodes.filter(({ id }) => !fdm.value.has(id))
     fd.value = fd.value.concat(feed.data.episodes)
-    episodeCount.value = feed.data.count
+    episodeCount.value = feed.data.stats
     offset += 20
   } catch (e) {
     console.error(e)
@@ -233,19 +230,19 @@ infinite()
               @click="filter"
             />
           </div>
-          <div v-if="data" class="flex mt-3 mx-auto mb-1 p-0">
+          <div v-if="episodeCount" class="flex mt-3 mx-auto mb-1 p-0">
             <CoreUICustomBadge class="ml-2 mr-5" :label="`Showing episodes ${ fd.length.toLocaleString() } / ${ episodeCount.toLocaleString() }`" />
-            <CoreUICustomBadge class="mx-5" :label="`Total Air Time: ${ toTimestamp(data.seconds) }`" />
-            <CoreUICustomBadge class="mx-5" :label="`Guest Count: ${ data.cast.toLocaleString() }`" />
-            <CoreUICustomBadge class="mx-5" :label="`Topic Count: ${ data.topics.toLocaleString() }`" />
-            <CoreUICustomBadge class="mx-5" :label="`First Show: ${ getRelativeTime(new Date('2012-08-28')) }`" />
+            <!-- <CoreUICustomBadge class="mx-5" :label="`Total Air Time: ${ toTimestamp(data.seconds) }`" /> -->
+            <!-- <CoreUICustomBadge class="mx-5" :label="`Guest Count: ${ data.cast.toLocaleString() }`" /> -->
+            <!-- <CoreUICustomBadge class="mx-5" :label="`Topic Count: ${ data.topics.toLocaleString() }`" /> -->
+            <!-- <CoreUICustomBadge class="mx-5" :label="`First Show: ${ getRelativeTime(new Date('2012-08-28')) }`" /> -->
           </div>
         </div>
       </div>
     </div>
     <div class="flex flex-wrap justify-center">
       <template v-for="(video, index) in fd" :key="index">
-        <VideoContainer :id="video.id" />
+        <VideoContainer :data="video" />
       </template>
     </div>
     <div class="flex align-middle mx-auto w-fit my-5">

@@ -1,3 +1,5 @@
+import * as admin from 'firebase-admin'
+import { useCollection, useFirestore } from 'vuefire'
 import { serverSupabaseClient } from '#supabase/server'
 import { profileCache } from '~/utils/cache'
 
@@ -13,6 +15,9 @@ export default defineEventHandler(async (event) => {
   const t = new Date()
   const sb = await serverSupabaseClient(event)
 
+  const db = useFirestore()
+  console.log(db)
+  // const collection = useCollection(db)
   try {
     const q = await readBody(event)
 
@@ -22,7 +27,11 @@ export default defineEventHandler(async (event) => {
         time: new Date().getTime() - t.getTime()
       }
     } else {
-      const { data } = await sb.from('profiles').select('*').eq('id', q.id).single()
+      throw new Error('undefined error')
+      // const rf = profiles.where('id', '==', q.id).get()
+      console.log(rf)
+
+      // const { data } = await sb.from('profiles').select('*').eq('id', q.id).single()
 
       profileCache.set(q.id, data)
       return {

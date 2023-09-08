@@ -4,8 +4,9 @@ if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_URL }
 if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_BRANCH_URL }
 
 export default defineNuxtConfig({
-  // ssr: false,
+  ssr: false,
   modules: [
+    'nuxt-vuefire',
     '@nuxtjs/supabase',
     '@nuxthq/ui',
     'nuxt-icon',
@@ -17,13 +18,13 @@ export default defineNuxtConfig({
       login: '/login',
       callback: '/confirm',
       exclude: [
-        '/',
-        '/sitemap*',
-        '/videos/*',
-        '/openapi-spec.json',
-        '/privacy',
-        '/cast',
-        '/contributors'
+        '/*'//,
+        // '/sitemap*',
+        // '/videos/*',
+        // '/openapi-spec.json',
+        // '/privacy',
+        // '/cast',
+        // '/contributors'
       ]
     }
   },
@@ -31,7 +32,7 @@ export default defineNuxtConfig({
     public: {
       domain: process.env.DOMAIN,
       stream_cid: process.env.STREAM_ID,
-      api_base: 'http' + (!process.env.DOMAIN.startsWith('localhost') ? 's' : '') + '://' + process.env.DOMAIN + '/api/v1'
+      api_base: (process.env.DOMAIN === 'localhost:3000' ? 'http://localhost:3333' : 'https://api.thewandb.com') + '/v' + process.env.API_VERSION
     }
   },
   colorMode: {
@@ -50,5 +51,11 @@ export default defineNuxtConfig({
     ],
     trailingSlash: true
 
+  },
+  vuefire: {
+    auth: {
+      enabled: true
+    },
+    config: JSON.parse(process.env.FB_CONFIG)
   }
 })

@@ -1,6 +1,9 @@
 <script async setup>
-const sb = useSupabaseClient()
-const user = useSupabaseUser()
+import { signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth'
+
+// const sb = useSupabaseClient()
+const auth = useFirebaseAuth()
+const user = useCurrentUser()
 const config = useRuntimeConfig()
 const route = useRoute()
 
@@ -17,7 +20,19 @@ const cfg = useState('uconf', () => {
   }
 })
 
-onMounted(() => {
+const error = ref(null)
+function signinRedirect () {
+  signInWithRedirect(auth, new GoogleAuthProvider()).catch((reason) => {
+    console.error('Failed signinRedirect', reason)
+    error.value = reason
+  })
+}
+
+onMounted(async () => {
+  console.log(await getRedirectResult(auth).catch((reason) => {
+    console.error('Failed redirect result', reason)
+    error.value = reason
+  }))
   function getConfig () {
     const raw = window.localStorage.getItem('cfgix')
     if (raw) {
@@ -35,7 +50,7 @@ onMounted(() => {
 })
 
 useAsyncData(async () => {
-  const bannerReq = await (await fetch('/api/v1/banners')).json()
+  const bannerReq = await (await fetcher('banners')).json()
   banners.value = bannerReq.data.map((b) => {
     let show = true
 
@@ -53,30 +68,30 @@ useAsyncData(async () => {
   })
 
   if (user.value) {
-    const { data } = await (await fetcher('/api/v1/profiles', {
+    const { data } = await (await fetcher('profile', {
       method: 'POST',
       body: JSON.stringify({
-        id: user.value.id
+        id: user.value.uid
       })
     })).json()
     if (data === null) {
       sb.auth.signOut()
     } else {
       profile.value = data
-      if (!history.value) { history.value = new Map() }
+      // if (!history.value) { history.value = new Map() }
 
-      const h = await (await fetch('/api/v1/history', {
-        method: 'POST',
-        body: JSON.stringify({
-          id: user.value.id
-        })
-      })).json()
+      // const h = await (await fetch('/api/v1/history', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     id: user.value.id
+      //   })
+      // })).json()
 
-      if (h.data) {
-        for (let i = 0; i < h.data.length; i++) {
-          history.value.set(h.data[i].episode, h.data[i])
-        }
-      }
+      // if (h.data) {
+      //   for (let i = 0; i < h.data.length; i++) {
+      //     history.value.set(h.data[i].episode, h.data[i])
+      //   }
+      // }
     }
   } else {
     profile.value = undefined
@@ -85,30 +100,6 @@ useAsyncData(async () => {
   server: false,
   watch: [user]
 })
-
-const signInWithGoogle = async () => {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      //     queryParams: {
-      //         access_type: 'offline',
-      //         prompt: 'consent',
-      //     },
-      redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
-    }
-  })
-  if (error) { alert(error) }
-}
-
-const signInWithDiscord = async () => {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'discord',
-    options: {
-      redirectTo: window.location.hostname === 'localhost' ? 'http://localhost:3000' : `https://${window.location.hostname}`
-    }
-  })
-  if (error) { alert(error) }
-}
 
 const items = ref([])
 
@@ -160,7 +151,7 @@ await useAsyncData(() => {
         },
         {
           label: 'Join Our Discord',
-          icon: 'i-mdi-discord',
+          icon: 'i-heroicons-arrow-top-right-on-square',
           click: () => {
             window.open('https://discord.gg/sVQm5f35VF', '_blank')
           }
@@ -172,14 +163,14 @@ await useAsyncData(() => {
       [
         {
           label: 'Log In With Google',
-          click: signInWithGoogle,
-          icon: 'i-mdi-google'
-        },
-        {
-          label: 'Log In With Discord',
-          click: signInWithDiscord,
-          icon: 'i-mdi-discord'
+          click: signinRedirect,
+          icon: 'i-heroicons-arrow-top-right-on-square'
         }
+        //, {
+        //   label: 'Log In With Discord',
+        //   click: signInWithDiscord,
+        // icon: 'i-heroicons-arrow-top-right-on-square',
+        // }
       ],
       [
         {
@@ -198,7 +189,7 @@ await useAsyncData(() => {
         },
         {
           label: 'Join Our Discord',
-          icon: 'i-mdi-discord',
+          icon: 'i-heroicons-arrow-top-right-on-square',
           click: () => {
             window.open('https://discord.gg/sVQm5f35VF', '_blank')
           }
@@ -268,7 +259,7 @@ function openVideo (id) {
 <template>
   <div :class="`shadow-sm shadow-black bg-${cfg.theme.greyscale}-800 w-100 flex-col`">
     <template v-for="(banner, index) in banners" :key="index">
-      <Banner v-if="banner.show" :pid="banner.pid" :fixed="banner.fixed" :bg="banner.bg" :fg="banner.fg">
+      <Banner v-if="banner.show" :pid="banner.id" :fixed="banner.fixed" :bg="banner.color.bg" :fg="banner.color.fg">
         <p>
           {{ banner.message }}
           <a :style="{ color: banner.fg }" target="_blank" :href="banner.url">
@@ -312,7 +303,7 @@ function openVideo (id) {
       <template v-if="profile">
         <UDropdown :items="items">
           <UButton :class="`rounded-none hover:bg-${cfg.theme.greyscale}-600 text-${cfg.theme.greyscale}-100`" color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
-            <UAvatar :src="profile.avatar_url" alt="Avatar" /> <p :class="`text-${cfg.theme.greyscale}-100`">
+            <UAvatar :src="profile.avatar" alt="Avatar" /> <p :class="`text-${cfg.theme.greyscale}-100`">
               {{ profile.username }}
             </p>
             <template #item="{ item }">
