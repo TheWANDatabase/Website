@@ -29,7 +29,7 @@ onMounted(() => {
       title: 'Socket Connecting'
     })
   }
-  stomp = webstomp.client('ws://159.65.94.78:15674/ws');
+  stomp = webstomp.client('wss://mq.thewandb.com/ws');
   stomp.connect('ui', '72MaU*6x2^p5u&T#', (e, x) => {
     if (debug) {
       toast.add({
