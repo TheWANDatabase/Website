@@ -1,21 +1,16 @@
 <script async setup>
-import { v4 } from 'uuid'
 import style from './videos.module.css'
 import { parse } from 'node-webvtt'
 
 const sb = useSupabaseClient()
 const route = useRoute()
 const { id } = route.params
-const config = useRuntimeConfig();
 
 const profile = useState('uprofile', () => undefined)
-const showEditor = ref(false)
 const canEdit = ref(false)
 const showCorruptionModal = ref(false)
 const showContentWarningModal = ref(false)
-const meta = ref('Video Viewer')
 const time = ref(0)
-const watch = ref()
 const timeHuman = ref('00:00:00')
 const timePercentage = ref('0.00')
 const itv = {
@@ -24,83 +19,6 @@ const itv = {
 }
 const castMap = new Map()
 const tsMap = new Map()
-const topicEditorList = ref([])
-const showTopicEditor = ref(false)
-const topicEditor = {
-  time: {
-    hh: ref(0),
-    mm: ref(0),
-    ss: ref(0)
-  },
-  end: {
-    hh: ref(0),
-    mm: ref(0),
-    ss: ref(0)
-  },
-  type: ref('category'),
-  title: ref(''),
-  parent: ref(null)
-}
-const showPersonSearch = ref(false)
-const castSearchValue = ref('')
-
-
-
-
-useAsyncData(() => {
-  if (profile.value) {
-    canEdit.value = ((profile.value.permissions & 1) === 1 || (profile.value.permissions & 2) === 1);
-  }
-}, {
-  watch: [profile]
-})
-
-
-
-useAsyncData(async () => {
-  try {
-    if (data) {
-      if (Math.round(time.value) >= Math.round(data.value.episode.duration - 60)) {
-        if (profile.value && watch.value) {
-          await sb.from('episode_progression').update({
-            viewed_seconds: Math.floor(data.value.episode.duration)
-          }).eq('id', watch.value.id)
-        }
-      } else if (profile.value && watch.value) {
-        if (time.value % 5 === 1) {
-          await sb.from('episode_progression').update({
-            viewed_seconds: Math.floor(time.value)
-          }).eq('id', watch.value.id)
-        }
-      } else if (profile.value) {
-        const x = await sb.from('episode_progression').select('*')
-          .eq('viewer', profile.value.id)
-          .eq('episode', id).maybeSingle()
-        if (x.data) {
-          watch.value = x.data
-          if (!route.query.t && player) {
-            if (playerType === 1) {
-              player.currentTime = watch.value.viewed_seconds
-            } else {
-              player.seekTo(watch.value.viewed_seconds)
-            }
-          }
-        } else {
-          const a = await sb.from('episode_progression').insert({
-            viewer: profile.value.id,
-            episode: id,
-            viewed_seconds: Math.floor(time.value)
-          }).select()
-          watch.value = a.data[0]
-        }
-      }
-    }
-  } catch (e) {
-  }
-}, {
-  server: false,
-  watch: [time]
-})
 
 onMounted(() => {
   setTimeout(() => {
@@ -108,25 +26,25 @@ onMounted(() => {
       if (route.query.t) {
         let t = parseInt(route.query.t)
         console.log("Time Query Provided, skipping to", t)
-        if (playerType === 1) {
-          player.currentTime = t
-        } else {
-          player.seekTo(t)
-        }
+        player.currentTime = t
       }
     }
   }, 1000)
   itv.player = setInterval(() => {
-    if (player !== null) {
-      try {
-        if (player.getCurrentTime) {
-          if (playerType === 0) time.value = player.getCurrentTime()
-          if (playerType === 1) time.value = player.currentTime
+    try {
+      if (player !== undefined) {
+        if (player !== null) {
+          time.value = player.currentTime
           timeHuman.value = toTimestamp(time.value)
-          timePercentage.value = ((time.value / data.value.episode.duration) * 100).toFixed(2)
+          timePercentage.value = ((time.value / data.value.duration) * 100).toFixed(2)
         }
-      } catch (e) {
-        console.log(e)
+      }
+    } catch (e) {
+      if (e.message === 'player is not defined') {
+        console.log("Player is not loaded yet")
+      } else {
+        console.log("Duration Daemon failed:")
+        console.error(e);
       }
     }
   }, 50)
@@ -138,20 +56,72 @@ onUnmounted(() => {
 })
 
 const { data, error } = useAsyncData(async () => {
-  let url = config.public.api_base + '/videos/detailed/' + id;
-  console.log(url)
-  const data = await (await fetcher(url)).json()
-  const episode = data.episode
-  // showCorruptionModal.value = episode.flags.corrupt
-  // showContentWarningModal.value = episode.flags.cw
+  const episode = await (await fetcher('player', {
+    method: 'POST',
+    body: JSON.stringify({
+      id
+    })
+  })).json();
+  const data = episode.data
+  showCorruptionModal.value = data.flags.corrupt
+  showContentWarningModal.value = data.flags.cw
+  try {
+    const cues = await (await fetch(`https://cdn.thewandb.com/captions/${data.id}.vtt`, {
+      headers: {
+        'Accept': 'text/vtt'
+      }
+    })).text();
+
+    for (let i = 0; i < data.cast.length; i++) {
+      castMap.set(data.cast[i].id, data.cast[i])
+      if (data.transcript[data.cast[i].id]) {
+        for (let x = 0; x < data.transcript[data.cast[i].id].length; x++) {
+          tsMap.set(data.transcript[data.cast[i].id][x], data.cast[i].id)
+        }
+      }
+    }
+
+    let c1 = parse(cues);
+
+    data.cues = c1.cues.map((c) => {
+      let speakers = /SPEAKER_[0-9]{2}/.exec(c.text);
+      c.text = c.text.split(']: ')[1]
+      if (speakers) {
+        if (speakers.length > 0) {
+          let speaker = speakers[0];
+          if (tsMap.has(speaker)) {
+            let ca = castMap.get(tsMap.get(speaker))
+            c.va = {
+              name: ca.forename + (ca.alias ? ' "' + ca.alias + '"' : '') + ' ' + ca.surname,
+              avatar: 'https://cdn.thewandb.com/mugs/' + ca.avatar
+            }
+
+            return c;
+          }
+        }
+      }
+      c.va = {
+        name: 'Unknown Speaker',
+        avatar: null
+      }
+
+      return c;
+    });
+  } catch (e) {
+    console.error("Failed to fetch caption CueFile", e);
+  }
 
   useHead({
-    title: episode.title + ' | The WAN DB',
+    title: data.title + ' | The WAN DB',
     link: [
       {
         hid: 'canonical',
         property: 'canonical',
-        content: 'https://thewandb.com/videos/' + episode.id
+        content: 'https://thewandb.com/videos/' + data.id
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://cdn.plyr.io/3.7.8/plyr.css'
       }
     ],
     meta: [
@@ -168,12 +138,12 @@ const { data, error } = useAsyncData(async () => {
       {
         hid: 'og-title',
         property: 'og:title',
-        content: episode.title + ' | The WAN DB'
+        content: data.title + ' | The WAN DB'
       },
       {
         hid: 'twitter-title',
         property: 'twitter:title',
-        content: episode.title + ' | The WAN DB'
+        content: data.title + ' | The WAN DB'
       },
       {
         hid: 'description',
@@ -213,7 +183,7 @@ const { data, error } = useAsyncData(async () => {
     ],
     script: [
       {
-        src: 'https://cdn.plyr.io/3.7.8/plyr.js'
+        src: 'https://cdn.plyr.io/3.7.8/plyr.polyfilled.js'
       },
       {
         src: '/scripts/player.js'
@@ -223,109 +193,6 @@ const { data, error } = useAsyncData(async () => {
   return data
 
 })
-
-function addGroup () {
-  showTopicEditor.value = true
-  // data.value.topics.push({
-  //     id: v4(),
-  //     episode: data.value.episode.id,
-  //     section: false,
-  //     title: 'New Topic',
-  //     description: '',
-  //     url: '',
-  //     timestamp: '00:00:00',
-  //     timestamp_raw: 0,
-  //     last_modified: new Date(),
-  //     hash: hash(new Date().toISOString() + 'new_topic'),
-  //     children: []
-  // })
-}
-
-function addTopicToGroup (id) {
-  for (let i = 0; i < data.value.topics.length; i++) {
-    if (data.value.topics[i].hash === id) {
-      data.value.topics[i].children.push({
-        id: v4(),
-        episode: data.value.episode.id,
-        section: false,
-        title: 'New Topic',
-        description: '',
-        url: '',
-        timestamp: '00:00:00',
-        timestamp_raw: 0,
-        last_modified: new Date()
-      })
-    }
-  }
-}
-
-const castSearchResults = useAsyncData(async () => {
-  if (castSearchValue.value.length === 0) {
-    return []
-  } else {
-    const d = await sb.rpc('search_cast', {
-      search_term: castSearchValue.value
-    })
-    for (let i = 0; i < d.data.length; i++) {
-      d.data[i].avatar = 'https://cdn.thewandb.com/mugs/' + d.data[i].mug
-    }
-    return d.data
-  }
-}, {
-  watch: [castSearchValue]
-})
-
-function seek(timestamp) {
-  try {
-    if (player) {
-      player.seekTo(timestamp)
-    }
-  } catch (e) {
-  }
-}
-
-function addPerson() {
-  showPersonSearch.value = true
-}
-
-function toggleCastMember(id) {
-  if (data.value.episode.cast.includes(id)) {
-    data.value.episode.cast = data.value.episode.cast.filter(i => i !== id)
-  } else { data.value.episode.cast.push(id) }
-}
-
-async function saveCastMembers() {
-  await sb.from('episodes').update({
-    cast: data.value.episode.cast.filter(function (elem, pos) {
-      return data.value.episode.cast.indexOf(elem) === pos
-    })
-  }).eq('id', data.value.episode.id)
-  window.location.reload()
-}
-
-function closeEditor() {
-  showPersonSearch.value = false
-  showTopicEditor.value = false
-}
-
-function processTopicChanges() {
-  const tpc = topicEditor
-  if (tpc.type.value === 'category') {
-    const start = ((tpc.time.hh.value * 60 * 60) + (tpc.time.mm.value * 60) + tpc.time.ss.value)
-    const end = ((tpc.end.hh.value * 60 * 60) + (tpc.end.mm.value * 60) + tpc.end.ss.value)
-
-    topicEditorList.value.push({
-      id: v4(),
-      accepted: false,
-      title: tpc.title.value,
-      timestamp_raw: start,
-      timestamp: toTimestamp(start),
-      end,
-      section: true,
-      episode: id
-    })
-  }
-}
 </script>
 <template>
   <template v-if="!data && !error">
@@ -342,7 +209,7 @@ function processTopicChanges() {
     <template v-if="(showContentWarningModal && showCorruptionModal)">
       <div :class="style.warningModal">
         <h1>Proceed With Caution!</h1>
-        <p>Video: {{ data.episode.title }}</p>
+        <p>Video: {{ data.title }}</p>
         <p>
           This video may feature language, phrases,
           or other content which some viewers may find upsetting.
@@ -375,7 +242,7 @@ function processTopicChanges() {
     <template v-else-if="showContentWarningModal">
       <div :class="style.warningModal">
         <h1>Proceed With Caution!</h1>
-        <p>Video: {{ data.episode.title }}</p>
+        <p>Video: {{ data.title }}</p>
         <p>
           This video may feature language, phrases,
           or other content which some viewers may find upsetting.
@@ -395,7 +262,7 @@ function processTopicChanges() {
     <template v-else-if="showCorruptionModal">
       <div :class="style.warningModal">
         <h1>Proceed With Caution!</h1>
-        <p>Video: {{ data.episode.title }}</p>
+        <p>Video: {{ data.title }}</p>
         <p>
           This video has sadly been plagued by corruption issues over the time it has been on YouTube.
           It was corrupted before this archive project began, and sadly no safe copy exists that we
@@ -420,22 +287,22 @@ function processTopicChanges() {
       <div :class="style.container">
         <div :class="style.viewport">
           <!-- Title Bar Section -->
-          <div :class="style.videoTitleBar">
+          <!-- <div :class="style.videoTitleBar">
             <div>
-              <h2>{{ data.episode.title }}</h2>
-              <h4>Originally Aired: {{ new Date(data.episode.aired).toLocaleDateString() }}</h4>
+              <h2>{{ data.title }}</h2>
+              <h4>Originally Aired: {{ new Date(data.aired).toLocaleDateString() }}</h4>
               <h4>
-                Runtime: {{ data.episode.duration_text }}
+                Runtime: {{ data.duration_text }}
                 (You've watched {{ timeHuman }} | That's {{ timePercentage }}%)
               </h4>
             </div>
             <div :class="style.buttonContainer">
-              <a :class="style.watchButton" :href="data.episode.youtube" target="_blank">
+              <a :class="style.watchButton" :href="data.youtube" target="_blank">
                 <Icon name="mdi:youtube" color="#ff0000" />
                 <span>Watch On YouTube</span>
               </a>
-              <a :class="style.watchButton" v-if="data.episode.floatplane" target="_blank"
-                :href="data.episode.floatplane">
+              <a :class="style.watchButton" v-if="data.floatplane" target="_blank"
+                :href="data.floatplane">
                 <Icon name="simple-icons:floatplane" color="#0d6efd" />
                 <span>Watch On Floatplane</span>
               </a>
@@ -444,24 +311,19 @@ function processTopicChanges() {
                 <span>VOD Unavailable</span>
               </a>
             </div>
-          </div>
+          </div> -->
 
           <!-- Player Section -->
-          <div :class="style.video">
+          <div id="fullscreen-container" :class="style.video">
             <!-- Transcript Section -->
             <div :class="style.transcript">
               <div :class="style.transcriptInner">
-                <template v-if="data.transcript">
-                  <template v-for="(segment, index) in data.transcript.vtt.cues" :key="index">
+                <template v-if="data.cues">
+                  <template v-for="(segment, index) in data.cues" :key="index">
                     <div
                       :class="(time >= segment.start && time <= segment.end) ? style.highlightedSpan : (time >= segment.end) ? (time >= segment.end) ? style.noDisplay : style.hiddenSpan : undefined">
-                      <template v-if="segment.va">
-                        <img :src="segment.va.mug" />
-                        <p>{{ segment.text }}</p>
-                      </template>
-                      <template v-else>
-                        <p>{{ segment.text }}</p>
-                      </template>
+                      <UAvatar :src="segment.va.icon" :alt="segment.va.name" />
+                      <p>{{ segment.text }}</p>
                     </div>
                   </template>
                   <!-- <span>Note: These subtitles are generated using OpenAI&apos;s <a
@@ -471,15 +333,27 @@ function processTopicChanges() {
                   Transcript unavailable
                 </template>
               </div>
-            </div>=
-            <iframe v-if="data.episode.flags.corrupt && !data.episode.stream_id" id="videoplayeryoutube"
+            </div>
+            <video v-if="data.flags.corrupt" id="player" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);"
+              :data-poster="`https://cdn.thewandb.com/thumbs/${data.id}.jpeg`"
+              :data-plyr-config='{ "title": data.title, fullscreen: { container: "#fullscreen-container", ratio: "21:9" } }'>
+              <source :src="`https://cdn.thewandb.com/vod/${data.id}.mp4`" type="video/mp4" />
+            </video>
+            <div v-else class="plyr__video-embed" id="player" style="--plyr-color-main: rgb(185, 44, 37);"
+              :data-poster="`https://cdn.thewandb.com/thumbs/${data.id}.jpeg`"
+              :data-plyr-config='{ "title": data.title, fullscreen: { container: "#fullscreen-container", ratio: "21:9" } }'>
+              <iframe
+                :src="`https://www.youtube.com/embed/${data.id}?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=0&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1`"
+                allowfullscreen allowtransparency allow="autoplay"></iframe>
+            </div>
+            <!-- <audio id="player" controls
+              style="--plyr-color-main: rgb(185, 44, 37);height: fit;margin-bottom:0;margin-top: auto;">
+              <source :src="`https://cdn.thewandb.com/aod/${data.id}.mp3`" type="audio/mp3" />
+            </audio> -->
+            <!-- <iframe v-if="!data.flags.corrupt" id="videoplayeryoutube"
               :src="`https://www.youtube.com/embed/${id}?enablejsapi=1`" title="YouTube video player" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen />
-            <iframe v-else-if="data.episode.flags.corrupt && data.episode.stream_id" id="videoplayerstream"
-              :src="`https://customer-${config.public.stream_cid}.cloudflarestream.com/${data.episode.stream_id}/iframe`"
-              style="border: none" height="720" width="1280"
-              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen="true" />
+              allowfullscreen /> -->
           </div>
 
           <!-- Topic Section -->
@@ -569,7 +443,7 @@ function processTopicChanges() {
                       <p v-if="profile" :class="style.topicContributor">
                         Contributor: {{
                           profile.username }}
-                        <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                        <Icon v-if="data.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
                       </p>
                       <p :class="style.topicTimestamp">{{ topicEditor.time.hh }} :
                         {{ topicEditor.time.mm }} : {{ topicEditor.time.ss }}</p>
@@ -587,7 +461,7 @@ function processTopicChanges() {
                   <template #header>
                     <h3>
                       {{ group.title }}
-                      <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
+                      <Icon v-if="data.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
                     </h3>
                     <button @click="(e) => seek(group.timestamp_raw)">
                       Jump To Topic
@@ -613,12 +487,10 @@ function processTopicChanges() {
                           <p v-if="topic.contributor" :class="style.topicContributor">
                             Contributor: {{
                               topic.contributor.username }}
-                            <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
-                              color="#1DA1F2" />
+                            <Icon v-if="data.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
                           </p>
                           <p v-else :class="style.topicContributor">Unknown Contributor
-                            <Icon v-if="data.episode.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill"
-                              color="#1DA1F2" />
+                            <Icon v-if="data.id === 'hNXgJlPzkCQ'" name="ri:verified-badge-fill" color="#1DA1F2" />
                           </p>
                           <p :class="style.topicTimestamp">{{ topic.timestamp }}</p>
                         </span>
@@ -658,7 +530,7 @@ function processTopicChanges() {
                     <template v-if="castSearchResults.data.value.length > 0">
                       <template v-for="(person, index) in castSearchResults.data.value" :key="index">
                         <div
-                          :class="[style.castSearchResult, data.episode.cast.includes(person.id) ? style.inclusive : undefined]"
+                          :class="[style.castSearchResult, data.cast.includes(person.id) ? style.inclusive : undefined]"
                           @click="toggleCastMember(person.id)">
                           <img :src="person.avatar">
                           <div>
@@ -741,75 +613,7 @@ function processTopicChanges() {
             </template>
 
             <template v-for="(person, index) in data.cast" :key="index">
-              <div :class="style.castMember">
-                <img :src="person.mug">
-                <div>
-                  <span>
-                    <h3>
-                      {{ person.alias ? person.name.split(' ').join(' "' + person.alias + '" ')
-                        : person.name }}
-                    </h3>
-                    <p>
-                      {{ person.role }}
-                    </p>
-                  </span>
-                  <div>
-                    <a v-if="person.ltt_forum" :href="'https://linustechtips.com/profile/' + person.ltt_forum"
-                      target="_blank">
-                      <img src="/2018_Linus_Tech_Tips_logo.svg" />
-                    </a>
-                    <a v-else>
-                      <img src="/2018_Linus_Tech_Tips_logo_grey.svg" />
-                    </a>
-
-                    <a v-if="person.imdb" :href="'https://www.imdb.com/name/' + person.imdb" target="_blank">
-                      <Icon name="bxl:imdb" color="#f3ce13" />
-                    </a>
-                    <a v-else>
-                      <Icon name="bxl:imdb" color="#3a3a3a" />
-                    </a>
-
-                    <a v-if="person.wikipedia" :href="'https://en.wikipedia.org/wiki/' + person.wikipedia"
-                      target="_blank">
-                      <Icon name="mdi:wikipedia" />
-                    </a>
-                    <a v-else>
-                      <Icon name="mdi:wikipedia" color="#3a3a3a" />
-                    </a>
-
-                    <a v-if="person.instagram" :href="'https://www.instagram.com/' + person.instagram" target="_blank">
-                      <Icon name="mdi:instagram" color="#C13584" />
-                    </a>
-                    <a v-else>
-                      <Icon name="mdi:instagram" color="#3a3a3a" />
-                    </a>
-
-                    <a v-if="person.twitter" :href="'https://twitter.com/' + person.twitter" target="_blank">
-                      <Icon name="logos:twitter" />
-                    </a>
-                    <a v-else>
-                      <Icon name="mdi:twitter" color="#3a3a3a" />
-                    </a>
-
-                    <a v-if="person.linkedin" :href="'https://www.linkedin.com/in/' + person.linkedin" target="_blank">
-                      <Icon name="devicon:linkedin" />
-                    </a>
-                    <a v-else>
-                      <Icon name="devicon-plain:linkedin" color="#3a3a3a" />
-                    </a>
-                  </div>
-                  <h4>
-                    <a v-if="person.outlet_uri" :href="person.outlet_uri" target="_blank">
-                      {{ person.outlet ? person.outlet : 'No Affiliation' }}
-                      <Icon name="ph:link" />
-                    </a>
-                    <template v-else>
-                      {{ person.outlet ? person.outlet : 'No Affiliation'
-                      }}
-                    </template>
-                  </h4>
-                </div>
-              </div>
+              <CastMember :person="person" />
             </template>
           </div>
         </div>

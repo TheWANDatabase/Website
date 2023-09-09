@@ -216,6 +216,7 @@
 }
 
 .cast {
+    grid-area: cast;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -498,16 +499,15 @@
 .video {
     grid-area: video;
     border-radius: 5px;
-    overflow: hidden;
     margin-left: 0.5rem;
+    margin-top: 1rem;
     position: relative;
-    aspect-ratio: 16/9;
+    aspect-ratio: 16/10;
     width: 100%;
-    height: 100%;
+    /* height: 100%; */
 }
 
-.video iframe,
-.video .transcript {
+.video iframe {
     width: 100%;
     height: 100%;
     /* margin: 0.5rem; */
@@ -515,6 +515,13 @@
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.video .transcript {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    bottom: 0.25rem;
 }
 
 .transcript {
