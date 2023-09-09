@@ -3,6 +3,7 @@
     <Header />
     <NuxtPage />
     <Footer />
+    <UNotifications />
   </div>
 </template>
 
