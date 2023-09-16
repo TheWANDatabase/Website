@@ -5,7 +5,6 @@ import webstomp from "webstomp-client"
 
 
 const toast = useToast()
-const sb = useSupabaseClient()
 const route = useRoute()
 const { id } = route.params
 const debug = true

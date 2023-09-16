@@ -1,14 +1,15 @@
 <script async setup>
 import { signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth'
 
-// const sb = useSupabaseClient()
 const auth = useFirebaseAuth()
 const user = useCurrentUser()
 const config = useRuntimeConfig()
 const route = useRoute()
 
+const cmap = useState('hcast', () => new Map())
+
 const profile = useState('uprofile', () => undefined)
-const history = useState('history', () => new Map())
+// const history = useState('history', () => new Map())
 const banners = useState('banners', () => [])
 const cfg = useState('uconf', () => {
   return {
@@ -29,10 +30,11 @@ function signinRedirect () {
 }
 
 onMounted(async () => {
-  console.log(await getRedirectResult(auth).catch((reason) => {
+  await getRedirectResult(auth).catch((reason) => {
     console.error('Failed redirect result', reason)
     error.value = reason
-  }))
+  })
+
   function getConfig () {
     const raw = window.localStorage.getItem('cfgix')
     if (raw) {
@@ -65,6 +67,12 @@ useAsyncData(async () => {
     b.show = show
 
     return b
+  })
+
+  const d = (await (await fetcher('cast')).json()).data
+  d.map((c) => {
+    cmap.value.set(c.id, c)
+    return c
   })
 
   if (user.value) {
@@ -202,50 +210,79 @@ await useAsyncData(() => {
 })
 
 const results = ref([])
-const episodeResults = ref([])
+const epmap = ref({})
+// const episodeResults = ref([])
 const visible = ref(false)
-const thumbs = ref({})
+// const thumbs = ref({})
 const query = ref('')
 
 const { pending } = useAsyncData(async () => {
   if (query.value.length > 1) {
-    const res = await (await fetch('/api/v1/search', {
+    const res = await (await fetch('https://search.thewandb.com/multi-search', {
       method: 'POST',
+      headers: {
+        Authorization: 'Bearer 468247aa732f9f277ac5b6146cbb632c7aaa4aa15c25ed58de6dde806de3db74',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        phrase: query.value,
-        lmt: 5,
-        ofst: 0
+        queries: [
+          {
+            indexUid: 'topics',
+            q: query.value
+          },
+          {
+            indexUid: 'episodes',
+            q: query.value
+          },
+          {
+            indexUid: 'transcripts',
+            q: query.value,
+            attributesToRetrieve: [
+              'parent',
+              'id'
+            ]
+          },
+          {
+            indexUid: 'cast',
+            q: query.value
+          }
+        ]
       })
     })).json()
-    if (res.data.topics.length === 0) {
-      results.value = [{
-        error: 'No Results Found'
-      }]
-    } else {
-      for (let i = 0; i < res.data.topics.length; i++) {
-        thumbs.value[res.data.topics[i].id] = 'https://cdn.thewandb.com/thumbs/' + res.data.topics[i].id + '.jpeg'
-      }
 
-      results.value = res.data.topics
+    results.value = [
+      {
+        key: 'topics',
+        label: 'Topics',
+        icon: 'i-heroicons-chat-bubble-left-right',
+        values: res.results[0]
+      },
+      {
+        key: 'episodes',
+        label: 'Episodes',
+        icon: 'i-heroicons-tv',
+        values: res.results[1]
+      },
+      {
+        key: 'transcripts',
+        label: 'Transcripts',
+        icon: 'i-heroicons-document-text',
+        values: res.results[2]
+      }
+    ]
+
+    try {
+      epmap.value = (await (await fetcher('search', {
+        method: 'POST',
+        body: JSON.stringify({
+          episodes: res.results[0].hits.map(c => c.parent)
+        })
+      })).json()).data
+    } catch (e) {
+      console.error('Failed to resolve topic parents')
     }
 
-    if (res.data.episodes.length === 0) {
-      episodeResults.value = [{
-        error: 'No Results Found'
-      }]
-    } else {
-      for (let i = 0; i < res.data.topics.length; i++) {
-        thumbs.value[res.data.episodes[i].id] = 'https://cdn.thewandb.com/thumbs/' + res.data.episodes[i].id + '.jpeg'
-      }
-
-      episodeResults.value = res.data.episodes
-    }
-
-    visible.value = results.value.length > 0
-  } else {
-    results.value = []
-    visible.value = results.value.length > 0
-    thumbs.value = {}
+    visible.value = true
   }
 }, {
   watch: [query]
@@ -302,14 +339,25 @@ function openVideo (id) {
 
       <template v-if="profile">
         <UDropdown :items="items">
-          <UButton :class="`rounded-none hover:bg-${cfg.theme.greyscale}-600 text-${cfg.theme.greyscale}-100`" color="none" trailing-icon="i-heroicons-chevron-down-20-solid">
-            <UAvatar :src="profile.avatar" alt="Avatar" /> <p :class="`text-${cfg.theme.greyscale}-100`">
+          <UButton
+            :class="`rounded-none hover:bg-${cfg.theme.greyscale}-600 text-${cfg.theme.greyscale}-100`"
+            color="none"
+            trailing-icon="i-heroicons-chevron-down-20-solid"
+          >
+            <UAvatar :src="profile.avatar" alt="Avatar" />
+            <p :class="`text-${cfg.theme.greyscale}-100`">
               {{ profile.username }}
             </p>
             <template #item="{ item }">
               <template v-if="item">
                 <UIcon v-if="item.icon" :name="item.icon" class="w-4 h-4" />
-                <UAvatar v-else-if="item.avatar" v-bind="item.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+                <UAvatar
+                  v-else-if="item.avatar"
+                  v-bind="item.avatar"
+                  class="object-cover mx-2 my-2"
+                  :alt="p.name"
+                  size="lg"
+                />
                 {{ item.label }}
               </template>
               {{ console.log(item) }}
@@ -323,7 +371,13 @@ function openVideo (id) {
           <template #item>
             <template v-if="selected">
               <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
-              <UAvatar v-else-if="selected.avatar" v-bind="selected.avatar" class="object-cover mx-2 my-2" :alt="p.name" size="lg" />
+              <UAvatar
+                v-else-if="selected.avatar"
+                v-bind="selected.avatar"
+                class="object-cover mx-2 my-2"
+                :alt="p.name"
+                size="lg"
+              />
               {{ selected.label }}
               {{ console.log(selected) }}
             </template>
@@ -340,7 +394,75 @@ function openVideo (id) {
           placeholder="Search..."
         />
       </div>
+      <div>
+        <UModal v-model="visible" :overlay="false">
+          <UCard>
+            <template #header>
+              <UInput
+                v-model="query"
+                variant="outline"
+                :color="cfg.theme.greyscale"
+                icon="i-heroicons-magnifying-glass-20-solid"
+                size="sm"
+                placeholder="Search..."
+                focus
+              />
+            </template>
+            <UTabs :items="results" class="w-full">
+              <template #default="{ item, selected }">
+                <div class="flex items-center gap-2 relative truncate">
+                  <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0" />
+                  <span class="truncate">{{ item.label }}</span>
+                  <span v-if="selected" :class="`absolute -right-4 w-2 h-2 rounded-full  bg-${cfg.theme.greyscale}-500 dark:bg-${cfg.theme.greyscale}-400`" />
+                </div>
+              </template>
+              <template #item="{ item }">
+                <template v-if="item.key==='topics'">
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <template v-for="(t, i) in item.values.hits" :key="i">
+                    <NuxtLink :href="`/videos/${t.parent}`">
+                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800`">
+                        <h3 class="text-xl font-semibold">
+                          {{ t.title }}
+                        </h3>
+                        <p class="text-md">
+                          <template v-if="epmap[t.parent]">
+                            {{ epmap[t.parent].title }}
+                          </template>
+                          <template v-else>
+                            Episode Not Found
+                          </template>
+                        </p>
+                      </div>
+                    </NuxtLink>
+                  </template>
+                </template>
+                <template v-else-if="item.key==='episodes'">
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <template v-for="(ep, i) in item.values.hits" :key="i">
+                    <NuxtLink :href="`/videos/${ep.id}`">
+                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800 flex-col`">
+                        <img class="w-auto aspect-video mx-auto h-60" :src="`https://cdn.thewandb.com/thumbs/${ep.id}.jpeg`" @error="this.src=`https://i.ytimg.com/${ep.id}/maxresdefault.jpeg`">
+                        <h3 class="text-lg font-semibold">
+                          {{ ep.title }}
+                        </h3>
+                      </div>
+                    </NuxtLink>
+                  </template>
+                </template>
+                <template v-else-if="item.key==='cast'">
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <template v-for="(c, i) in item.values.hits" :key="i">
+                    <CastMember :person="cmap.get(c.id)" />
+                  </template>
+                </template>
+              </template>
+            </UTabs>
+          </UCard>
+        </UModal>
+      </div>
       <!-- <input type="text" autocomplete="off" :class="style.search" placeholder="Search..." @input="search"> -->
+
       <!-- <div
         :class="style.searchResults"
         :style="{
