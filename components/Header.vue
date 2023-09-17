@@ -216,7 +216,7 @@ const visible = ref(false)
 // const thumbs = ref({})
 const query = ref('')
 
-const { pending } = useAsyncData(async () => {
+useAsyncData(async () => {
   if (query.value.length > 1) {
     const res = await (await fetch('https://search.thewandb.com/multi-search', {
       method: 'POST',
@@ -239,43 +239,71 @@ const { pending } = useAsyncData(async () => {
             q: query.value,
             attributesToRetrieve: [
               'parent',
-              'id'
-            ]
-          },
-          {
-            indexUid: 'cast',
-            q: query.value
+              'id',
+              'text'
+            ],
+            showMatchesPosition: true
           }
         ]
       })
     })).json()
 
-    results.value = [
-      {
-        key: 'topics',
-        label: 'Topics',
-        icon: 'i-heroicons-chat-bubble-left-right',
-        values: res.results[0]
-      },
-      {
-        key: 'episodes',
-        label: 'Episodes',
-        icon: 'i-heroicons-tv',
-        values: res.results[1]
-      },
-      {
-        key: 'transcripts',
-        label: 'Transcripts',
-        icon: 'i-heroicons-document-text',
-        values: res.results[2]
-      }
-    ]
+    try {
+      res.results[2].hits.map((m) => {
+        m.matches = []
+        m.text = m.text.replaceAll('\\r\\n', ' ')
+        for (let i = 0; i < m._matchesPosition.text.length; i++) {
+          const x = m._matchesPosition.text[i]
+          const regex = new RegExp(`[^.?!]*(?<=[.?\\s!])${m.text.substring(x.start, x.start + x.length)}(?=[\\s.?!])[^.?!]*[.?!]`, 'igm')
+          m.matches = m.matches.concat(regex.exec(m.text.substring(x.start - 300, x.start + x.length + 1000)))
+        }
+
+        m.matches = m.matches.filter((elem, pos) => m.matches.indexOf(elem) === pos && elem !== null)
+
+        console.log(m.matches)
+        m.matches = m.matches.map((elem) => {
+          if (elem.length > 150) {
+            elem = elem.substring(0, 147)
+            elem += '...'
+          }
+
+          return elem
+        })
+
+        return m
+      })
+
+      res.results[2].hits.filter(m => m.matches.length > 0)
+
+      results.value = [
+        {
+          key: 'topics',
+          label: 'Topics',
+          icon: 'i-heroicons-chat-bubble-left-right',
+          values: res.results[0]
+        },
+        {
+          key: 'episodes',
+          label: 'Episodes',
+          icon: 'i-heroicons-tv',
+          values: res.results[1]
+        },
+        {
+          key: 'transcripts',
+          label: 'Transcripts',
+          icon: 'i-heroicons-document-text',
+          values: res.results[2]
+        }
+      ]
+    } catch (e) {
+      console.error(e)
+    }
 
     try {
       epmap.value = (await (await fetcher('search', {
         method: 'POST',
         body: JSON.stringify({
-          episodes: res.results[0].hits.map(c => c.parent)
+          episodes: [].concat(res.results[0].hits.map(c => c.parent), res.results[2].hits.map(c => c.parent))
         })
       })).json()).data
     } catch (e) {
@@ -287,10 +315,6 @@ const { pending } = useAsyncData(async () => {
 }, {
   watch: [query]
 })
-
-function openVideo (id) {
-  window.location.pathname = '/videos/' + id
-}
 
 </script>
 <template>
@@ -360,7 +384,6 @@ function openVideo (id) {
                 />
                 {{ item.label }}
               </template>
-              {{ console.log(item) }}
             </template>
           </UButton>
         </UDropdown>
@@ -379,7 +402,6 @@ function openVideo (id) {
                 size="lg"
               />
               {{ selected.label }}
-              {{ console.log(selected) }}
             </template>
           </template>
         </UDropdown>
@@ -442,7 +464,7 @@ function openVideo (id) {
                   <template v-for="(ep, i) in item.values.hits" :key="i">
                     <NuxtLink :href="`/videos/${ep.id}`">
                       <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800 flex-col`">
-                        <img class="w-auto aspect-video mx-auto h-60" :src="`https://cdn.thewandb.com/thumbs/${ep.id}.jpeg`" @error="this.src=`https://i.ytimg.com/${ep.id}/maxresdefault.jpeg`">
+                        <img class="w-auto aspect-video mx-auto mb-2 mt-1 h-64 rounded-md" :src="`https://cdn.thewandb.com/thumbs/${ep.id}.jpeg`" @error="src=`https://i.ytimg.com/${ep.id}/maxresdefault.jpeg`">
                         <h3 class="text-lg font-semibold">
                           {{ ep.title }}
                         </h3>
@@ -450,10 +472,26 @@ function openVideo (id) {
                     </NuxtLink>
                   </template>
                 </template>
-                <template v-else-if="item.key==='cast'">
+                <template v-else-if="item.key==='transcripts'">
                   <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
-                  <template v-for="(c, i) in item.values.hits" :key="i">
-                    <CastMember :person="cmap.get(c.id)" />
+                  <template v-for="(t, i) in item.values.hits" :key="i">
+                    <NuxtLink :href="`/videos/${t.parent}`">
+                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800`">
+                        <h3 class="text-xl font-semibold">
+                          <template v-if="epmap[t.parent]">
+                            {{ epmap[t.parent].title }}
+                          </template>
+                          <template v-else>
+                            Unknown Episode
+                          </template>
+                        </h3>
+                        <ul class=" mx-auto w-80 list-decimal">
+                          <template v-for="(m,i2) in t.matches" :key="i2">
+                            <li class="my-1" v-html="m" />
+                          </template>
+                        </ul>
+                      </div>
+                    </NuxtLink>
                   </template>
                 </template>
               </template>
