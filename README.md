@@ -1,7 +1,6 @@
 # The WAN DB
 A project aiming to index every episode, topic, and cast member of the popular technology podcast ["The WAN Show"](https://www.imdb.com/title/tt11481658/)
 
-
 ## Goals
 - [ ] 100% coverage of episodes .
 - [ ] 100% coverage of topics.
