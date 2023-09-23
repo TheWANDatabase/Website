@@ -99,6 +99,8 @@ const { data, error } = useAsyncData(async () => {
   const data = episode.data
   showCorruptionModal.value = data.flags.corrupt
   showContentWarningModal.value = data.flags.cw
+  useCDN.value = data.flags.VOD
+
   try {
     const cues = await (await fetch(`https://cdn.thewandb.com/captions/${data.id}.vtt`, {
       headers: {
