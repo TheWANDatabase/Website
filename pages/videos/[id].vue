@@ -10,6 +10,7 @@ const { id } = route.params
 const debug = true
 const profile = useState('uprofile', () => undefined)
 const canEdit = ref(false)
+const useCDN = useState('useCDN', () => true)
 const showCorruptionModal = ref(false)
 const showContentWarningModal = ref(false)
 const time = ref(0)
@@ -367,7 +368,12 @@ const { data, error } = useAsyncData(async () => {
                 </template>
               </div>
             </div>
-            <video v-if="data.flags.corrupt" id="player" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);"
+            <span>
+              <p>Use WAN DB CDN version (turn off if audio is missing)</p>
+              <UToggle v-model="useCDN" />
+            </span>
+            <video v-if="data.flags.corrupt || useCDN" id="player" playsinline controls
+              style="--plyr-color-main: rgb(185, 44, 37);"
               :data-poster="`https://cdn.thewandb.com/thumbs/${data.id}.jpeg`"
               :data-plyr-config='{ "title": data.title, fullscreen: { container: "#fullscreen-container", ratio: "21:9" } }'>
               <source :src="`https://cdn.thewandb.com/vod/${data.id}.mp4`" type="video/mp4" />
