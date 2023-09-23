@@ -51,7 +51,7 @@ const filters = useState('filter', () => {
     hideCW: false,
     hideCorrupt: false,
     startDate: new Date('2012-08-28T00:00:00.000Z').toDateString(),
-    endDate: new Date(new Date().getHours() + 24).toDateString(),
+    endDate: new Date(new Date().getTime() + 60 * 60 * 24 * 1000).toDateString(),
     members: []
   }
 })
