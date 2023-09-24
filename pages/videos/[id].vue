@@ -1,13 +1,10 @@
 <script async setup>
 import style from './videos.module.css'
 import { parse } from 'node-webvtt'
-import webstomp from "webstomp-client"
 
 
-const toast = useToast()
 const route = useRoute()
 const { id } = route.params
-const debug = true
 const profile = useState('uprofile', () => undefined)
 const canEdit = ref(false)
 const useCDN = useState('useCDN', () => true)
@@ -22,37 +19,7 @@ const itv = {
 }
 const castMap = new Map()
 const tsMap = new Map()
-let stomp;
 onMounted(() => {
-  if (debug) {
-    toast.add({
-      title: 'Socket Connecting'
-    })
-  }
-  stomp = webstomp.client('wss://mq.thewandb.com/ws');
-  stomp.connect('ui', '72MaU*6x2^p5u&T#', (e, x) => {
-    if (debug) {
-      toast.add({
-        icon: 'i-heroicons-check-circle',
-        title: 'Socket Connected',
-        description: 'Please hold whilst we configure your queues'
-      })
-    }
-
-    stomp.subscribe('/exchange/ui.notifications', (message) => {
-      // process the message
-      // acknowledge it
-      try {
-        let body = JSON.parse(message.body)
-        toast.add(body)
-        message.ack()
-      } catch (e) {
-        message.nack();
-      }
-    }, { 'ack': 'client' })
-  })
-  // stomp.
-  // stomp.
 
   setTimeout(() => {
     if (player !== null) {
