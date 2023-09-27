@@ -6,10 +6,9 @@ const fd = ref([])
 const fdm = ref(new Map())
 const episodeCount = ref(0)
 const cst = useState('cst', () => [])
-const csm = useState('csm', () => new Map())
-const config = useRuntimeConfig()
+const csm = useState('csm', () => { return {} })
+const globalCSM = useState('globalCSM', () => { return {} })
 const cfg = useState('uconf')
-const xsm = ref([])
 const loading = ref(false)
 const orderOptions = ref([
   {
@@ -56,20 +55,28 @@ const filters = useState('filter', () => {
   }
 })
 
-const { data } = useAsyncData(async () => {
+useAsyncData(async () => {
   try {
     // const stats = (await (await fetch(config.public.api_base + '/stats')).json()).data
-
     if (cst.value.length === 0) {
-      const cast = await (await fetcher('cast')).json()
-
+      const orq = await (await fetcher('outlets')).json()
+      const outlets = {}
+      for (let i = 0; i < orq.length; i++) {
+        const ot = orq[i]
+        outlets[ot.id] = ot
+      }
+      const cast = (await (await fetcher('cast')).json()).results.map((m) => {
+        m.outlet = outlets[m.outlet]
+        return m
+      })
       if (filters.value.members.length === 0) {
-        cst.value = cast.data.map((m) => {
-          csm.value.set(m.id, {
+        cst.value = cast.map((m) => {
+          csm.value[m.id] = {
             id: m.id,
             label: `${m.forename} ${m.surname} ${m.outlet ? ' (' + m.outlet.name + ')' : ''}`,
             mug: `https://cdn.thewandb.com/mugs/${m.avatar}`
-          })
+          }
+          globalCSM.value[m.id] = m
 
           return {
             id: m.id,
@@ -80,14 +87,9 @@ const { data } = useAsyncData(async () => {
           }
         })
       }
-
-      xsm.value = cast.data
     }
 
-    return {
-      // ...stats,
-      cdata: xsm.value
-    }
+    infinite()
   } catch (e) {
     console.error(e)
   }
@@ -136,21 +138,19 @@ async function infinite() {
         limit: 20
       })
     })).json()
-    feed.data.episodes = feed.data.episodes.filter(({ id }) => !fdm.value.has(id))
-    fd.value = fd.value.concat(feed.data.episodes)
-    episodeCount.value = feed.data.stats
+    feed.episodes = feed.episodes.filter(({ id }) => !fdm.value.has(id))
+    fd.value = fd.value.concat(feed.episodes)
+    episodeCount.value = feed.stats
     offset += 20
   } catch (e) {
     console.error(e)
   }
   loading.value = false
 }
-
-infinite()
 </script>
 
 <template>
-  <div class="flex-col">
+  <div class="flex-col min-h-screen">
     <div
       :class="`shadow-sm shadow-black z-10 flex-col mt-3 mx-auto mb-2 bg-${cfg.theme.greyscale}-800 rounded justify-evenly max-w-fit sticky top-1`"
       style="top: 0.25rem;">

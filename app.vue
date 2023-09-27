@@ -1,27 +1,71 @@
 <template>
   <div :class="`bg-${cfg ? cfg.theme.greyscale : 'zinc'}-900 text-${cfg ? cfg.theme.greyscale : 'zinc'}-200`">
     <Header />
+    <a name="top" />
     <NuxtPage />
+    <a name="bottom" />
     <Footer />
     <UNotifications />
   </div>
 </template>
 
 <script setup>
+import { rejects } from 'assert'
 import { client as StompClient } from 'webstomp-client'
+import { getToken, onMessage } from 'firebase/messaging'
+
+const messaging = useFirebaseMessaging()
 const cfg = useState('uconf')
 const stomp = useState('stomp', () => null)
-const debug = true
 const toast = useToast()
+const config = useRuntimeConfig()
+console.log(config)
+// const permission = useState('notification', () => null)
+
+function requestPermission() {
+  return new Promise((resolve) => {
+    console.debug('Requesting permission...')
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        console.debug('Notification permission granted.')
+        resolve(permission)
+      }
+    })
+  })
+}
 
 onMounted(() => {
+  const debug = config.public.debug
+  // if (permission.value === null) { permission.value = await requestPermission() }
+
+  onMessage(messaging, (p) => {
+    console.debug(p)
+    // Notification()
+  })
+  getToken(messaging, { vapidKey: config.public.vapidKey }).then((currentToken) => {
+    if (currentToken) {
+      // Send the token to your server and update the UI if necessary
+      console.debug('FCM token is valid')
+      // ...
+    } else {
+      // Show permission request UI
+      console.debug('No registration token available. Request permission to generate one.')
+      requestPermission()
+      // ...
+    }
+  }).catch((err) => {
+    console.error('An error occurred while retrieving token. ', err)
+    // ...
+  })
+
   if (debug) {
     toast.add({
       title: 'Socket Connecting'
     })
   }
-  stomp.value = StompClient('wss://mq.thewandb.com/ws')
-  stomp.value.connect('ui', '72MaU*6x2^p5u&T#', (e, x) => {
+  stomp.value = StompClient('wss://mq.thewandb.com/ws', { debug })
+  stomp.value.connect(config.public.ws.user, config.public.ws.password, (e, x) => {
+    console.debug('realtime socket connected')
     if (debug) {
       toast.add({
         icon: 'i-heroicons-check-circle',
@@ -57,15 +101,19 @@ onMounted(() => {
             forME = false
             break
         }
-
         console.log(forME, message.headers.env)
-
         if (forME) {
-          toast.add(body)
+          console.debug(body)
+          if (body.op === 1000) {
+            notificationHandler(
+              body.payload,
+              toast
+            )
+          }
         }
         message.ack()
       } catch (e) {
-        console.log(e)
+        console.error(e)
         message.nack()
       }
     }, { ack: 'client', env: 'dev' })

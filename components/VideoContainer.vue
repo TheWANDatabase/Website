@@ -2,21 +2,35 @@
 const cfg = useState('uconf')
 const issueURI = ref('https://github.com/TheWANDatabase/Website/issues/new')
 const props = defineProps(['data'])
-
+const globalCSM = useState('globalCSM')
 const popoverOpen = ref(false)
-const data = props.data
+
+const data = ref(null)
+
+function processRawData() {
+  const raw = props.data
+  raw.cast = raw.cast.map(m => globalCSM.value[m])
+  data.value = {
+    ...raw
+  }
+}
+
+useAsyncData(() => {
+  processRawData()
+}, {
+  watch: [globalCSM]
+})
+
 </script>
 
 <template>
   <template v-if="data">
-    <USlideover
-      v-model="popoverOpen"
-      :ui="{
-        base: 'relative m-2 flex-1 flex flex-col w-full focus:outline-none',
-        background: 'bg-transparent',
-      }"
-    >
-      <UCard class="h-screen flex flex-col flex-1 bg-zinc-900 text-white" :ui="{ body: { base: 'flex-1 bg-zinc-900' }, header: { base: 'bg-zinc-800'}, footer: { base: 'bg-zinc-800'}, ring: '', divide: 'divide-y divide-slate-800' }">
+    <USlideover v-model="popoverOpen" :ui="{
+      base: 'relative m-2 flex-1 flex flex-col w-full focus:outline-none',
+      background: 'bg-transparent',
+    }">
+      <UCard class="h-screen flex flex-col flex-1 bg-zinc-900 text-white"
+        :ui="{ body: { base: 'flex-1 bg-zinc-900' }, header: { base: 'bg-zinc-800' }, footer: { base: 'bg-zinc-800' }, ring: '', divide: 'divide-y divide-slate-800' }">
         <template #header>
           <h1 class="text-2xl font-extrabold">
             Cast Viewer
@@ -24,7 +38,7 @@ const data = props.data
         </template>
         <div class="flex-col">
           <template v-if="data.cast.length > 0">
-            <template v-for="(p,i) in data.cast" :key="i">
+            <template v-for="(p, i) in data.cast" :key="i">
               <CastMember :person="p" />
             </template>
             <p class="mt-auto mb-0">
@@ -52,9 +66,13 @@ const data = props.data
         </template>
       </UCard>
     </USlideover>
-    <NuxtLink :class="`shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-${cfg.theme.greyscale}-800 text-${cfg.theme.primary}-400 rounded-lg pt-2 hover:bg-${cfg.theme.primary}-700 hover:text-${cfg.theme.primary}-100 transition-all font-semibold`" :href="`/videos/${data.id}`">
+    <NuxtLink
+      :class="`shadow-sm shadow-black w-fit overflow-hidden min-h-16 m-1 bg-${cfg.theme.greyscale}-800 text-${cfg.theme.primary}-400 rounded-lg pt-2 hover:bg-${cfg.theme.primary}-700 hover:text-${cfg.theme.primary}-100 transition-all font-semibold`"
+      :href="`/videos/${data.id}`">
       <div class="w-80 m-2 h-80">
-        <img class="w-max mx-auto rounded-md -mt-2 mb-1" style="object-fit: cover;" :src="`https://cdn.thewandb.com/thumbs/${data.id}.jpeg`">
+        <CoreUIImage v-if="data.thumbnail" :id="data.thumbnail" :width="320" :height="180" variant="thumbsmall" />
+        <img v-else class="w-max mx-auto rounded-md -mt-2 mb-1" style="object-fit: cover;"
+          :src="`https://cdn.thewandb.com/thumbs/${data.id}.jpeg`">
         <h1 class="text-xl mx-2 h-24 mt-1 mb-0 overflow-hidden" style="height: 90px">
           {{ data.title }}
         </h1>
@@ -67,7 +85,9 @@ const data = props.data
             <UButton :color="cfg.theme.primary" label="Open" variant="ghost" @click.prevent="popoverOpen = true">
               <UAvatarGroup class="mr-auto ml-0" size="md" :max="data.cast.length > 3 ? 2 : 3">
                 <template v-for="(c, i) in data.cast" :key="i">
-                  <UAvatar class="object-cover" size="md" :src="c.avatar ? `https://cdn.thewandb.com/mugs/${c.avatar}` : undefined" :alt="c.forname+' '+c.surname" />
+                  <UAvatar class="object-cover" size="md"
+                    :src="c.avatar ? `https://cdn.thewandb.com/mugs/${c.avatar}` : undefined"
+                    :alt="c.forname + ' ' + c.surname" />
                 </template>
               </UAvatarGroup>
             </UButton>

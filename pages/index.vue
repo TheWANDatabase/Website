@@ -1,4 +1,16 @@
 <script setup>
+const { data } = useAsyncData(async () => {
+  return null
+  // Disabled because feature is not ready for preview
+  // const apiReq = await fetcher('live')
+  // let details = null
+
+  // if (apiReq.ok) {
+  //   details = (await apiReq.json())
+  // }
+
+  // return details
+})
 
 useHead({
   title: 'Home | The WAN DB',
@@ -69,5 +81,54 @@ useHead({
 })
 </script>
 <template>
-  <VideoFeed />
+  <div>
+    <!-- <template v-if="pending === false"> -->
+    <template v-if="data !== null">
+      <template v-if="data.floatplane.isLive && data.floatplane.isWAN">
+        <div class="grower bg-zinc-800 rounded-md">
+          <div class="flex mx-2 my-1">
+            <div class="flex-col">
+              <h1 v-if="!data.youtube.isLive">Upcoming Show - Pre show live on Floatplane</h1>
+              <h1 v-else>Live Now</h1>
+              <h2 class="font-semibold text-lg">
+                {{ data.floatplane.title }}
+              </h2>
+            </div>
+          </div>
+          <div class="imgcontainer h-100">
+            <CoreUIImage :id="data.floatplane.thumbnail" :width="700" :height="380" :variant="'thumbfullsize'" />
+          </div>
+        </div>
+      </template>
+    </template>
+    <!-- </template> -->
+    <VideoFeed />
+  </div>
 </template>
+<style scoped>
+.grower {
+  opacity: 1;
+  overflow: hidden;
+  height: 450px;
+  width: 720px;
+  margin: 0.5rem auto 0.5rem;
+  animation: grow ease-in-out 2s;
+}
+
+@keyframes grow {
+  0% {
+    opacity: 0;
+    height: 0px;
+  }
+
+  75% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+    height: 450px
+  }
+
+}
+</style>

@@ -66,10 +66,26 @@ useHead({
     }
   ]
 })
-const config = useRuntimeConfig()
 
 const { data } = useAsyncData(async () => {
-  return (await (await fetcher('cast')).json()).data
+  try {
+    const orq = await (await fetcher('outlets')).json()
+    const outlets = {}
+    for (let i = 0; i < orq.length; i++) {
+      const ot = orq[i]
+      outlets[ot.id] = ot
+    }
+    const cast = await (await fetcher('cast')).json()
+
+    console.log(cast)
+    return cast.results.map((m) => {
+      console.log(m)
+      m.outlet = outlets[m.outlet]
+      return m
+    })
+  } catch (e) {
+    console.error(e)
+  }
 })
 
 </script>
@@ -85,7 +101,9 @@ const { data } = useAsyncData(async () => {
       (according to our sources)
     </p>
     <div class="flex w-11/12 mx-auto px-0 justify-evenly flex-wrap">
-      <template v-for="(p,i) in data" :key="i">
+      {{ console.log(data) }}
+      <template v-for="(p, i) in data" :key="i">
+        {{ console.log(p) }}
         <CastMember :person="p" />
       </template>
     </div>

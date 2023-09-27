@@ -1,7 +1,7 @@
 <script async setup>
 import style from './videos.module.css'
 import { parse } from 'node-webvtt'
-
+import Plyr from 'plyr';
 
 const route = useRoute()
 const { id } = route.params
@@ -20,7 +20,9 @@ const itv = {
 const castMap = new Map()
 const tsMap = new Map()
 onMounted(() => {
-
+  let player = new Plyr('#player', {
+    ratio: '16:9'
+  });
   setTimeout(() => {
     if (player !== null) {
       if (route.query.t) {
@@ -51,7 +53,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (stomp) { stomp.disconnect() }
   if (itv.player) { clearInterval(itv.player) }
   if (itv.viewport) { clearInterval(itv.viewport) }
 })
@@ -182,14 +183,6 @@ const { data, error } = useAsyncData(async () => {
         hid: 'og-type',
         property: 'og:type',
         content: 'website'
-      }
-    ],
-    script: [
-      {
-        src: 'https://cdn.plyr.io/3.7.8/plyr.polyfilled.js'
-      },
-      {
-        src: '/scripts/player.js'
       }
     ]
   })
