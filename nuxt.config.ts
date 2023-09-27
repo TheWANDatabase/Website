@@ -42,15 +42,6 @@ export default defineNuxtConfig({
     auth: {
       enabled: true
     },
-    config: {
-      apiKey: 'AIzaSyDfGDJHyFTLnJnDCnUkeQGmOuWELQcudv4',
-      authDomain: 'the-wan-db-37a19.firebaseapp.com',
-      databaseURL: 'https://the-wan-db-37a19-default-rtdb.europe-west1.firebasedatabase.app',
-      projectId: 'the-wan-db-37a19',
-      storageBucket: 'the-wan-db-37a19.appspot.com',
-      messagingSenderId: '1041584087918',
-      appId: '1:1041584087918:web:f30c9816105e75d545177f',
-      measurementId: 'G-TEJJNTFDRT'
-    }
+    config: JSON.parse(process.env.FB_CONFIG)
   }
 })
