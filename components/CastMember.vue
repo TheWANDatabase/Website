@@ -16,7 +16,7 @@ console.log('person:', props.person)
           props.person.surname }}
       </h1>
       <h2 class="font-bold">
-        {{ props.person.outlet_role }}
+        {{ props.person.role }}
       </h2>
       <a v-if="props.person.outlet_uri" class="text-lg my-5 h-5" :href="props.person.outlet.url">{{
         props.person.outlet.name }}</a>

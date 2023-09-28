@@ -71,8 +71,8 @@ const { data } = useAsyncData(async () => {
   try {
     const orq = await (await fetcher('outlets')).json()
     const outlets = {}
-    for (let i = 0; i < orq.length; i++) {
-      const ot = orq[i]
+    for (let i = 0; i < orq.results.length; i++) {
+      const ot = orq.results[i]
       outlets[ot.id] = ot
     }
     const cast = await (await fetcher('cast')).json()

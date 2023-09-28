@@ -89,6 +89,12 @@ onMounted(async () => {
 </script>
 <template>
   <div ref="containerRef" class="container mx-auto my-1 rounded-md">
+    <div class="hexcontainer">
+      <span class="hex greyhextop" />
+      <span class="hex orangehex" />
+      <span class="hex greyhexbottom" />
+      <span class="hex centerhex" />
+    </div>
     <canvas ref="canvasRef" class="canvas rounded-md" />
     <img ref="imageRef" class="imagePending rounded-md" loading="lazy">
   </div>
@@ -106,11 +112,11 @@ onMounted(async () => {
 }
 
 .canvas {
-  z-index: 1;
+  z-index: 3;
 }
 
 .image {
-  z-index: 2;
+  z-index: 4;
 }
 
 .canvas,
@@ -121,6 +127,84 @@ onMounted(async () => {
   animation: fadeIn 500ms ease-in-out;
   height: inherit;
   width: inherit;
+}
+
+.hexcontainer {
+  width: 75px;
+  height: 82px;
+  margin: 10% auto;
+  position: relative;
+}
+
+.hex {
+  opacity: 0;
+  display: flex;
+  position: absolute;
+  -webkit-clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+}
+
+.greyhextop {
+  background: #4e4c4f;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  height: 40px;
+  width: 40px;
+  animation: loading infinite 3s ease-in-out;
+}
+
+.orangehex {
+  background: #b92c25;
+  top: 42px;
+  left: 0;
+  z-index: 1;
+  height: 40px;
+  width: 40px;
+  animation: loading infinite 3s ease-in-out;
+  animation-delay: 2s;
+}
+
+.greyhexbottom {
+  background: #868686;
+  top: 20.5px;
+  left: 35px;
+  z-index: 1;
+  height: 40px;
+  width: 40px;
+  animation: loading infinite 3s ease-in-out;
+  animation-delay: 1s;
+}
+
+.centerhex {
+  background: #333333;
+  /* background: pink; */
+  /* border: 5px solid white; */
+  top: 32.5px;
+  left: 20.5px;
+  z-index: 2;
+  height: 20px;
+  width: 20px;
+  opacity: 1;
+  transform: rotateX('20deg')
+}
+
+@keyframes loading {
+  0% {
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes fadeIn {

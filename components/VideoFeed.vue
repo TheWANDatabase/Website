@@ -34,15 +34,15 @@ const orderOptions = ref([
   {
     id: 'title-desc',
     label: 'Title (Descending)'
-  },
-  {
-    id: 'topics',
-    label: 'Topic Count (Ascending)'
-  },
-  {
-    id: 'topics-desc',
-    label: 'Topic Count (Descending)'
-  }
+  }//,
+  // {
+  //   id: 'topics',
+  //   label: 'Topic Count (Ascending)'
+  // },
+  // {
+  //   id: 'topics-desc',
+  //   label: 'Topic Count (Descending)'
+  // }
 ])
 const filters = useState('filter', () => {
   return {
@@ -61,8 +61,8 @@ useAsyncData(async () => {
     if (cst.value.length === 0) {
       const orq = await (await fetcher('outlets')).json()
       const outlets = {}
-      for (let i = 0; i < orq.length; i++) {
-        const ot = orq[i]
+      for (let i = 0; i < orq.results.length; i++) {
+        const ot = orq.results[i]
         outlets[ot.id] = ot
       }
       const cast = (await (await fetcher('cast')).json()).results.map((m) => {
