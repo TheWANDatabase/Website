@@ -16,8 +16,6 @@ const itv = {
 // const castMap = new Map()
 // const tsMap = new Map()
 
-
-
 // const { data, error } = useAsyncData(async () => {
 //   const episode = await (await fetcher('player', {
 //     method: 'POST',
@@ -29,6 +27,7 @@ const itv = {
 
 useHead({
   // title: data.title + ' | The WAN DB',
+  title: 'Live | The WAN DB',
   link: [
     // {
     //   hid: 'canonical',
@@ -40,63 +39,73 @@ useHead({
       href: 'https://cdn.plyr.io/3.7.8/plyr.css'
     }
   ],
-  // meta: [
-  //   {
-  //     hid: 'theme-color',
-  //     name: 'theme-color',
-  //     content: '#bb2701'
-  //   },
-  //   {
-  //     hid: 'robots',
-  //     property: 'robots',
-  //     content: 'index, archive'
-  //   },
-  //   {
-  //     hid: 'og-title',
-  //     property: 'og:title',
-  //     content: data.title + ' | The WAN DB'
-  //   },
-  //   {
-  //     hid: 'twitter-title',
-  //     property: 'twitter:title',
-  //     content: data.title + ' | The WAN DB'
-  //   },
-  //   {
-  //     hid: 'description',
-  //     property: 'description',
-  //     content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-  //   },
-  //   {
-  //     hid: 'og-description',
-  //     property: 'og:description',
-  //     content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-  //   },
-  //   {
-  //     hid: 'twitter-description',
-  //     property: 'twitter:description',
-  //     content: "The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect."
-  //   },
-  //   {
-  //     hid: 'og-image',
-  //     property: 'og:image',
-  //     content: episode.thumbnail
-  //   },
-  //   {
-  //     hid: 'twitter-image',
-  //     property: 'twitter:image',
-  //     content: episode.thumbnail
-  //   },
-  //   {
-  //     hid: 'twitter-card',
-  //     property: 'twitter:card',
-  //     content: 'summary_large_image'
-  //   },
-  //   {
-  //     hid: 'og-type',
-  //     property: 'og:type',
-  //     content: 'website'
-  //   }
-  // ]
+  meta: [
+    {
+      hid: 'theme-color',
+      name: 'theme-color',
+      content: '#bb2701'
+    },
+    {
+      hid: 'robots',
+      property: 'robots',
+      content: 'index, archive'
+    },
+    // {
+    //   hid: 'og-title',
+    //   property: 'og:title',
+    //   content: data.title + ' | The WAN DB'
+    // },
+    // {
+    //   hid: 'twitter-title',
+    //   property: 'twitter:title',
+    //   content: data.title + ' | The WAN DB'
+    // },
+    {
+      hid: 'og-title',
+      property: 'og:title',
+      content: 'Live | The WAN DB'
+    },
+    {
+      hid: 'twitter-title',
+      property: 'twitter:title',
+      content: 'Live | The WAN DB'
+    },
+    {
+      hid: 'description',
+      property: 'description',
+      content: 'The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.'
+    },
+    {
+      hid: 'og-description',
+      property: 'og:description',
+      content: 'The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.'
+    },
+    {
+      hid: 'twitter-description',
+      property: 'twitter:description',
+      content: 'The WAN DB is a near comprehensive archive of every episode of the popular technology news podcast, The WAN Show. Spanning back as far as 2012, with more than 500 episodes, and covering over 10,000 different topics, this database is as close to comprehensive as you can getm without being perfect.'
+    },
+    // {
+    //   hid: 'og-image',
+    //   property: 'og:image',
+    //   content: episode.thumbnail
+    // },
+    // {
+    //   hid: 'twitter-image',
+    //   property: 'twitter:image',
+    //   content: episode.thumbnail
+    // },
+    {
+      hid: 'twitter-card',
+      property: 'twitter:card',
+      content: 'summary_large_image'
+    },
+    {
+      hid: 'og-type',
+      property: 'og:type',
+      content: 'website'
+    }
+  ]
 })
 //   return data
 // })
@@ -105,10 +114,25 @@ onMounted(() => {
   // 'https://de488bcb61af.us-east-1.playback.live-video.net/api/video/v1/us-east-1.758417551536.channel.yKkxur4ukc0B.m3u8?allow_source=false&token=eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJhd3M6Y2hhbm5lbC1hcm4iOiJhcm46YXdzOml2czp1cy1lYXN0LTE6NzU4NDE3NTUxNTM2OmNoYW5uZWwveUtreHVyNHVrYzBCIiwiYXdzOmFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6Imh0dHBzOi8vd3d3LmZsb2F0cGxhbmUuY29tLGh0dHBzOi8vYmV0YS5mbG9hdHBsYW5lLmNvbSIsImlhdCI6MTY5NTk4Mzg4MywiZXhwIjoxNjk2MDcwMjgzfQ.d_l-G28c31zPr-U-1mjZHC31n99qn_udIOo8mW8qvqy3FypE3cfd4hXHUyMwSQv4pcvmBxzdmzGPt-XFFKGqozxC7GDe6MGrYZdLbJRDMsr3Fe8YN8CB5ySbVuZ0peh3'
   const source = 'https://customer-ii6t7r1l1y4zlr4s.cloudflarestream.com/8b14c81c34f1d7638cd259e19c102d6b/manifest/video.m3u8'
   const player = new Plyr(livePlayer.value, {
-    ratio: '16:9'
+    ratio: '16:9',
+    title: 'You Okay Intel? - WAN Show',
+    muted: true,
+    autoplay: true,
+    mediaMetadata: {
+      title: 'You Okay Intel? - WAN Show',
+      artist: 'Linus Tech Tips',
+      album: 'The WAN Show',
+      artwork: [{
+        src: 'https://imagedelivery.net/-cOMdbrgPKVfMhvnN-qKfw/71a0d7db-10f5-4b03-bf03-b48e42593a00/thumbfullsize',
+        type: 'image/jpeg'
+      }]
+    },
+    poster: 'https://imagedelivery.net/-cOMdbrgPKVfMhvnN-qKfw/71a0d7db-10f5-4b03-bf03-b48e42593a00/thumbfullsize'
   })
 
-  const hls = new Hls()
+  const hls = new Hls({
+    startPosition: -1
+  })
   hls.loadSource(source)
   hls.attachMedia(livePlayer.value)
   window.hls = hls
@@ -118,6 +142,14 @@ onMounted(() => {
       hls.loadSource(source)
     }, 200)
   })
+
+  player.on('pause', () => { })
+  player.on('')
+
+  player.on('canplay', () => {
+
+  })
+
   // hls.on(Hls.Events.BUFFER_EOS)
 
   // setTimeout(() => {
@@ -197,15 +229,7 @@ onUnmounted(() => {
 
       <!-- Player Section -->
       <div id="fullscreen-container" style="max-height: 90vh; max-width: ">
-        <video ref="livePlayer" id="player" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);"
-          :data-plyr-config='{
-            "title": "unknown",
-            "poster": "https://bitdash-a.akamaihd.net/content/sintel/poster.png",
-            "fullscreen": {
-              "container": "#fullscreen-container",
-              "ratio": "16:9"
-            }
-          }'>
+        <video id="player" ref="livePlayer" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);">
           <!-- <source
             :src="`https://customer-ii6t7r1l1y4zlr4s.cloudflarestream.com/8b14c81c34f1d7638cd259e19c102d6b/manifest/video.m3u8`" /> -->
         </video>
