@@ -1,16 +1,22 @@
 <script setup>
-const { data } = useAsyncData(async () => {
-  return null
+import { useIntervalFn } from '@vueuse/core'
+const { data, refresh } = useAsyncData(async () => {
+  // return null
   // Disabled because feature is not ready for preview
-  // const apiReq = await fetcher('live')
-  // let details = null
+  const apiReq = await fetcher('live')
+  let details = null
 
-  // if (apiReq.ok) {
-  //   details = (await apiReq.json())
-  // }
+  if (apiReq.ok) {
+    details = (await apiReq.json())
+  }
 
-  // return details
+  return details
 })
+
+useIntervalFn(() => {
+  console.log('Refreshing livestream data')
+  refresh()
+}, 5_000)
 
 useHead({
   title: 'Home | The WAN DB',

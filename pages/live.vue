@@ -1,29 +1,8 @@
 <script async setup>
-import { parse } from 'node-webvtt'
 import Plyr from 'plyr'
 import Hls from 'hls.js'
 
-const route = useRoute()
-const { id } = route.params
-const profile = useState('uprofile', () => undefined)
-// const timeHuman = ref('00:00:00')
-// const timePercentage = ref('0.00')
 const livePlayer = ref(null)
-const itv = {
-  player: null,
-  viewport: null
-}
-// const castMap = new Map()
-// const tsMap = new Map()
-
-// const { data, error } = useAsyncData(async () => {
-//   const episode = await (await fetcher('player', {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       id
-//     })
-//   })).json();
-//   const data = episode.data
 
 useHead({
   // title: data.title + ' | The WAN DB',
@@ -112,7 +91,7 @@ useHead({
 
 onMounted(() => {
   // 'https://de488bcb61af.us-east-1.playback.live-video.net/api/video/v1/us-east-1.758417551536.channel.yKkxur4ukc0B.m3u8?allow_source=false&token=eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJhd3M6Y2hhbm5lbC1hcm4iOiJhcm46YXdzOml2czp1cy1lYXN0LTE6NzU4NDE3NTUxNTM2OmNoYW5uZWwveUtreHVyNHVrYzBCIiwiYXdzOmFjY2Vzcy1jb250cm9sLWFsbG93LW9yaWdpbiI6Imh0dHBzOi8vd3d3LmZsb2F0cGxhbmUuY29tLGh0dHBzOi8vYmV0YS5mbG9hdHBsYW5lLmNvbSIsImlhdCI6MTY5NTk4Mzg4MywiZXhwIjoxNjk2MDcwMjgzfQ.d_l-G28c31zPr-U-1mjZHC31n99qn_udIOo8mW8qvqy3FypE3cfd4hXHUyMwSQv4pcvmBxzdmzGPt-XFFKGqozxC7GDe6MGrYZdLbJRDMsr3Fe8YN8CB5ySbVuZ0peh3'
-  const source = 'https://customer-ii6t7r1l1y4zlr4s.cloudflarestream.com/ee80c2dd9209b3b85fe02f88212784fc/manifest/video.m3u8'
+  const source = 'https://customer-ii6t7r1l1y4zlr4s.cloudflarestream.com/2584c6fc030f62354d29cbe33f3caa0d/manifest/video.m3u8'
   const player = new Plyr(livePlayer.value, {
     ratio: '16:9',
     title: 'You Okay Intel? - WAN Show',
