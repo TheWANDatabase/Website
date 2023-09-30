@@ -1,7 +1,24 @@
 <script async setup>
 import Plyr from 'plyr'
 import Hls from 'hls.js'
+import { useIntervalFn } from '@vueuse/core'
+const { data, refresh } = useAsyncData(async () => {
+  // return null
+  // Disabled because feature is not ready for preview
+  const apiReq = await fetcher('live')
+  let details = null
 
+  if (apiReq.ok) {
+    details = (await apiReq.json())
+  }
+
+  return details
+})
+
+useIntervalFn(() => {
+  console.log('Refreshing livestream data')
+  refresh()
+}, 5_000)
 const livePlayer = ref(null)
 
 useHead({
@@ -178,7 +195,7 @@ onUnmounted(() => {
   </template> -->
   <!-- <template v-else-if="data"> -->
   <div class="">
-    <div class="">
+    <div style="height: auto; width: 100vw;" class="mx-0 my-2 flex">
       <!-- Title Bar Section -->
       <!-- <div class="">
             <div>
@@ -207,11 +224,18 @@ onUnmounted(() => {
           </div> -->
 
       <!-- Player Section -->
-      <div id="fullscreen-container" style="max-height: 90vh; max-width: 80vw;" class="mx-auto my-2">
-        <video id="player" ref="livePlayer" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);">
-          <!-- <source
-            :src="`https://customer-ii6t7r1l1y4zlr4s.cloudflarestream.com/8b14c81c34f1d7638cd259e19c102d6b/manifest/video.m3u8`" /> -->
-        </video>
+      <div id="fullscreen-container" style="max-width: 80vw;" class="mx-auto my-2 flex-col">
+        <div style="max-height: 89vh; max-width: 80vw;">
+          <video id="player" ref="livePlayer" playsinline controls style="--plyr-color-main: rgb(185, 44, 37);" />
+        </div>
+        <div v-if="data">
+          <h1 class="font-bold text-xl">
+            {{ data.floatplane.title }}
+          </h1>
+          <pre class="description">
+            <div style="width: 100%;" v-html="data.floatplane.description" />
+          </pre>
+        </div>
         <!-- <audio id="player" controls
               style="--plyr-color-main: rgb(185, 44, 37);height: fit;margin-bottom:0;margin-top: auto;">
               <source :src="`https://cdn.thewandb.com/aod/${data.id}.mp3`" type="audio/mp3" />
@@ -221,6 +245,8 @@ onUnmounted(() => {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen /> -->
       </div>
+      <!-- <iframe src="https://wanshow.bingo" referrerpolicy="no-referrer" style="height: 89vh; width: 28vw;"
+        class="mr-auto ml-1 my-2" /> -->
     </div>
   </div>
   <!-- </template> -->
@@ -233,3 +259,8 @@ onUnmounted(() => {
     <p>Please try viewing on a bigger device.</p>
   </div> -->
 </template>
+<style scoped>
+.description>div a {
+  text-decoration: underline !important;
+}
+</style>
