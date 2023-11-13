@@ -10,9 +10,9 @@
  * and then modified to fit their data layouts
  */
 export interface StandardResponse<T> {
-    data?: T
-    error?: unknown
-    time: number
+  data?: T
+  error?: unknown
+  time: number
 }
 
 /**
@@ -20,31 +20,32 @@ export interface StandardResponse<T> {
  * Anything which does not follow this format, will result in an error.
  */
 export interface HistoryRequest {
-    /**
-     * @name id
-     * @description a User ID (in UUIDv4 formatting),
-     * which can be referenced to the user's profile
-     */
-    id: string
+  /**
+   * @name id
+   * @description a User ID (in UUIDv4 formatting),
+   * which can be referenced to the user's profile
+   */
+  id: string
 }
+
 /**
  * The response format provided by the /history api endpoint.
  */
 export interface HistoryDetails {
-    /**
-     * @name id
-     * @description A unique identifier for this history entry (UUIDv4 formatted)
-     */
-    id: string
+  /**
+   * @name id
+   * @description A unique identifier for this history entry (UUIDv4 formatted)
+   */
+  id: string
 
-    /**
-     * @name viewer
-     * @description A unique identifier for this history entry (UUIDv4 formatted)
-     */
-    viewer: string // -> (references user ID)
-    episode: string // -> (references episode ID)
-    viewed_seconds: string
-    last_watched: String | Date // (Returned as a string, but stored as a Timestamp)
+  /**
+   * @name viewer
+   * @description A unique identifier for this history entry (UUIDv4 formatted)
+   */
+  viewer: string // -> (references user ID)
+  episode: string // -> (references episode ID)
+  viewed_seconds: string
+  last_watched: String | Date // (Returned as a string, but stored as a Timestamp)
 }
 
 /**
@@ -53,4 +54,5 @@ export interface HistoryDetails {
  * @description The input format expected by the /history api endpoint.
  * Anything which does not follow this format, will result in an error.
  */
-export interface HistoryResponse extends StandardResponse<HistoryDetails[]> { }
+export interface HistoryResponse extends StandardResponse<HistoryDetails[]> {
+}

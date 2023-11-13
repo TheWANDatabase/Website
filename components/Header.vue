@@ -1,213 +1,191 @@
 <script async setup>
-import { signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth'
-
-const auth = useFirebaseAuth()
-const user = useCurrentUser()
 const config = useRuntimeConfig()
 const route = useRoute()
 
 const cmap = useState('hcast', () => new Map())
+const user = null; //useState('user', () => undefined)
 
 const profile = useState('uprofile', () => undefined)
 // const history = useState('history', () => new Map())
 const banners = useState('banners', () => [])
-const cfg = useState('uconf', () => {
+const cfg = useState('uconf')
+const availableThemes = useState('availableThemes')
+
+const selectableThemes = ref([])
+const theme = useState('currentTheme', () => {
   return {
-    theme: {
-      name: 'poppy',
-      primary: 'poppy',
-      greyscale: 'zinc'
-    }
+    label: 'Emerald',
+    value: 'Emerald'
   }
+});
+
+useAsyncData(async () => {
+  let processedThemes = Array.from(availableThemes.value.keys()).map((name) => {
+    return {
+      label: name,
+      value: name
+    }
+  });
+  selectableThemes.value = processedThemes;
+})
+
+useAsyncData(() => {
+
+  const thm = availableThemes.value.get(theme.value.value)
+  if (thm) cfg.value.theme = thm
+}, {
+  server: false,
+  watch: [theme]
 })
 
 const error = ref(null)
-function signinRedirect () {
-  signInWithRedirect(auth, new GoogleAuthProvider()).catch((reason) => {
-    console.error('Failed signinRedirect', reason)
-    error.value = reason
-  })
-}
 
-onMounted(async () => {
-  await getRedirectResult(auth).catch((reason) => {
-    console.error('Failed redirect result', reason)
-    error.value = reason
-  })
 
-  function getConfig () {
-    const raw = window.localStorage.getItem('cfgix')
-    if (raw) {
-      cfg.value = JSON.parse(raw)
-    } else {
-      window.localStorage.setItem('cfgix', JSON.stringify(cfg.value))
-    }
-  }
-
-  try {
-    getConfig()
-  } catch (e) {
-    console.error(e)
-  }
-})
-
-useAsyncData(async () => {
-  const bannerReq = await (await fetcher('banners')).json()
-  banners.value = bannerReq.data.map((b) => {
-    let show = true
-
-    if (b.paths) {
-      show = b.paths.includes(route.fullPath)
-    }
-
-    if (b.domains && show) {
-      show = b.domains.includes(config.public.domain)
-    }
-
-    b.show = show
-
-    return b
-  })
-
-  const d = (await (await fetcher('cast')).json()).data
-  d.map((c) => {
-    cmap.value.set(c.id, c)
-    return c
-  })
-
-  if (user.value) {
-    const { data } = await (await fetcher('profile', {
-      method: 'POST',
-      body: JSON.stringify({
-        id: user.value.uid
-      })
-    })).json()
-    if (data === null) {
-      sb.auth.signOut()
-    } else {
-      profile.value = data
-      // if (!history.value) { history.value = new Map() }
-
-      // const h = await (await fetch('/api/v1/history', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     id: user.value.id
-      //   })
-      // })).json()
-
-      // if (h.data) {
-      //   for (let i = 0; i < h.data.length; i++) {
-      //     history.value.set(h.data[i].episode, h.data[i])
-      //   }
-      // }
-    }
-  } else {
-    profile.value = undefined
-  }
-}, {
-  server: false,
-  watch: [user]
-})
+// useAsyncData(async () => {
+//   const bannerReq = await (await fetcher('banners')).json()
+//   banners.value = bannerReq.data.map((b) => {
+//     let show = true
+//
+//     if (b.paths) {
+//       show = b.paths.includes(route.fullPath)
+//     }
+//
+//     if (b.domains && show) {
+//       show = b.domains.includes(config.public.domain)
+//     }
+//
+//     b.show = show
+//
+//     return b
+//   })
+//
+//   const d = (await (await fetcher('cast')).json()).data
+//   d.map((c) => {
+//     cmap.value.set(c.id, c)
+//     return c
+//   })
+//
+//   if (user.value) {
+//     const {data} = await (await fetcher('profile', {
+//       method: 'POST',
+//       body: JSON.stringify({
+//         id: user.value.uid
+//       })
+//     })).json()
+//     if (data === null) {
+//       sb.auth.signOut()
+//     } else {
+//       profile.value = data
+//     }
+//   } else {
+//     profile.value = undefined
+//   }
+// }, {
+//   server: false,
+//   watch: [user]
+// })
 
 const items = ref([])
 
-await useAsyncData(() => {
-  if (profile.value) {
-    items.value = [
-      [
-        {
-          label: 'My Profile',
-          icon: 'i-heroicons-arrow-top-right-on-square',
-          click: () => {
-            window.location.href = '/profile'
-          }
-        },
-        {
-          label: 'My Data',
-          icon: 'i-heroicons-arrow-top-right-on-square',
-          click: () => {
-            window.location.href = '/profile/data'
-          }
-        }
-      ],
-      [
-        {
-          label: 'Log Out',
-          icon: 'i-heroicons-arrow-left-on-rectangle',
-          click: () => {
-            sb.auth.signOut()
-            profile.value = undefined
-            user.value = undefined
-            if (window.location.href.startsWith('/profile')) { window.location.href = '/' }
-          }
-        }
-      ],
-      [
-        {
-          label: 'Contribute',
-          icon: 'i-heroicons-code-bracket',
-          click: () => {
-            window.open('https://github.com/TheWANDatabase', '_blank')
-          }
-        },
-        {
-          label: 'Donate',
-          icon: 'i-heroicons-banknotes',
-          click: () => {
-            window.open('https://ko-fi.com/altrius', '_blank')
-          }
-        },
-        {
-          label: 'Join Our Discord',
-          icon: 'i-heroicons-arrow-top-right-on-square',
-          click: () => {
-            window.open('https://discord.gg/sVQm5f35VF', '_blank')
-          }
-        }
-      ]
-    ]
-  } else {
-    items.value = [
-      [
-        {
-          label: 'Log In With Google',
-          click: signinRedirect,
-          icon: 'i-heroicons-arrow-top-right-on-square'
-        }
-        //, {
-        //   label: 'Log In With Discord',
-        //   click: signInWithDiscord,
-        // icon: 'i-heroicons-arrow-top-right-on-square',
-        // }
-      ],
-      [
-        {
-          label: 'Contribute',
-          icon: 'i-heroicons-code-bracket',
-          click: () => {
-            window.open('https://github.com/TheWANDatabase', '_blank')
-          }
-        },
-        {
-          label: 'Donate',
-          icon: 'i-heroicons-banknotes',
-          click: () => {
-            window.open('https://ko-fi.com/altrius', '_blank')
-          }
-        },
-        {
-          label: 'Join Our Discord',
-          icon: 'i-heroicons-arrow-top-right-on-square',
-          click: () => {
-            window.open('https://discord.gg/sVQm5f35VF', '_blank')
-          }
-        }
-      ]
-    ]
-  }
-}, {
-  watch: [profile]
-})
+// await useAsyncData(() => {
+//   if (profile.value) {
+//     items.value = [
+//       [
+//         {
+//           label: 'My Profile',
+//           icon: 'i-heroicons-arrow-top-right-on-square',
+//           click: () => {
+//             window.location.href = '/profile'
+//           }
+//         },
+//         {
+//           label: 'My Data',
+//           icon: 'i-heroicons-arrow-top-right-on-square',
+//           click: () => {
+//             window.location.href = '/profile/data'
+//           }
+//         }
+//       ],
+//       [
+//         {
+//           label: 'Log Out',
+//           icon: 'i-heroicons-arrow-left-on-rectangle',
+//           click: () => {
+//             sb.auth.signOut()
+//             profile.value = undefined
+//             user.value = undefined
+//             if (window.location.href.startsWith('/profile')) {
+//               window.location.href = '/'
+//             }
+//           }
+//         }
+//       ],
+//       [
+//         {
+//           label: 'Contribute',
+//           icon: 'i-heroicons-code-bracket',
+//           click: () => {
+//             window.open('https://github.com/TheWANDatabase', '_blank')
+//           }
+//         },
+//         {
+//           label: 'Donate',
+//           icon: 'i-heroicons-banknotes',
+//           click: () => {
+//             window.open('https://ko-fi.com/altrius', '_blank')
+//           }
+//         },
+//         {
+//           label: 'Join Our Discord',
+//           icon: 'i-heroicons-arrow-top-right-on-square',
+//           click: () => {
+//             window.open('https://discord.gg/sVQm5f35VF', '_blank')
+//           }
+//         }
+//       ]
+//     ]
+//   } else {
+//     items.value = [
+//       [
+//         {
+//           label: 'Log In With Google',
+//           click: signinRedirect,
+//           icon: 'i-heroicons-arrow-top-right-on-square'
+//         }
+//         //, {
+//         //   label: 'Log In With Discord',
+//         //   click: signInWithDiscord,
+//         // icon: 'i-heroicons-arrow-top-right-on-square',
+//         // }
+//       ],
+//       [
+//         {
+//           label: 'Contribute',
+//           icon: 'i-heroicons-code-bracket',
+//           click: () => {
+//             window.open('https://github.com/TheWANDatabase', '_blank')
+//           }
+//         },
+//         {
+//           label: 'Donate',
+//           icon: 'i-heroicons-banknotes',
+//           click: () => {
+//             window.open('https://ko-fi.com/altrius', '_blank')
+//           }
+//         },
+//         {
+//           label: 'Join Our Discord',
+//           icon: 'i-heroicons-arrow-top-right-on-square',
+//           click: () => {
+//             window.open('https://discord.gg/sVQm5f35VF', '_blank')
+//           }
+//         }
+//       ]
+//     ]
+//   }
+// }, {
+//   watch: [profile]
+// })
 
 const results = ref([])
 const epmap = ref({})
@@ -318,27 +296,28 @@ useAsyncData(async () => {
 
 </script>
 <template>
-  <div :class="`shadow-sm shadow-black bg-${cfg.theme.greyscale}-800 w-100 flex-col`">
+  <div :class="`shadow-sm shadow-black bg-${cfg.theme.primary}-800 w-100 flex-col`">
     <template v-for="(banner, index) in banners" :key="index">
       <Banner v-if="banner.show" :pid="banner.id" :fixed="banner.fixed" :bg="banner.color.bg" :fg="banner.color.fg">
         <p>
           {{ banner.message }}
           <a :style="{ color: banner.fg }" target="_blank" :href="banner.url">
-            <Icon :name="banner.icon" /> {{ banner['icon-message'] }}
+            <Icon :name="banner.icon"/>
+            {{ banner['icon-message'] }}
           </a>
         </p>
       </Banner>
     </template>
     <div class="flex w-100">
       <a
-        href="/"
-        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
+          :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.primary}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.primary}-600 transition-all drop-shadow-xl`"
+          href="/"
       >
         <img class="w-32" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg">
       </a>
       <a
-        href="/"
-        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
+          :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.primary}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.primary}-600 transition-all drop-shadow-xl`"
+          href="/"
       >
         <h3 class="py-3 text-l transition-all">
           Video Feed
@@ -346,60 +325,68 @@ useAsyncData(async () => {
       </a>
       <!-- <a
         href="/contributors"
-        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
+        :class="`uppercase pt-1 pb-1 pl-5 pr-5 text-${cfg.theme.primary}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.primary}-600 transition-all drop-shadow-xl`"
       >
         <h3 class="hover:font-bold py-3 text-l transition-all">
           Contributors
         </h3>
       </a> -->
       <a
-        href="/cast"
-        :class="`uppercase pt-1 pb-1 pl-5 pr-5 mr-auto text-${cfg.theme.greyscale}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.greyscale}-600 transition-all drop-shadow-xl`"
+          :class="`uppercase pt-1 pb-1 pl-5 pr-5 mr-auto text-${cfg.theme.primary}-100 hover:text-${cfg.theme.primary}-500 hover:bg-${cfg.theme.primary}-600 transition-all drop-shadow-xl`"
+          href="/cast"
       >
         <h3 class="h-fit py-3 text-center text-l transition-all">
           Cast
         </h3>
       </a>
-
+      <USelectMenu v-model="theme" :options="selectableThemes">
+        <UButton
+            :class="`rounded-none hover:bg-${cfg.theme.primary}-600 text-${cfg.theme.primary}-100`"
+            :color="cfg.theme.primary"
+            trailing-icon="i-heroicons-chevron-down-20-solid"
+        >
+          <p>{{ theme.value }}</p>
+        </UButton>
+      </USelectMenu>
       <template v-if="profile">
         <UDropdown :items="items">
           <UButton
-            :class="`rounded-none hover:bg-${cfg.theme.greyscale}-600 text-${cfg.theme.greyscale}-100`"
-            color="none"
-            trailing-icon="i-heroicons-chevron-down-20-solid"
+              :class="`rounded-none hover:bg-${cfg.theme.primary}-600 text-${cfg.theme.primary}-100`"
+              color="none"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
           >
-            <UAvatar :src="profile.avatar" alt="Avatar" />
-            <p :class="`text-${cfg.theme.greyscale}-100`">
+            <UAvatar :src="profile.avatar" alt="Avatar"/>
+            <p :class="`text-${cfg.theme.primary}-100`">
               {{ profile.username }}
             </p>
-            <template #item="{ item }">
-              <template v-if="item">
-                <UIcon v-if="item.icon" :name="item.icon" class="w-4 h-4" />
-                <UAvatar
+          </UButton>
+          <template #item="{ item }">
+            <template v-if="item">
+              <UIcon v-if="item.icon" :name="item.icon" class="w-4 h-4"/>
+              <UAvatar
                   v-else-if="item.avatar"
                   v-bind="item.avatar"
                   class="object-cover mx-2 my-2"
                   :alt="p.name"
                   size="lg"
-                />
-                {{ item.label }}
-              </template>
+              />
+              {{ item.label }}
             </template>
-          </UButton>
+          </template>
         </UDropdown>
       </template>
       <template v-else>
         <UDropdown :items="items">
-          <UButton color="none" label="Options" trailing-icon="i-heroicons-chevron-down-20-solid" />
+          <UButton color="none" label="Options" trailing-icon="i-heroicons-chevron-down-20-solid"/>
           <template #item>
             <template v-if="selected">
-              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4" />
+              <UIcon v-if="selected.icon" :name="selected.icon" class="w-4 h-4"/>
               <UAvatar
-                v-else-if="selected.avatar"
-                v-bind="selected.avatar"
-                class="object-cover mx-2 my-2"
-                :alt="p.name"
-                size="lg"
+                  v-else-if="selected.avatar"
+                  :alt="p.name"
+                  class="object-cover mx-2 my-2"
+                  size="lg"
+                  v-bind="selected.avatar"
               />
               {{ selected.label }}
             </template>
@@ -408,12 +395,12 @@ useAsyncData(async () => {
       </template>
       <div class="my-auto mx-2">
         <UInput
-          v-model="query"
-          variant="outline"
-          :color="cfg.theme.greyscale"
-          icon="i-heroicons-magnifying-glass-20-solid"
-          size="sm"
-          placeholder="Search..."
+            v-model="query"
+            :color="cfg.theme.primary"
+            icon="i-heroicons-magnifying-glass-20-solid"
+            placeholder="Search..."
+            size="sm"
+            variant="outline"
         />
       </div>
       <div>
@@ -421,29 +408,32 @@ useAsyncData(async () => {
           <UCard>
             <template #header>
               <UInput
-                v-model="query"
-                variant="outline"
-                :color="cfg.theme.greyscale"
-                icon="i-heroicons-magnifying-glass-20-solid"
-                size="sm"
-                placeholder="Search..."
-                focus
+                  v-model="query"
+                  :color="cfg.theme.primary"
+                  focus
+                  icon="i-heroicons-magnifying-glass-20-solid"
+                  placeholder="Search..."
+                  size="sm"
+                  variant="outline"
               />
             </template>
             <UTabs :items="results" class="w-full">
               <template #default="{ item, selected }">
                 <div class="flex items-center gap-2 relative truncate">
-                  <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0" />
+                  <UIcon :name="item.icon" class="w-4 h-4 flex-shrink-0"/>
                   <span class="truncate">{{ item.label }}</span>
-                  <span v-if="selected" :class="`absolute -right-4 w-2 h-2 rounded-full  bg-${cfg.theme.greyscale}-500 dark:bg-${cfg.theme.greyscale}-400`" />
+                  <span v-if="selected"
+                        :class="`absolute -right-4 w-2 h-2 rounded-full  bg-${cfg.theme.primary}-500 dark:bg-${cfg.theme.primary}-400`"/>
                 </div>
               </template>
               <template #item="{ item }">
                 <template v-if="item.key==='topics'">
-                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of
+                    {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
                   <template v-for="(t, i) in item.values.hits" :key="i">
                     <NuxtLink :href="`/videos/${t.parent}`">
-                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800`">
+                      <div
+                          :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.primary}-800 dark:bg-${cfg.theme.primary}-800`">
                         <h3 class="text-xl font-semibold">
                           {{ t.title }}
                         </h3>
@@ -460,11 +450,15 @@ useAsyncData(async () => {
                   </template>
                 </template>
                 <template v-else-if="item.key==='episodes'">
-                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of
+                    {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
                   <template v-for="(ep, i) in item.values.hits" :key="i">
                     <NuxtLink :href="`/videos/${ep.id}`">
-                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800 flex-col`">
-                        <img class="w-auto aspect-video mx-auto mb-2 mt-1 h-64 rounded-md" :src="`https://cdn.thewandb.com/thumbs/${ep.id}.jpeg`" @error="src=`https://i.ytimg.com/${ep.id}/maxresdefault.jpeg`">
+                      <div
+                          :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.primary}-800 dark:bg-${cfg.theme.primary}-800 flex-col`">
+                        <img :src="`https://cdn.thewandb.com/thumbs/${ep.id}.jpeg`"
+                             class="w-auto aspect-video mx-auto mb-2 mt-1 h-64 rounded-md"
+                             @error="src=`https://i.ytimg.com/${ep.id}/maxresdefault.jpeg`">
                         <h3 class="text-lg font-semibold">
                           {{ ep.title }}
                         </h3>
@@ -473,10 +467,12 @@ useAsyncData(async () => {
                   </template>
                 </template>
                 <template v-else-if="item.key==='transcripts'">
-                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
+                  <h2>Showing results 1 - {{ item.values.hits.length.toLocaleString() }} of
+                    {{ item.values.estimatedTotalHits.toLocaleString() }}</h2>
                   <template v-for="(t, i) in item.values.hits" :key="i">
                     <NuxtLink :href="`/videos/${t.parent}`">
-                      <div :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.greyscale}-800 dark:bg-${cfg.theme.greyscale}-800`">
+                      <div
+                          :class="`w-full p-2 rounded-md my-2 mr-2 bg-${cfg.theme.primary}-800 dark:bg-${cfg.theme.primary}-800`">
                         <h3 class="text-xl font-semibold">
                           <template v-if="epmap[t.parent]">
                             {{ epmap[t.parent].title }}
@@ -487,7 +483,7 @@ useAsyncData(async () => {
                         </h3>
                         <ul class=" mx-auto w-80 list-decimal">
                           <template v-for="(m,i2) in t.matches" :key="i2">
-                            <li class="my-1" v-html="m" />
+                            <li class="my-1" v-html="m"/>
                           </template>
                         </ul>
                       </div>

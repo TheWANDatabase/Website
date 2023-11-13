@@ -1,14 +1,11 @@
 <script setup>
-import { decode } from 'blurhash'
+import {decode} from 'blurhash'
+
 const containerRef = ref(null)
 const canvasRef = ref(null)
 const imageRef = ref(null)
 const props = defineProps({
   id: {
-    type: String,
-    required: true
-  },
-  variant: {
     type: String,
     required: true
   },
@@ -76,11 +73,11 @@ onMounted(async () => {
     }
     if (imageRef.value !== null) {
       imageRef.value.style.width = dimensions.value[0] + 'px'
+      imageRef.value.style.objectFit = "cover"
       imageRef.value.style.height = dimensions.value[1] + 'px'
       imageRef.value.onload = mediaLoaded
       imageRef.value.onerror = console.error
-      console.log(props)
-      imageRef.value.src = cdn.uri + props.variant
+      imageRef.value.src = `https://cdn.thewandb.com/media/${props.id}.webp`
     }
   } catch (e) {
     console.error(e)

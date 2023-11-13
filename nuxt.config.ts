@@ -4,9 +4,7 @@ if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_URL }
 if (!process.env.DOMAIN) { process.env.DOMAIN = process.env.VERCEL_BRANCH_URL }
 
 export default defineNuxtConfig({
-  ssr: false,
   modules: [
-    'nuxt-vuefire',
     '@nuxthq/ui',
     'nuxt-icon',
     'nuxt-simple-sitemap'
@@ -36,12 +34,5 @@ export default defineNuxtConfig({
       '/tos'
     ],
     trailingSlash: true
-
-  },
-  vuefire: {
-    auth: {
-      enabled: true
-    },
-    config: JSON.parse(process.env.FB_CONFIG)
   }
 })
