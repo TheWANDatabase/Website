@@ -2,6 +2,7 @@
 import {decode} from 'blurhash'
 
 const containerRef = ref(null)
+const hexContainerRef = ref(null)
 const canvasRef = ref(null)
 const imageRef = ref(null)
 const props = defineProps({
@@ -27,6 +28,8 @@ function mediaLoaded() {
   console.log("Media loaded")
   imageRef.value.classList.remove('imagePending')
   imageRef.value.classList.add('image')
+  canvasRef.value.classList.add('imagePending');
+  hexContainerRef.value.classList.add('imagePending')
 }
 
 useAsyncData(() => {
@@ -86,7 +89,7 @@ onMounted(async () => {
 </script>
 <template>
   <div ref="containerRef" class="container mx-auto my-1 rounded-md">
-    <div class="hexcontainer">
+    <div ref="hexContainerRef" class="hexcontainer">
       <span class="hex greyhextop" />
       <span class="hex orangehex" />
       <span class="hex greyhexbottom" />
@@ -183,7 +186,7 @@ onMounted(async () => {
   height: 20px;
   width: 20px;
   opacity: 1;
-  transform: rotateX('20deg')
+  transform: rotateX(20deg)
 }
 
 @keyframes loading {

@@ -10,7 +10,6 @@
 </template>
 
 <script setup>
-import {useIntervalFn} from "@vueuse/core";
 import {useAsyncData} from "#app";
 
 const themes = useState('availableThemes', () => new Map([
@@ -55,31 +54,33 @@ const theme = useState('currentTheme');
 const cfg = useState('uconf', () => {
   return {
     theme: {
-      name: 'emerald',
       primary: 'emerald',
       greyscale: 'zinc'
     }
   }
 })
 
+function loadTheme() {
+  let t2 = localStorage.getItem('twdb.theme');
+  if (t2) {
+    console.log("Loading theme", JSON.parse(t2));
+    theme.value = JSON.parse(t2);
+    cfg.value.value = themes.value.get(t2.value);
+  } else {
+    localStorage.setItem('twdb.theme', JSON.stringify(theme.value));
+  }
+}
 
 onMounted(() => {
-  useIntervalFn(() => {
-    let theme = localStorage.getItem('theme');
-    if (theme) {
-      cfg.value.value = themes.value.get(theme)
-    } else {
-      localStorage.setItem('theme', theme.value.value)
-    }
-  }, 2_000)
-
   useAsyncData(() => {
-    console.log("Updating theme", theme.value.value)
-    localStorage.setItem('theme', theme.value.value)
+    console.log("Updating theme", JSON.stringify(theme.value));
+    localStorage.setItem('twdb.theme', JSON.stringify(theme.value));
   }, {
     server: false,
     watch: [theme]
   })
+
+  loadTheme();
 })
 
 // useIntervalFn(() => {
@@ -95,6 +96,6 @@ onMounted(() => {
 
 * {
   font-family: 'Open Sans', sans-serif;
-  transition: color 2.5s ease, background-color 2.5s ease;
+  transition: color 250ms ease, background-color 250ms ease;
 }
 </style>

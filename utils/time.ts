@@ -35,6 +35,8 @@ export function getRelativeTime (d1: Date, d2: Date = new Date()): string | unde
 
   // "Math.abs" accounts for both "past" & "future" scenarios
   for (const u in units) {
-    if (Math.abs(elapsed) > units[u] || u === 'second') { return rtf.format(Math.round(elapsed / units[u]), u) }
+    if (Math.abs(elapsed) > units[u] || u === 'second') {
+      return rtf.format(Math.round(elapsed / units[u]), u as any)
+    }
   }
 }
