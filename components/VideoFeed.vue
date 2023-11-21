@@ -60,40 +60,8 @@ const filters = useState('filter', () => {
   }
 })
 
-useAsyncData(async () => {
+useAsyncData(() => {
   try {
-    // const stats = (await (await fetch(config.public.api_base + '/stats')).json()).data
-    // if (cst.value.length === 0) {
-    //   const orq = await (await fetcher('outlets')).json()
-    //   const outlets = {}
-    //   for (let i = 0; i < orq.results.length; i++) {
-    //     const ot = orq.results[i]
-    //     outlets[ot.id] = ot
-    //   }
-    //   const cast = (await (await fetcher('cast')).json()).results.map((m) => {
-    //     m.outlet = outlets[m.outlet]
-    //     return m
-    //   })
-    //   if (filters.value.members.length === 0) {
-    //     cst.value = cast.map((m) => {
-    //       csm.value[m.id] = {
-    //         id: m.id,
-    //         label: `${m.forename} ${m.surname} ${m.outlet ? ' (' + m.outlet.name + ')' : ''}`,
-    //         mug: `https://cdn.thewandb.com/mugs/${m.avatar}`
-    //       }
-    //       globalCSM.value[m.id] = m
-    //
-    //       return {
-    //         id: m.id,
-    //         label: `${m.forename} ${m.surname} ${m.outlet ? ' (' + m.outlet.name + ')' : ''}`,
-    //         avatar: {
-    //           src: `https://cdn.thewandb.com/mugs/${m.avatar}`
-    //         }
-    //       }
-    //     })
-    //   }
-    // }
-
     infinite()
   } catch (e) {
     console.error(e)
