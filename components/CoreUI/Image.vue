@@ -53,34 +53,44 @@ useAsyncData(() => {
 
 onMounted(async () => {
   try {
-    const cdn = await (await fetcher('cdn/' + props.id)).json()
-    const pixels = decode(cdn.blur, ...dimensions.value)
-    if (canvasRef.value !== null) {
-      const ctx = canvasRef.value.getContext('2d')
-      if (ctx) {
-        const imageData = ctx.createImageData(...dimensions.value)
-        if (imageData) {
-          imageData.data.set(pixels)
-          ctx.putImageData(imageData, 0, 0, 0, 0, ...dimensions.value)
-        }
-      }
-    }
-
     if (containerRef.value !== null) {
       containerRef.value.style.width = dimensions.value[0] + 'px'
       containerRef.value.style.height = dimensions.value[1] + 'px'
     }
-    if (canvasRef.value !== null) {
-      canvasRef.value.style.width = dimensions.value[0] + 'px'
-      canvasRef.value.style.height = dimensions.value[1] + 'px'
-    }
-    if (imageRef.value !== null) {
-      imageRef.value.style.width = dimensions.value[0] + 'px'
-      imageRef.value.style.objectFit = "cover"
-      imageRef.value.style.height = dimensions.value[1] + 'px'
-      imageRef.value.onload = mediaLoaded
-      imageRef.value.onerror = console.error
-      imageRef.value.src = `https://cdn.thewandb.com/media/${props.id}.webp`
+    const cdn = await (await fetcher('cdn/' + props.id)).json()
+
+    if (cdn.blur === null || cdn.blur === '') {
+      return;
+    } else {
+      try {
+        let pixels = decode(cdn.blur, ...dimensions.value)
+        if (canvasRef.value !== null) {
+          const ctx = canvasRef.value.getContext('2d')
+          if (ctx) {
+            const imageData = ctx.createImageData(...dimensions.value)
+            if (imageData) {
+              imageData.data.set(pixels)
+              ctx.putImageData(imageData, 0, 0, 0, 0, ...dimensions.value)
+            }
+          }
+        }
+      } catch (e) {
+        console.log("Blurhash failed, falling back to loading wheel");
+      }
+
+
+      if (canvasRef.value !== null) {
+        canvasRef.value.style.width = dimensions.value[0] + 'px'
+        canvasRef.value.style.height = dimensions.value[1] + 'px'
+      }
+      if (imageRef.value !== null) {
+        imageRef.value.onload = mediaLoaded
+        imageRef.value.onerror = console.error
+        imageRef.value.src = `https://cdn.thewandb.com/media/${props.id}.webp`
+        imageRef.value.style.width = dimensions.value[0] + 'px'
+        imageRef.value.style.objectFit = "cover"
+        imageRef.value.style.height = dimensions.value[1] + 'px'
+      }
     }
   } catch (e) {
     console.error(e)
@@ -90,12 +100,12 @@ onMounted(async () => {
 <template>
   <div ref="containerRef" class="container mx-auto my-1 rounded-md">
     <div ref="hexContainerRef" class="hexcontainer">
-      <span class="hex greyhextop" />
-      <span class="hex orangehex" />
-      <span class="hex greyhexbottom" />
-      <span class="hex centerhex" />
+      <span class="hex greyhextop"/>
+      <span class="hex orangehex"/>
+      <span class="hex greyhexbottom"/>
+      <span class="hex centerhex"/>
     </div>
-    <canvas ref="canvasRef" class="canvas rounded-md" />
+    <canvas ref="canvasRef" class="canvas rounded-md"/>
     <img ref="imageRef" class="imagePending rounded-md" loading="lazy">
   </div>
 </template>
@@ -109,6 +119,7 @@ onMounted(async () => {
   position: relative;
   height: inherit;
   width: inherit;
+  background: #020202;
 }
 
 .canvas {
