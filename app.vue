@@ -98,4 +98,42 @@ onMounted(() => {
   font-family: 'Open Sans', sans-serif;
   transition: color 250ms ease, background-color 250ms ease;
 }
+
+:root {
+  --background: #030303;
+  --foreground: #ffffff;
+  --success: #008600;
+  --info: #0066fa;
+  --warning: #ff9900;
+  --danger: #ff0000;
+  --brand: #b72c25;
+  --primary: #b72c25;
+  --secondary: #a05800;
+  --tertiary: #7b7600;
+  --quaternary: #4a8a2b;
+  --quinary: #009969;
+  --senary: #00a4a6;
+  --greyscale: #ffffff;
+  --greyscale-100: #ffffff;
+  --greyscale-200: #f5f5f5;
+  --greyscale-300: #eeeeee;
+  --greyscale-400: #e0e0e0;
+  --greyscale-500: #bdbdbd;
+  --greyscale-600: #9e9e9e;
+  --greyscale-700: #757575;
+  --greyscale-800: #616161;
+  --greyscale-900: #424242;
+  --greyscale-1000: #212121;
+  --greyscale-1100: #000000;
+}
+
+
+.rounded-box {
+  border-radius: 10px;
+}
+
+.shadow {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+}
+
 </style>
