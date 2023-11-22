@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+$sixty: #ffffff;
+$thirty: #55a5a5;
+$ten: #b72c25;
+
+$background: $sixty;
+
+* {
+  font-family: 'Open Sans', sans-serif;
+  transition: color 250ms ease, background-color 250ms ease;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  background-color: $background;
+  color: #000;
+  text-align: center;
+  animation: fadeIn 2000ms;
+}
+
+body {
+  margin: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.header {
+  width: auto;
+  height: 40px;
+  //margin: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  background-color: opacify($thirty, 0.9);
+}
+
+.header a {
+  color: inherit;
+  text-decoration: none;
+  transition: 200ms;
+}
+
+.header a:hover {
+  color: $thirty;
+  background: $ten;
+  transition: 200ms;
+}
+
+.header h2, .header h4 {
+  margin: auto 5px;
+}
+
+.header a {
+  margin: 0 5px;
+  height: auto;
+}
+
+.filled_button {
+  margin: 5px 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  //border: 1px solid linear-gradient(to right, $thirty, $thirty, $thirty, $ten, $ten);
+  background-size: 200% 200% !important;
+  background-position-x: 0;
+  background-image: linear-gradient(to right, $thirty, $thirty, $thirty, $ten, $ten);
+  color: $sixty;
+  transition: 200ms ease;
+}
+
+.filled_button:hover {
+  scale: 1.05;
+  background-position-x: 100%;
+  transition: 200ms ease;
+}
+
+.filled_button:active {
+  scale: 1.1;
+  transition: 200ms ease;
+}

@@ -1,10 +1,10 @@
-use leptos::{*};
+use leptos::*;
 
 /// Renders the site header.
 #[component]
 pub fn Filled(
-    #[prop(optional, into)]
-    click: fn(MouseEvent),
+    #[prop(into)]
+    click: fn(ev::MouseEvent),
     children: Children,
 ) -> impl IntoView {
     view! {
