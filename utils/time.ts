@@ -1,42 +1,32 @@
-export function toTimestamp(ts: number = 0) {
-  const days = ~~(ts / (3600 * 24))
-  const hours = ~~(ts % (3600 * 24) / 3600)
-  const minutes = ~~(ts % 3600 / 60)
-  const seconds = ~~(ts % 60)
+/**
+ * Convert a date to a relative time string, such as
+ * "a minute ago", "in 2 hours", "yesterday", "3 months ago", etc.
+ * using Intl.RelativeTimeFormat
+ */
+export function getRelativeTimeString(
+  date: Date | number,
+  lang = navigator.language
+): string {
+  // Allow dates or times to be passed
+  const timeMs = typeof date === "number" ? date : date.getTime();
 
-  if (days > 0) {
-    return `${paddy(days, 2)}:${paddy(hours, 2)}:${paddy(minutes, 2)}:${paddy(seconds, 2)}`
-  } else if (hours > 0) {
-    return `${paddy(hours, 2)}:${paddy(minutes, 2)}:${paddy(seconds, 2)}`
-  } else {
-    return `${paddy(minutes, 2)}:${paddy(seconds, 2)}`
-  }
-}
+  // Get the amount of seconds between the given date and now
+  const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
 
-export function paddy(num: number, padlen: number = 0, padchar: string = '0') {
-  const padChar = typeof padchar !== 'undefined' ? padchar : '0'
-  const pad = new Array(1 + padlen).join(padChar)
-  return (pad + num).slice(-pad.length)
-}
+  // Array reprsenting one minute, hour, day, week, month, etc in seconds
+  const cutoffs = [60, 3600, 86400, 86400 * 7, 86400 * 30, 86400 * 365, Infinity];
 
-const units: any = {
-  year: 24 * 60 * 60 * 1000 * 365,
-  month: 24 * 60 * 60 * 1000 * 365 / 12,
-  day: 24 * 60 * 60 * 1000,
-  hour: 60 * 60 * 1000,
-  minute: 60 * 1000,
-  second: 1000
-}
+  // Array equivalent to the above but in the string representation of the units
+  const units: Intl.RelativeTimeFormatUnit[] = ["second", "minute", "hour", "day", "week", "month", "year"];
 
-const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+  // Grab the ideal cutoff unit
+  const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(deltaSeconds));
 
-export function getRelativeTime (d1: Date, d2: Date = new Date()): string | undefined {
-  const elapsed = d1.getTime() - d2.getTime()
+  // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
+  // is one day in seconds, so we can divide our seconds by this to get the # of days
+  const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
 
-  // "Math.abs" accounts for both "past" & "future" scenarios
-  for (const u in units) {
-    if (Math.abs(elapsed) > units[u] || u === 'second') {
-      return rtf.format(Math.round(elapsed / units[u]), u as any)
-    }
-  }
+  // Intl.RelativeTimeFormat do its magic
+  const rtf = new Intl.RelativeTimeFormat(lang, {numeric: "auto"});
+  return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
 }

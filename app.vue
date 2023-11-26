@@ -1,139 +1,65 @@
 <template>
-  <div :class="`bg-${cfg ? cfg.theme.greyscale : 'scorch'}-100 text-${cfg ? cfg.theme.greyscale : 'scorch'}-900`">
+  <div>
     <Header/>
-    <a name="top"/>
-    <NuxtPage/>
-    <a name="bottom"/>
-    <Footer/>
-    <UNotifications/>
+    <RouterView/>
   </div>
 </template>
-
-<script setup>
-import {useAsyncData} from "#app";
-
-const themes = useState('availableThemes', () => new Map([
-  [
-    'Emerald',
-    {
-      primary: 'emerald',
-      greyscale: 'zinc'
-    }
-  ],
-  [
-    'Poppy',
-    {
-      primary: 'poppy',
-      greyscale: 'zinc'
-    }
-  ],
-  [
-    'Sapphire',
-    {
-      primary: 'sky',
-      greyscale: 'zinc'
-    }
-  ],
-  [
-    'Zinc',
-    {
-      primary: 'zinc',
-      greyscale: 'zinc'
-    }
-  ],
-  [
-    'Scorch',
-    {
-      primary: 'scorch',
-      greyscale: 'scorch'
-    }
-  ]
-]))
-const theme = useState('currentTheme');
-
-const cfg = useState('uconf', () => {
-  return {
-    theme: {
-      primary: 'emerald',
-      greyscale: 'zinc'
-    }
-  }
-})
-
-function loadTheme() {
-  let t2 = localStorage.getItem('twdb.theme');
-  if (t2) {
-    console.log("Loading theme", JSON.parse(t2));
-    theme.value = JSON.parse(t2);
-    cfg.value.value = themes.value.get(t2.value);
-  } else {
-    localStorage.setItem('twdb.theme', JSON.stringify(theme.value));
-  }
-}
-
-onMounted(() => {
-  useAsyncData(() => {
-    console.log("Updating theme", JSON.stringify(theme.value));
-    localStorage.setItem('twdb.theme', JSON.stringify(theme.value));
-  }, {
-    server: false,
-    watch: [theme]
-  })
-
-  loadTheme();
-})
-
-// useIntervalFn(() => {
-//   cfg.value = {
-//     theme: themes.value[Math.floor(Math.random() * themes.value.length)]
-//   }
-// }, 5_000)
-
+<script lang="ts" setup>
+import Header from "~/comonents/Header.vue";
 </script>
-
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
 * {
-  font-family: 'Open Sans', sans-serif;
-  transition: color 250ms ease, background-color 250ms ease;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-:root {
-  --background: #030303;
-  --foreground: #ffffff;
-  --success: #008600;
-  --info: #0066fa;
-  --warning: #ff9900;
-  --danger: #ff0000;
-  --brand: #b72c25;
-  --primary: #b72c25;
-  --secondary: #a05800;
-  --tertiary: #7b7600;
-  --quaternary: #4a8a2b;
-  --quinary: #009969;
-  --senary: #00a4a6;
-  --greyscale: #ffffff;
-  --greyscale-100: #ffffff;
-  --greyscale-200: #f5f5f5;
-  --greyscale-300: #eeeeee;
-  --greyscale-400: #e0e0e0;
-  --greyscale-500: #bdbdbd;
-  --greyscale-600: #9e9e9e;
-  --greyscale-700: #757575;
-  --greyscale-800: #616161;
-  --greyscale-900: #424242;
-  --greyscale-1000: #212121;
-  --greyscale-1100: #000000;
+html {
+  font-family: Open Sans, sans-serif;
 }
 
-
-.rounded-box {
-  border-radius: 10px;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(15, 50px);
+  margin: 0;
+  padding: 0;
 }
 
-.shadow {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+.grid__item {
+  display: flex;
+  text-align: center;
+  transition: all 200ms ease;
+  background: #eee;
+  color: #555;
+  border: 1px solid #ddd;
+  margin: 0.25rem;
+  border-radius: 20px;
+  box-shadow: 5px 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.grid__item:hover {
+  background: #ddd;
+  color: #444;
+  box-shadow: 1px 0 10px rgba(0, 0, 0, 0.2);
+  transition: all 200ms ease;
+}
+
+.button {
+  padding: 4px 6px;
+  margin: 5px;
+  background: #444444;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  width: 150px;
+  transition: all 200ms ease;
+}
+
+.button:hover {
+  background: #333333;
+  transition: all 200ms ease;
+  scale: 1.1;
+}
 </style>

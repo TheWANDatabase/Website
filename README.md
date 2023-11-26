@@ -1,30 +1,75 @@
-# The WAN DB
+# Nuxt 3 Minimal Starter
 
-A project aiming to index every episode, topic, and cast member of the popular technology podcast ["The WAN Show"](https://www.imdb.com/title/tt11481658/)
+Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Goals
+## Setup
 
-- [ ] 100% coverage of episodes.
-- [ ] 100% coverage of topics.
-- [ ] 100% coverage of cast members.
-- [ ] 100% coverage of merch messages.
-- [ ] Community driven data.
-- [ ] Beautiful user interface to tie it all together
+Make sure to install the dependencies:
 
-## Screenshots
+```bash
+# npm
+npm install
 
-> Coming soon
+# pnpm
+pnpm install
 
-## Contributing
+# yarn
+yarn install
 
-> coming soon
+# bun
+bun install
+```
 
-## Self Hosting
+## Development Server
 
-Due to the nature of the tech stack involved, and the sensetive variables and tokens needed to make this service run smoothly, there is not, nor will there ever be a self-hosted version that is officially endorsed by us.
+Start the development server on `http://localhost:3000`:
 
-## Tech Stack
+```bash
+# npm
+npm run dev
 
-This project is backed by Firebase, hosted by Cloudflare Pages, queries Cloudflare Workers, relies on Docker containers to do hundreds of background menial tasks. Content is stored on Cloudflare R2, Cloudflare Stream, and Cloudflare Images. Import tasks are queued up using a mixture of RabbitMQ, and Cloudflare Queues depending on the processing power required to run the task. All images from third party websites are hosted on Cloudflare Images to protect the user's privacy.
+# pnpm
+pnpm run dev
 
-This stack, whilst complicated, is just enough to make this complex heart work smoothly, on time, every week. This stack will be expanded upon in a dedicated document, explaining what each module that makes the project work does, but that will be in another repository (link will be added when it is ready)
+# yarn
+yarn dev
+
+# bun
+bun run dev
+```
+
+## Production
+
+Build the application for production:
+
+```bash
+# npm
+npm run build
+
+# pnpm
+pnpm run build
+
+# yarn
+yarn build
+
+# bun
+bun run build
+```
+
+Locally preview production build:
+
+```bash
+# npm
+npm run preview
+
+# pnpm
+pnpm run preview
+
+# yarn
+yarn preview
+
+# bun
+bun run preview
+```
+
+Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
