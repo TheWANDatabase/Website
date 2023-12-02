@@ -33,6 +33,11 @@
   },
   "type": "module",
   "dependencies": {
-    "@sveltejs/adapter-cloudflare": "^2.3.3"
+    "@sveltejs/adapter-cloudflare": "^2.3.3",
+    "highlight.js": "^11.9.0",
+    "markdown-it": "^13.0.2",
+    "markdown-it-emoji": "^2.0.2",
+    "socket.io-client": "^4.7.2",
+    "svelte-icons": "^2.1.0"
   }
 }
