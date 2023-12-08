@@ -7,72 +7,88 @@
     const placeholderStore = writable("Search...");
     const searchExpanded = writable(false);
 
+    const menuExpanded = writable(false);
+
+
     placeholderStore.set("Search is currently disabled");
 
     function openSearch() {
         if ($searchExpanded) return searchExpanded.set(false);
         searchExpanded.set(true);
     }
+
+    function openMenu() {
+        if ($menuExpanded) return menuExpanded.set(false);
+        menuExpanded.set(true);
+    }
 </script>
 <div class="header">
-  <div class="dropdown">
-    <div class="icon">
-      <GoGear/>
+    <div class="dropdown-container">
+        <button class="dropdown" on:click={openMenu}>
+            <div class="icon">
+                <GoGear/>
+            </div>
+            <div class="dropdown-content" style={$menuExpanded ? 'display: block;' : 'display: none;'}>
+                <a href="/login">Sign In</a>
+                <a href="/register">Sign Up</a>
+            </div>
+        </button>
     </div>
-  </div>
-  <div class="centraliser">
-    <ul>
-      <li>
-        <a href="/archive">
-          <!--          <Icon name="i-fluent-mdl2:archive"/>-->
-          Archives
-        </a>
-      </li>
-      <li>
-        <a href="/hosts">
-          <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
-          Hosts
-        </a>
-      </li>
-      <li>
-        <a href="/sponsors">
-          <!--          <Icon name="i-mdi:advertisements"/>-->
-          Sponsors
-        </a>
-      </li>
-      <li style="scale: 1.4; margin-top: 5px;">
-        <a href="/">
-          <img alt="The WAN Database" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg" width="100"/>
-        </a>
-      </li>
-      <li>
-        <a href="/products">
-          <!--          <Icon name="i-material-symbols:shopping-bag-outline"/>-->
-          Products
-        </a>
-      </li>
-      <li>
-        <a href="/about">
-          <!--          <Icon name="i-mdi:information-outline"/>-->
-          About
-        </a>
-      </li>
-      <li>
-        <a href="/contact">
-          <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
-          Contact
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div class="search" on:click={openSearch} style={$searchExpanded ? 'width: 300px;' : 'width: 42px;'}>
-    <div class="icon" style={$searchExpanded ? 'visibility: hidden; width: 0px' : 'visibility: visible; width: 42px'}>
-      <GoSearch/>
+    <div class="centraliser">
+        <ul>
+            <li>
+                <a href="/archive">
+                    <!--          <Icon name="i-fluent-mdl2:archive"/>-->
+                    Archives
+                </a>
+            </li>
+            <li>
+                <a href="/hosts">
+                    <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
+                    Hosts
+                </a>
+            </li>
+            <li>
+                <a href="/sponsors">
+                    <!--          <Icon name="i-mdi:advertisements"/>-->
+                    Sponsors
+                </a>
+            </li>
+            <li style="scale: 1.4; margin-top: 5px;">
+                <a href="/">
+                    <img alt="The WAN Database" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg"
+                         width="100"/>
+                </a>
+            </li>
+            <li>
+                <a href="/products">
+                    <!--          <Icon name="i-material-symbols:shopping-bag-outline"/>-->
+                    Products
+                </a>
+            </li>
+            <li>
+                <a href="/about">
+                    <!--          <Icon name="i-mdi:information-outline"/>-->
+                    About
+                </a>
+            </li>
+            <li>
+                <a href="/contact">
+                    <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
+                    Contact
+                </a>
+            </li>
+        </ul>
     </div>
-    <input bind:value="{$searchStore}" placeholder={$placeholderStore}
-           style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
-           type="text"/>
-  </div>
+    <button class="search" on:click={openSearch} style={$searchExpanded ? 'width: 300px;' : 'width: 42px;'}>
+        <div class="icon"
+             style={$searchExpanded ? 'visibility: hidden; width: 0px' : 'visibility: visible; width: 42px'}>
+            <GoSearch/>
+        </div>
+        <input bind:value="{$searchStore}" placeholder={$placeholderStore}
+               style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
+               type="text"/>
+    </button>
 </div>
 <style>
     .header {
@@ -85,16 +101,34 @@
         width: calc(100% - 10px);
         border-radius: 5px;
         position: sticky;
+        z-index: 100;
         justify-content: center;
         justify-content: space-around;
     }
 
-    .header .dropdown {
-        width: 200px;
+    .header .dropdown-container {
+        /*width: 200px;*/
         margin-right: auto;
     }
 
-    .header .search, .header .dropdown {
+    .header .dropdown {
+        width: 200px;
+        height: fit-content;
+        position: relative;
+        display: inline-block;
+        flex-direction: column;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 101;
+    }
+
+    .header .search, .header .dropdown-container {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -106,6 +140,8 @@
         padding: 0 0.1rem;
         margin: 5px 0 5px auto;
         transition: 200ms;
+        border: none;
+        color: white;
     }
 
     .header .dropdown {
