@@ -1,7 +1,41 @@
 <script lang="ts">
   import {io} from "socket.io-client";
-  import {readable} from "svelte/store";
+  import {readable, writable} from "svelte/store";
   import Header from "$lib/Header.svelte";
+  import posthog from 'posthog-js'
+  import {browser} from '$app/environment';
+  import {env} from '$env/dynamic/public';
+  import {onMount} from 'svelte';
+  import {page} from "$app/stores";
+
+  export const flags = writable({})
+
+
+  export const load = async () => {
+
+    if (browser) {
+      posthog.init(
+        env.PUBLIC_POSTHOG_KEY,
+        {
+          api_host: 'https://science.thewandb.com',
+          autocapture: true
+        }
+      )
+      posthog.onFeatureFlags((flags, variants) => {
+        let test = posthog.getFeatureFlag('testing')
+        console.log(test);
+        console.log(flags, variants);
+      })
+
+      posthog.getEarlyAccessFeatures((earlyAccessFeatures) => {
+        console.log(earlyAccessFeatures);
+      })
+
+    }
+    return
+  };
+
+  load()
 
   // const notificationStore = writable([]);
   //
@@ -43,9 +77,40 @@
 
   // socketStore.subscribe(() => {
   // });
+
+  let currentPath = '';
+
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      const unsubscribePage = page.subscribe(($page) => {
+        if (currentPath && currentPath !== $page.url.pathname) {
+          console.log('leaving')
+          posthog.capture('$pageleave');
+        }
+        console.log('entering')
+        console.log(posthog.featureFlags)
+        posthog.capture('$pageview', {
+          url: $page.url.pathname
+        });
+      });
+
+      const handleBeforeUnload = () => {
+        posthog.capture('$pageleave', {
+          url: $page.url.pathname
+        });
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
+      return () => {
+        unsubscribePage();
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  });
 </script>
 <div class="container">
-  <Header/>
+    <Header/>
+    <slot/>
 </div>
 
 <!--<div class="snackbar">-->
