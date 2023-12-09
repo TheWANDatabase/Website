@@ -1,7 +1,7 @@
 <script lang="ts">
   import {io} from "socket.io-client";
   import {readable, writable} from "svelte/store";
-  import Header from "$lib/Header.svelte";
+  import Header from "$lib/components/Header.svelte";
   import posthog from 'posthog-js'
   import {browser} from '$app/environment';
   import {env} from '$env/dynamic/public';
