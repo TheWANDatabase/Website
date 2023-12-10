@@ -45,3 +45,7 @@ export function getVideos() {
 		})
 	});
 }
+
+export function getHosts() {
+	return fetch(base + '/hosts');
+}

@@ -39,7 +39,7 @@
       let image = ctx.createImageData(4, 4);
       image.data.set(pixels);
       console.log(image)
-      ctx.putImageData(image, 0, 0, 0, 0, canvas.width, canvas.height);
+      ctx.putImageData(image, 0, 0);
     }
   });
 </script>
