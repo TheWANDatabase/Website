@@ -1,42 +1,58 @@
-<script>
-    import {writable} from "svelte/store";
-    import GoSearch from 'svelte-icons/go/GoSearch.svelte';
-    import GoGear from 'svelte-icons/go/GoGear.svelte';
-    import posthog from "posthog-js";
+<script lang="ts">
+  import {writable} from "svelte/store";
+  import GoSearch from 'svelte-icons/go/GoSearch.svelte';
+  import GoGear from 'svelte-icons/go/GoGear.svelte';
+  import posthog from "posthog-js";
+  import {onDestroy} from "svelte";
+  import {browser} from "$app/environment";
 
-    const searchStore = writable("");
-    const placeholderStore = writable("Search...");
-    const searchExpanded = writable(false);
-    const showDropdown = writable(false);
-    const searchAvailable = writable(true);
-    const menuExpanded = writable(false);
+  const searchStore = writable("");
+  const placeholderStore = writable("Search...");
+  const searchExpanded = writable(false);
+  const showDropdown = writable(false);
+  const searchAvailable = writable(true);
+  const menuExpanded = writable(false);
 
-    showDropdown.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
-    searchAvailable.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
-    searchAvailable.subscribe((value) => {
-        if (value === true) return placeholderStore.set("Search...")
-        return placeholderStore.set("Search is currently disabled");
+  showDropdown.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
+  searchAvailable.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
+  searchAvailable.subscribe((value) => {
+    if (value === true) return placeholderStore.set("Search...")
+    return placeholderStore.set("Search is currently disabled");
+  })
 
-    })
+  // eslint-disable-next-line no-undef
+  let timer: NodeJS.Timeout;
 
-    function openSearch(e) {
-        let target = e.target;
-        let attribs = target.attributes.getNamedItem('type')
 
-        if ($searchExpanded) {
-            if (attribs) {
-                if (attribs.nodeValue !== 'text') return searchExpanded.set(false);
-                return;
-            }
-            return;
-        }
-        searchExpanded.set(true);
+  onDestroy(() => {
+    if (browser) {
+      if (timer) clearTimeout(timer);
     }
+  })
 
-    function openMenu() {
-        if ($menuExpanded) return menuExpanded.set(false);
-        menuExpanded.set(true);
+  function openSearch(e: Event) {
+
+    if ($searchExpanded === false) {
+      timer = setTimeout(() => {
+        if ($searchStore === "") searchExpanded.set(false)
+      }, 15 * 1000)
+      return searchExpanded.set(true);
     }
+    if (!e.target) return console.log('Cannot close search when no target');
+    let target = e.target as HTMLElement;
+    let attribs = target.attributes
+    let type = attribs.getNamedItem('type');
+    let disabled = attribs.getNamedItem('disabled');
+    if (disabled)
+      if (type.nodeValue !== 'text') return searchExpanded.set(false);
+
+
+  }
+
+  function openMenu() {
+    if ($menuExpanded) return menuExpanded.set(false);
+    menuExpanded.set(true);
+  }
 </script>
 <div class="header">
     <div class="header-container">
@@ -102,9 +118,20 @@
                  style={$searchExpanded ? 'visibility: hidden; width: 0px' : 'visibility: visible; width: 42px'}>
                 <GoSearch/>
             </div>
-            <input bind:value="{$searchStore}" placeholder={$placeholderStore}
-                   style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
-                   type="text"/>
+            {#if $searchAvailable}
+                <input placeholder={$placeholderStore}
+                       value={$searchStore}
+                       style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
+                       type="text"
+                />
+            {:else}
+                <input placeholder={$placeholderStore}
+                       value={$searchStore}
+                       style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
+                       type="text"
+                       disabled
+                />
+            {/if}
         </button>
     </div>
 </div>
@@ -213,6 +240,13 @@
         margin-right: 0.75rem;
         margin-left: 0.75rem;
         transition: 200ms;
+    }
+
+    .header .search > input:disabled {
+        color: grey;
+        font-weight: 400;
+        cursor: not-allowed;
+        text-align: center;
     }
 
     .header .search > input::placeholder {
