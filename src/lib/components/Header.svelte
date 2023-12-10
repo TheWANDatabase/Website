@@ -45,7 +45,7 @@
                 <div class="icon">
                     <GoGear/>
                 </div>
-                <div class="dropdown-content" style={$menuExpanded ? 'display: block;' : 'display: none;'}>
+                <div class="dropdown-content" style={$menuExpanded ? 'display: flex;' : 'display: none;'}>
                     <a href="/login">Sign In</a>
                     <a href="/register">Sign Up</a>
                 </div>
@@ -164,13 +164,33 @@
         display: none;
         flex-direction: column;
         position: absolute;
+        top: 40px;
         background-color: #f1f1f1;
         min-width: 200px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        padding: 0;
+        border-radius: 5px;
         z-index: 101;
         transition: 200ms all ease-in-out;
     }
 
+    .dropdown-content a {
+        /*margin: 0.5rem auto;*/
+        font-size: medium;
+        width: calc(100% - 10px);
+        height: 50px;
+        line-height: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        color: black;
+        transition: 200ms ease-in-out;
+        border-radius: 5px;
+        margin: 5px;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #777777;
+    }
 
     .header .dropdown-container button {
         border: none;
