@@ -1,19 +1,35 @@
 <script>
     import {writable} from "svelte/store";
-    import GoSearch from 'svelte-icons/go/GoSearch.svelte'
-    import GoGear from 'svelte-icons/go/GoGear.svelte'
+    import GoSearch from 'svelte-icons/go/GoSearch.svelte';
+    import GoGear from 'svelte-icons/go/GoGear.svelte';
+    import posthog from "posthog-js";
 
     const searchStore = writable("");
     const placeholderStore = writable("Search...");
     const searchExpanded = writable(false);
-
+    const showDropdown = writable(false);
+    const searchAvailable = writable(true);
     const menuExpanded = writable(false);
 
+    showDropdown.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
+    searchAvailable.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
+    searchAvailable.subscribe((value) => {
+        if (value === true) return placeholderStore.set("Search...")
+        return placeholderStore.set("Search is currently disabled");
 
-    placeholderStore.set("Search is currently disabled");
+    })
 
-    function openSearch() {
-        if ($searchExpanded) return searchExpanded.set(false);
+    function openSearch(e) {
+        let target = e.target;
+        let attribs = target.attributes.getNamedItem('type')
+
+        if ($searchExpanded) {
+            if (attribs) {
+                if (attribs.nodeValue !== 'text') return searchExpanded.set(false);
+                return;
+            }
+            return;
+        }
         searchExpanded.set(true);
     }
 
@@ -23,92 +39,116 @@
     }
 </script>
 <div class="header">
-    <div class="dropdown-container">
-        <button class="dropdown" on:click={openMenu}>
-            <div class="icon">
-                <GoGear/>
+    <div class="header-container">
+        <div class="dropdown-container">
+            <button class="dropdown" on:click={openMenu}>
+                <div class="icon">
+                    <GoGear/>
+                </div>
+                <div class="dropdown-content" style={$menuExpanded ? 'display: block;' : 'display: none;'}>
+                    <a href="/login">Sign In</a>
+                    <a href="/register">Sign Up</a>
+                </div>
+            </button>
+        </div>
+        <div class="centraliser">
+            <ul>
+                <li>
+                    <a href="/archive">
+                        <!--          <Icon name="i-fluent-mdl2:archive"/>-->
+                        Archives
+                    </a>
+                </li>
+                <li>
+                    <a href="/hosts">
+                        <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
+                        Hosts
+                    </a>
+                </li>
+                <li>
+                    <a href="/sponsors">
+                        <!--          <Icon name="i-mdi:advertisements"/>-->
+                        Sponsors
+                    </a>
+                </li>
+                <li style="scale: 1.4; margin-top: 5px;">
+                    <a href="/">
+                        <img alt="The WAN Database" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg"
+                             width="100"/>
+                    </a>
+                </li>
+                <li>
+                    <a href="/products">
+                        <!--          <Icon name="i-material-symbols:shopping-bag-outline"/>-->
+                        Products
+                    </a>
+                </li>
+                <li>
+                    <a href="/about">
+                        <!--          <Icon name="i-mdi:information-outline"/>-->
+                        About
+                    </a>
+                </li>
+                <li>
+                    <a href="/contact">
+                        <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
+                        Contact
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <button class="search" on:click={openSearch} style={$searchExpanded ? 'width: 300px;' : 'width: 42px;'}>
+            <div class="icon"
+                 style={$searchExpanded ? 'visibility: hidden; width: 0px' : 'visibility: visible; width: 42px'}>
+                <GoSearch/>
             </div>
-            <div class="dropdown-content" style={$menuExpanded ? 'display: block;' : 'display: none;'}>
-                <a href="/login">Sign In</a>
-                <a href="/register">Sign Up</a>
-            </div>
+            <input bind:value="{$searchStore}" placeholder={$placeholderStore}
+                   style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
+                   type="text"/>
         </button>
     </div>
-    <div class="centraliser">
-        <ul>
-            <li>
-                <a href="/archive">
-                    <!--          <Icon name="i-fluent-mdl2:archive"/>-->
-                    Archives
-                </a>
-            </li>
-            <li>
-                <a href="/hosts">
-                    <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
-                    Hosts
-                </a>
-            </li>
-            <li>
-                <a href="/sponsors">
-                    <!--          <Icon name="i-mdi:advertisements"/>-->
-                    Sponsors
-                </a>
-            </li>
-            <li style="scale: 1.4; margin-top: 5px;">
-                <a href="/">
-                    <img alt="The WAN Database" src="https://cdn.thewandb.com/assets/WANDB_darkBackground.svg"
-                         width="100"/>
-                </a>
-            </li>
-            <li>
-                <a href="/products">
-                    <!--          <Icon name="i-material-symbols:shopping-bag-outline"/>-->
-                    Products
-                </a>
-            </li>
-            <li>
-                <a href="/about">
-                    <!--          <Icon name="i-mdi:information-outline"/>-->
-                    About
-                </a>
-            </li>
-            <li>
-                <a href="/contact">
-                    <!--          <Icon name="i-material-symbols:person-2-outline"/>-->
-                    Contact
-                </a>
-            </li>
-        </ul>
-    </div>
-    <button class="search" on:click={openSearch} style={$searchExpanded ? 'width: 300px;' : 'width: 42px;'}>
-        <div class="icon"
-             style={$searchExpanded ? 'visibility: hidden; width: 0px' : 'visibility: visible; width: 42px'}>
-            <GoSearch/>
-        </div>
-        <input bind:value="{$searchStore}" placeholder={$placeholderStore}
-               style={$searchExpanded ? 'width: 100%; margin: 0 0.75rem;' : 'width: 0px; margin: 0 0;'}
-               type="text"/>
-    </button>
 </div>
 <style>
     .header {
+        backdrop-filter: blur(50px);
+        position: sticky;
+        z-index: 100;
+        top: 0;
+        padding-top: 5px;
+    }
+
+    .header-container {
         display: grid;
         grid-template-columns: 320px auto 320px;
         background-color: #000;
         color: #fff;
         padding: 10px 0;
-        margin: 5px;
-        width: calc(100% - 10px);
+        margin: 0 5px;
+        /*width: fit-content;*/
         border-radius: 5px;
-        position: sticky;
-        z-index: 100;
-        justify-content: center;
+
+        /*justify-content: center;*/
         justify-content: space-around;
     }
 
+    .header .search, .header .dropdown-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /*min-width: 300px;*/
+        height: 40px;
+        background: hsl(0, 0%, 20%);
+        border-radius: 20px;
+        padding: 0 0.1rem;
+        /*margin: 5px 0 5px 0;*/
+        transition: 200ms;
+        border: none;
+        color: white;
+    }
+
     .header .dropdown-container {
-        /*width: 200px;*/
-        margin-right: auto;
+        width: 42px;
+        margin: 5px auto 5px 10px;
     }
 
     .header .dropdown {
@@ -117,36 +157,29 @@
         position: relative;
         display: inline-block;
         flex-direction: column;
+        transition: 200ms all ease-in-out;
     }
 
     .dropdown-content {
         display: none;
+        flex-direction: column;
         position: absolute;
         background-color: #f1f1f1;
         min-width: 200px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 101;
+        transition: 200ms all ease-in-out;
     }
 
-    .header .search, .header .dropdown-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        justify-content: space-around;
-        /*width: 300px;*/
-        height: 40px;
-        background: hsl(0, 0%, 20%);
-        border-radius: 20px;
-        padding: 0 0.1rem;
-        margin: 5px 0 5px auto;
-        transition: 200ms;
+
+    .header .dropdown-container button {
         border: none;
+        background: transparent;
         color: white;
     }
 
-    .header .dropdown {
-        width: 42px;
-        margin: 5px auto 5px 0;
+    .header .search {
+        margin: 5px 10px 5px auto;
     }
 
     .header .search > input {
@@ -176,8 +209,8 @@
 
     .header ul {
         /*position: relative;*/
-        left: 100%;
-        transform: translateX(-10%);
+        /*left: 0;*/
+        /*transform: translateX(-10%);*/
         list-style: none;
         margin: 0 auto;
         min-width: 1000px;

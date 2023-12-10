@@ -6,7 +6,14 @@
   import {writable} from "svelte/store";
   import {signUp} from "$lib/api";
   import Markdown from "markdown-it";
+  import posthog from "posthog-js";
+  import {browser} from "$app/environment";
 
+  let show = writable(false)
+
+  if (browser) {
+    show.set(posthog.getFeatureFlag('allow-signup') === true);
+  }
   const md = new Markdown({
     html: true,
     linkify: true,
@@ -50,56 +57,69 @@
 
 </script>
 <div class="container">
-    <h1>Sign Up</h1>
-    <p>
-        Already have an account? <a href="/login">Log in</a>
-    </p>
-    <p>
-        We will never share your email with anyone else. We will only use it to send you a confirmation email, or to
-        reset
-        your password, we may also use it to send you notifications, as well as other emails that you may opt into from
-        your
-        account settings.
-    </p>
-    <form>
-        {#if $error !== ""}
+    {#if $show}
+        <h1>Sign Up</h1>
+        <p>
+            Already have an account? <a href="/login">Log in</a>
+        </p>
+        <p>
+            We will never share your email with anyone else. We will only use it to send you a confirmation email, or to
+            reset
+            your password, we may also use it to send you notifications, as well as other emails that you may opt into
+            from
+            your
+            account settings.
+        </p>
+        <form>
+            {#if $error !== ""}
+                <div class="error">
+                    <p>{$error}</p>
+                </div>
+            {/if}
+            <div class="modal"
+                 style={$modalShow ? "background-color: rgba(0, 0, 0, .5); width: 100%; height: 100%;" : "background-color: rgba(0, 0, 0, 0); width: 0; height: 100%;margin: 50%;"}>
+                <div class="modal-content">
+                    <span bind:innerHTML={$modalContent} contenteditable="false"></span>
+                    <button on:click={() => $modalShow = false}>Close</button>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input bind:value={$username} id="username" name="username" placeholder="InkyGray1923"/>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input bind:value={$email} id="email" name="email" placeholder="example@example.com" type="email"/>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input bind:value={$password} id="password" name="password" placeholder="Password" type="password"/>
+            </div>
+            <div class="input-group">
+                <label for="tosAgree" style="display: flex">I agree to the
+                    <button on:click={tos} style="display: inline;">Terms of Service</button>
+                </label>
+                <input bind:checked={$tosAgree} id="tosAgree" name="tosAgree" type="checkbox"/>
+            </div>
+            <div class="input-group">
+                <label for="privacyAgree" style="display: flex">I agree to the
+                    <button on:click={privacy} style="display: inline;">Privacy Policy</button>
+                </label>
+                <input bind:checked={$privacyAgree} id="privacyAgree" name="privacyAgree" type="checkbox"/>
+            </div>
+            <button on:click={signup} type="submit">Log In</button>
+        </form>
+    {:else}
+        <div>
             <div class="error">
-                <p>{$error}</p>
-            </div>
-        {/if}
-        <div class="modal"
-             style={$modalShow ? "background-color: rgba(0, 0, 0, .5); width: 100%; height: 100%;" : "background-color: rgba(0, 0, 0, 0); width: 0; height: 100%;margin: 50%;"}>
-            <div class="modal-content">
-                <span bind:innerHTML={$modalContent} contenteditable="false"></span>
-                <button on:click={() => $modalShow = false}>Close</button>
+                <h1>Sign Ups Disabled</h1>
+                <p>
+                    Unfortunately sign ups are disabled at this moment in time.<br/>We do not know when they will be
+                    back.
+                </p>
             </div>
         </div>
-        <div class="input-group">
-            <label for="username">Username</label>
-            <input bind:value={$username} id="username" name="username" placeholder="InkyGray1923"/>
-        </div>
-        <div class="input-group">
-            <label for="email">Email</label>
-            <input bind:value={$email} id="email" name="email" placeholder="example@example.com" type="email"/>
-        </div>
-        <div class="input-group">
-            <label for="password">Password</label>
-            <input bind:value={$password} id="password" name="password" placeholder="Password" type="password"/>
-        </div>
-        <div class="input-group">
-            <label for="tosAgree" style="display: flex">I agree to the
-                <button on:click={tos} style="display: inline;">Terms of Service</button>
-            </label>
-            <input bind:checked={$tosAgree} id="tosAgree" name="tosAgree" type="checkbox"/>
-        </div>
-        <div class="input-group">
-            <label for="privacyAgree" style="display: flex">I agree to the
-                <button on:click={privacy} style="display: inline;">Privacy Policy</button>
-            </label>
-            <input bind:checked={$privacyAgree} id="privacyAgree" name="privacyAgree" type="checkbox"/>
-        </div>
-        <button on:click={signup} type="submit">Log In</button>
-    </form>
+    {/if}
 </div>
 <style>
     .error {

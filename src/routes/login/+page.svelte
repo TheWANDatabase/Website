@@ -58,7 +58,8 @@
         <div>
             <div class="error">
                 <h1>Logins Disabled</h1>
-                <p>Unfortunately logins are disabled at this moment in time.<br/>We do not know when they will be back.
+                <p>
+                    Unfortunately logins are disabled at this moment in time.<br/>We do not know when they will be back.
                 </p>
             </div>
         </div>

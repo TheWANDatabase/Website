@@ -63,13 +63,18 @@
         box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
 
+    .thumbnail {
+        border-radius: 5px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
     div {
         padding: -1px;
         position: relative;
         overflow: hidden;
         width: fit-content;
         height: fit-content;
-        border: 1px solid #eaeaea;
+        /*border: 1px solid #eaeaea;*/
         transition: 200ms ease-in-out;
     }
 

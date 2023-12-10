@@ -26,3 +26,22 @@ export function signUp(username: string, email: string, password: string) {
 export function signOut() {
 	return fetch(base + '/auth/logout');
 }
+
+export function getVideos() {
+	return fetch(base + '/episodes', {
+		method: 'POST',
+		body: JSON.stringify({
+			filters: {
+				order: { id: 'release-desc', label: 'Stream Date (Descending)' },
+				hideCW: false,
+				hideCorrupt: false,
+				startDate: '2012-08-27T23:00:00.000Z',
+				endDate: new Date().toISOString(),
+				members: []
+			},
+			offset: 0,
+			limit: 20,
+			flags: { include: ['cast_ids', 'topic_count'] }
+		})
+	});
+}
