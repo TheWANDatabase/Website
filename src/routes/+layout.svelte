@@ -17,7 +17,7 @@
       posthog.init(
         env.PUBLIC_POSTHOG_KEY,
         {
-          api_host: 'https://science.thewandb.com',
+          api_host: 'https://eu.posthog.com',
           autocapture: true
         }
       )

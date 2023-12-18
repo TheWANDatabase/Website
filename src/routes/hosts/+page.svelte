@@ -3,6 +3,7 @@
     import {writable} from "svelte/store";
     import {getHosts} from "$lib/api";
     import Host from "$lib/components/Host.svelte";
+    import {onMount} from "svelte";
 
     let hosts = writable([]);
 
@@ -17,7 +18,7 @@
         }
     }
 
-    load()
+    onMount(load)
 
 
 </script>

@@ -3,6 +3,7 @@
     import {writable} from "svelte/store";
     import {getVideos} from "$lib/api";
     import Video from "$lib/components/Video.svelte";
+    import {onMount} from "svelte";
 
     let vods = writable([]);
 
@@ -17,7 +18,7 @@
         }
     }
 
-    load()
+    onMount(load)
 
 
 </script>
