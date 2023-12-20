@@ -12,7 +12,7 @@
   let show = writable(false)
 
   if (browser) {
-    show.set(posthog.getFeatureFlag('allow-signup') === true);
+    show.set(posthog.getFeatureFlag('authentication-allow-signups') === true);
   }
   const md = new Markdown({
     html: true,
@@ -152,7 +152,6 @@
 
     label {
         font-weight: bold;
-        display: inline;
         display: flex;
         align-items: center;
         justify-content: flex-end;
@@ -170,7 +169,6 @@
         padding: 5px 10px;
         background-color: #fff;
         font-size: 0.9em;
-        margin-bottom: 1em;
         display: inline;
         width: 100%;
         margin: 0 auto 0.5em 1em;

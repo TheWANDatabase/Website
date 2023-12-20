@@ -13,8 +13,8 @@
   const searchAvailable = writable(true);
   const menuExpanded = writable(false);
 
-  showDropdown.set(posthog.getFeatureFlag('navbar-show-settings-cog') === true);
-  searchAvailable.set(posthog.getFeatureFlag('navbar-search-enabled') === true);
+  showDropdown.set(posthog.getFeatureFlag('experiments-navbar-show-settings-cog') === true);
+  searchAvailable.set(posthog.getFeatureFlag('experiments-navbar-search-enabled') === true);
   searchAvailable.subscribe((value) => {
     if (value === true) return placeholderStore.set("Search...")
     return placeholderStore.set("Search is currently disabled");

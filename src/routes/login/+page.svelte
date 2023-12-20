@@ -15,7 +15,7 @@
   let show = writable(false)
 
   if (browser) {
-    show.set(posthog.getFeatureFlag('allow-login') === true);
+    show.set(posthog.getFeatureFlag('authentication-allow-logins') === true);
   }
 
   async function login(e: Event) {
@@ -92,7 +92,6 @@
     .input-group {
         display: grid;
         grid-template-columns: 1fr 3fr;
-        margin-bottom: 0.5em;
         margin: 0 1em 0.5em;
     }
 

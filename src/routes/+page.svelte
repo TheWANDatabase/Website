@@ -8,7 +8,7 @@
     let show = writable(false)
 
     if (browser) {
-        if (posthog.getFeatureFlag('landing-page-alpha')) {
+        if (posthog.getFeatureFlag('experiments-landing-page-alpha')) {
             show.set(true);
         } else {
             window.location.pathname = '/archive'
