@@ -12,6 +12,7 @@
 
         if (req.ok) {
             let videos = await req.json();
+            if (videos.error) return console.log("Failed to load episodes from API:", videos.error);
             vods.update((v) => {
                 return v.concat(videos);
             })
