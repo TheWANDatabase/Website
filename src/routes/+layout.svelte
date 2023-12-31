@@ -4,10 +4,12 @@
 	import posthog from 'posthog-js';
 	import { browser } from '$app/environment';
 	import { env } from '$env/dynamic/public';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { socket, liveState, nextShow } from '$lib/stores';
+	import { socket, liveState, nextShow, showTime } from '$lib/stores';
 	import { getNextShow } from '$lib/api';
+	import { getTimeRemaining } from '$lib/time';
+	import WanClock from '$lib/components/WanClock.svelte';
 	// export const //flags = writable({});
 
 	export const load = async () => {
@@ -37,7 +39,6 @@
 
 	let currentPath = '';
 
-	
 
 	onMount(() => {
 		if (typeof window !== 'undefined') {
@@ -91,11 +92,14 @@
 			};
 		}
 	});
+
+
 </script>
 
 <div class="container">
 	<Header />
 	<slot />
+	<WanClock />
 </div>
 
 <!--<div class="snackbar">-->

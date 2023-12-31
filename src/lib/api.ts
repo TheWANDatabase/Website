@@ -57,11 +57,11 @@ export function getHosts() {
 
 
 export async function getNextShow() {
-	const req = await fetch('https://whenplane.com/api/nextWan', {
+	const req = await fetch(base + '/live/next', {
 		headers: {
 			"User-Agent": "TheWanDatabase" + dev ? " (Development)" : "(Production)"
 		}
 	});
 	
-	return req.text()
+	return await req.json()
 }

@@ -5,7 +5,6 @@
 	import posthog from 'posthog-js';
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
-	import { liveState, nextShow } from '$lib/stores';
 
 	const searchStore = writable('');
 	const placeholderStore = writable('Search...');
@@ -42,7 +41,7 @@
 		let attribs = target.attributes;
 		let type = attribs.getNamedItem('type');
 		let disabled = attribs.getNamedItem('disabled');
-		if (disabled) if (type.nodeValue !== 'text') return searchExpanded.set(false);
+		if (type !== null && disabled && type.nodeValue !== 'text') return searchExpanded.set(false);
 	}
 
 	function openMenu() {
@@ -52,31 +51,6 @@
 </script>
 
 <div class="header">
-	{#if $liveState !== null}
-		{#if $liveState.imminence === 0}
-			{#if $nextShow !== null}
-				<div class="live-ticker">
-					The next episode of The WAN Show is scheduled for {$nextShow.toLocaleString()}
-				</div>
-			{/if}
-		{:else if $liveState.imminence === 1}
-			<div class="live-ticker">
-				{$liveState.title} - {$liveState.textImminence}
-			</div>
-		{:else if $liveState.imminence === 2}
-			<div class="live-ticker">
-				{$liveState.title} - {$liveState.textImminence}
-			</div>
-		{:else if $liveState.imminence === 3}
-			<div class="live-ticker" style="background-color: var(--message-bar-urgent)">
-				{$liveState.title} - {$liveState.textImminence}
-			</div>
-		{:else if $liveState.imminence === 4}
-			<div class="live-ticker" style="background-color: var(--message-bar-urgent)">
-				{$liveState.title} - {$liveState.textImminence}
-			</div>
-		{/if}
-	{/if}
 	<div class="header-container">
 		<div class="dropdown-container">
 			<button class="dropdown" on:click={openMenu}>
