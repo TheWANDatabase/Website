@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { dev } from '$app/environment';
 
 console.log(env);
 
@@ -46,6 +47,21 @@ export function getVideos() {
 	});
 }
 
+export function getVideo(id: string) {
+	return fetch(base + '/episodes/'+id);
+}
+
 export function getHosts() {
 	return fetch(base + '/hosts');
+}
+
+
+export async function getNextShow() {
+	const req = await fetch('https://whenplane.com/api/nextWan', {
+		headers: {
+			"User-Agent": "TheWanDatabase" + dev ? " (Development)" : "(Production)"
+		}
+	});
+	
+	return req.text()
 }
