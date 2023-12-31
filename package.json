@@ -42,6 +42,7 @@
     "jsonwebtoken": "^9.0.2",
     "markdown-it": "^13.0.2",
     "markdown-it-emoji": "^2.0.2",
+    "plyr": "^3.7.8",
     "posthog-js": "^1.96.1",
     "socket.io-client": "^4.7.2",
     "svelte-icons": "^2.1.0",
