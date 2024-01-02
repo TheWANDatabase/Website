@@ -32,6 +32,7 @@
 				id = posthog.get_distinct_id()
 				ls.set('tdb.sid', id)
 				ls.config.encrypt = true;
+				ls.config.decrypt = true;
 				ls.config.secret = id
 			}
 		}
