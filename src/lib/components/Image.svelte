@@ -22,24 +22,22 @@
   let srcStore = writable('');
 
   onMount(async () => {
-    let metadata = await fetch(`https://edge.thewandb.com/v2/cdn/${id}`)
-      .then(res => res.json());
+		if (typeof document !== 'undefined') {
+      let metadata = await fetch(`https://edge.thewandb.com/v2/cdn/${id}`)
+        .then(res => res.json());
 
-    srcStore.set(`https://cdn.thewandb.com/media/${id}.webp`);
+      srcStore.set(`https://cdn.thewandb.com/media/${id}.webp`);
 
-    console.log(metadata);
-
-    if (metadata.blur) {
-      let canvas = document.getElementById(`canvas-${nodeId}`) as HTMLCanvasElement;
-      if (!canvas) return;
-      let ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      let pixels = decode(metadata.blur, 4, 4);
-      console.log(pixels)
-      let image = ctx.createImageData(4, 4);
-      image.data.set(pixels);
-      console.log(image)
-      ctx.putImageData(image, 0, 0);
+      if (metadata.blur) {
+        let canvas = document.getElementById(`canvas-${nodeId}`) as HTMLCanvasElement;
+        if (!canvas) return;
+        let ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        let pixels = decode(metadata.blur, 4, 4);
+        let image = ctx.createImageData(4, 4);
+        image.data.set(pixels);
+        ctx.putImageData(image, 0, 0);
+      }
     }
   });
 </script>

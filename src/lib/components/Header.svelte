@@ -154,26 +154,26 @@
 		padding-top: 5px;
 	}
 
-	.live-ticker {
-		display: fled;
-		background-color: var(--message-bar);
-		color: #fff;
-		padding: 10px;
-		margin: 0 5px 5px;
+	/* .live-ticker { */
+		/* display: fled; */
+		/* background-color: var(--message-bar); */
+		/* color: #fff; */
+		/* padding: 10px; */
+		/* margin: 0 5px 5px; */
 		/*width: fit-content;*/
-		border-radius: 5px;
+		/* border-radius: 5px; */
 
 		/*justify-content: center;*/
-		justify-content: space-around;
+		/* justify-content: space-around; */
 
-		transition: 200ms ease-in-out;
-	}
+		/* transition: 200ms ease-in-out; */
+	/* } */
 
 	.header-container {
 		display: grid;
 		grid-template-columns: 320px auto 320px;
-		background-color: #000;
-		color: #fff;
+		background-color: rgb(var(--bg-accent));
+		color: rgb(var(--text-accent));
 		padding: 10px 0;
 		margin: 0 5px;
 		/*width: fit-content;*/
@@ -192,13 +192,20 @@
 		justify-content: center;
 		/*min-width: 300px;*/
 		height: 40px;
-		background: hsl(0, 0%, 20%);
+		background-color: rgba(var(--bg-secodary-accent), 1);
+		/* box-shadow: 0px 0px 3px rgba(var(--bg-primary), 0.5); */
+		color: inherit;
 		border-radius: 20px;
 		padding: 0 0.1rem;
 		/*margin: 5px 0 5px 0;*/
 		transition: 200ms;
 		border: none;
-		color: white;
+	}
+
+	.header .search:hover,
+	.header .dropdown-container:hover {
+		transition: 200ms;
+		box-shadow: 0px 0px 5px rgba(var(--bg-primary), 0.25);
 	}
 
 	.header .dropdown-container {
@@ -220,7 +227,8 @@
 		flex-direction: column;
 		position: absolute;
 		top: 40px;
-		background-color: #f1f1f1;
+		background-color: rgb(var(--bg-secondary));
+	
 		min-width: 200px;
 		box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 		padding: 0;
@@ -231,13 +239,13 @@
 
 	.dropdown-content a {
 		/*margin: 0.5rem auto;*/
+		color: inherit;
 		font-size: medium;
 		width: calc(100% - 10px);
 		height: 50px;
 		line-height: 50px;
 		font-weight: 600;
 		text-decoration: none;
-		color: black;
 		transition: 200ms ease-in-out;
 		border-radius: 5px;
 		margin: 5px;
@@ -250,7 +258,7 @@
 	.header .dropdown-container button {
 		border: none;
 		background: transparent;
-		color: white;
+		color: inherit;
 	}
 
 	.header .search {
@@ -261,7 +269,7 @@
 		background: none;
 		border: none;
 		outline: none;
-		color: white;
+		color: inherit;
 		/*width: 100%;*/
 		font-size: 1rem;
 		font-weight: 600;
@@ -313,13 +321,13 @@
 	}
 
 	.header ul li a {
-		color: #aaa;
+		color: inherit;
 		text-decoration: none;
 		transition: 200ms ease-in-out;
 	}
 
 	.header ul li a:hover {
-		color: #fff;
+		color: inherit;
 		text-decoration: underline;
 		transition: 200ms ease-in-out;
 	}

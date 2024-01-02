@@ -3,8 +3,6 @@
 
   export let vod: never;
 
-  console.log(vod);
-
 </script>
 {#if vod !== null}
     <a class="video-container" href={`/archive/`+vod.id}>
@@ -24,7 +22,7 @@
         border: 1px solid black;
         border-radius: 5px;
         padding: -2px;
-        color: black;
+        color: inherit;
         text-decoration: none;
     }
 

@@ -7,6 +7,6 @@ export default defineConfig({
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
 	server: {
-		host: 'thewhendb.com'
+		host: 'whendb.com'
 	}
 });
