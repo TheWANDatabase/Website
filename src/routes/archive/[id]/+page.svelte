@@ -15,14 +15,15 @@
 	import { onMount, onDestroy } from 'svelte';
 	import type { Unsubscriber } from 'svelte/motion';
 	import { writable } from 'svelte/store';
+	import Topic from '$lib/components/Topic.svelte';
 
 	export let data;
 
 	$preshowOffset = data.preShowOffset;
 
-	onDestroy(() => {
+	onMount(() => {
 		if(typeof window !== "undefined") {
-
+			console.log(window.ls)
 		}
 	})
 </script>
@@ -61,17 +62,7 @@
 			{#if data.topics.length > 0}
 				<div class="topic-list">
 					{#each data.topics as topic}
-						<div class="primaryTopic">
-							<h4>{topic.title}</h4>
-							<div><span>{toHumanTime(topic.start)}</span> | <span>{toHumanTime(topic.end - topic.start)}</span></div>
-							{#if topic.children !== undefined}
-								{#each topic.children as child}
-									<div class="secondaryTopic">
-										<h5>{child.title}</h5>
-									</div>
-								{/each}
-							{/if}
-						</div>
+						<Topic topic={topic} />
 					{/each}
 				</div>
 			{:else}

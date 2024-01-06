@@ -3,6 +3,19 @@ import { dev } from '$app/environment';
 
 console.log(env);
 
+export interface Topic {
+	id: string;
+	episodeId: string;
+	parent: string | null;
+	title: string;
+	start: number;
+	end: number;
+	created: Date;
+	modified: Date;
+	children?: Topic[];
+}
+
+
 const base: string = env.PUBLIC_API_BASE + '/v' + env.PUBLIC_API_VERSION;
 
 const headers: Headers = new Headers();

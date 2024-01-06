@@ -3,12 +3,10 @@ export interface PartialTheme {
 	loadingOpacity: number;
 	loadedOpacity: number;
 	bgPrimary: string;
+	loaderDisplay: string;
 }
 
 export interface Theme extends PartialTheme {
-	name: string;
-	loadingOpacity: number;
-	loadedOpacity: number;
 	brand: string;
 	primary: string;
 	secondary: string;
@@ -33,6 +31,7 @@ export const themes: ThemeLibrary = {
 		name: 'Day',
 		loadingOpacity: 1,
         loadedOpacity: 0,
+		loaderDisplay: "-100vh",
 		brand: '184,43,32',
 		primary: 'var(--brand)',
 		secondary: '62,83,153',
@@ -51,6 +50,7 @@ export const themes: ThemeLibrary = {
 		name: 'Night',
 		loadingOpacity: 1,
         loadedOpacity: 0,
+		loaderDisplay: "-100vh",
 		brand: '184,43,32',
 		primary: 'var(--brand)',
 		secondary: '#3e5399',

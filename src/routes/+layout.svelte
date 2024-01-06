@@ -12,7 +12,6 @@
 	import WanClock from '$lib/components/WanClock.svelte';
 	import { writable } from 'svelte/store';
 	import { themes, type Theme, type PartialTheme } from '$lib/types/themes';
-	import ls from "localstorage-slim";
 
 	export const load = async () => {
 		if (browser) {
@@ -22,7 +21,7 @@
 				autocapture: !dev
 			});
 
-			let id = ls.get('tdb.sid');
+			let id = window.ls.get('tdb.sid');
 
 			if(id!== null) {
 				posthog.identify(id, {
@@ -30,10 +29,10 @@
 				})
 			} else {
 				id = posthog.get_distinct_id()
-				ls.set('tdb.sid', id)
-				ls.config.encrypt = true;
-				ls.config.decrypt = true;
-				ls.config.secret = id
+				window.ls.set('tdb.sid', id)
+				window.ls.config.encrypt = true;
+				window.ls.config.decrypt = true;
+				window.ls.config.secret = id
 			}
 		}
 		return;
@@ -58,7 +57,8 @@
 		name: 'Loading',
 		loadingOpacity: 0,
 		loadedOpacity: 1,
-		bgPrimary: '60,60,65'
+		bgPrimary: '60,60,65',
+		loaderDisplay: "40vh",
 	});
 
 	let ival: any;
@@ -112,7 +112,7 @@
 
 			themeDetails.subscribe((v) => {
 				if (v.name !== 'Loading') {
-					ls.set('theme', v.name);
+					window.ls.set('theme', v.name);
 				}
 			});
 
@@ -129,7 +129,7 @@
 	});
 
 	function loadTheme() {
-		let theme = ls.get('theme');
+		let theme = window.ls.get('theme');
 		if (theme !== null) {
 			if (themes[theme]) $themeDetails = themes[theme];
 		} else {
@@ -183,7 +183,7 @@
 		color: white;
 		font-weight: bold;
 		position: absolute;
-		top: 40vh;
+		top:  var(--loader-display);;
 		bottom: auto;
 		left: auto;
 		right: auto;
