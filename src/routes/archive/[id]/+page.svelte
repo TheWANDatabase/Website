@@ -4,23 +4,15 @@
 	import Player from '$lib/components/Player.svelte';
 	import Host from '$lib/components/Host.svelte';
 	import { toHumanTime } from '$lib/time';
-	import {
-		currentTime,
-		preshowOffset,
-		playing,
-		playbackSource,
-		adjustedTime,
-		maxDuration
-	} from '$lib/stores.js';
-	import { onMount, onDestroy } from 'svelte';
-	import type { Unsubscriber } from 'svelte/motion';
-	import { writable } from 'svelte/store';
+	import { preshowOffset, playing, adjustedTime, maxDuration } from '$lib/stores.js';
+
 	import Topic from '$lib/components/Topic.svelte';
 
 	export let data;
 
 	$preshowOffset = data.preShowOffset;
 </script>
+
 <head>
 	<script src="https://www.youtube.com/iframe_api"></script>
 </head>
@@ -43,22 +35,24 @@
 		</div>
 		<div class="cast">
 			{#if data.cast.length > 0}
-				{#each data.cast as host}
-					<Host bind:host={host}/>
-				{/each}
+				<div class="castContainer">
+					{#each data.cast as host}
+						<Host bind:host />
+					{/each}
+				</div>
 			{:else}
 				<p>Cast Not Available</p>
 			{/if}
 		</div>
 	</div>
-	
+
 	<div class="content">
 		<div class="product-container">
 			<h2>Topics</h2>
 			{#if data.topics.length > 0}
 				<div class="topic-list">
 					{#each data.topics as topic, index}
-						<Topic topic={topic} />
+						<Topic {topic} />
 						{#if index < data.topics.length - 1}
 							<hr />
 						{/if}
@@ -143,16 +137,12 @@
 			'description runtime';
 	}
 
-	.cast {
+	.castContainer {
 		margin-top: 5px;
-		display: flex;
-		/* justify-content: ; */
-		flex-wrap: wrap;
-		align-items: flex-start;	
-	}
-
-	.cast > * {
-		margin: 5px auto;
+		display: grid;
+		width: 100%;
+		grid-template-columns: repeat(auto-fit, 450px);
+		grid-template-rows: min-content;
 	}
 
 	.content {
