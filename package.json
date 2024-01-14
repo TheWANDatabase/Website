@@ -2,6 +2,7 @@
   "name": "website",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite dev --port 80",
     "build": "vite build",
@@ -20,6 +21,7 @@
     "@sveltejs/kit": "^1.27.4",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/markdown-it": "^13.0.7",
+    "@types/uuid": "^9.0.7",
     "@types/youtube-player": "^5.5.11",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -36,7 +38,6 @@
     "vite": "^4.4.2",
     "vitest": "^0.32.2"
   },
-  "type": "module",
   "dependencies": {
     "@sveltejs/adapter-cloudflare": "^2.3.3",
     "axios": "^1.6.2",

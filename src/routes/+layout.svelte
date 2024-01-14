@@ -6,12 +6,11 @@
 	import { env } from '$env/dynamic/public';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { socket, liveState, nextShow, showTime } from '$lib/stores';
-	import { getNextShow } from '$lib/api';
-	import { getTimeRemaining } from '$lib/time';
+	import { socket, liveState } from '$lib/stores';
+	import { getTheme } from '$lib/api';
 	import WanClock from '$lib/components/WanClock.svelte';
 	import { writable } from 'svelte/store';
-	import { themes, type Theme, type PartialTheme } from '$lib/types/themes';
+	import type { PartialTheme } from '$lib/types/themes';
 
 	export const load = async () => {
 		if (browser) {
@@ -21,18 +20,15 @@
 				autocapture: !dev
 			});
 
-			let id = window.ls.get('tdb.sid');
+			let id = window.localStorage.getItem('tdb.sid');
 
-			if(id!== null) {
+			if (id !== null) {
 				posthog.identify(id, {
-					usingEncryption: true,
-				})
+					usingEncryption: true
+				});
 			} else {
-				id = posthog.get_distinct_id()
-				window.ls.set('tdb.sid', id)
-				window.ls.config.encrypt = true;
-				window.ls.config.decrypt = true;
-				window.ls.config.secret = id
+				id = posthog.get_distinct_id();
+				window.localStorage.setItem('tdb.sid', id);
 			}
 		}
 		return;
@@ -54,11 +50,11 @@
 	let currentPath = '';
 
 	export const themeDetails = writable<PartialTheme>({
-		name: 'Loading',
+		id: '0',
 		loadingOpacity: 0,
 		loadedOpacity: 1,
 		bgPrimary: '60,60,65',
-		loaderDisplay: "40vh",
+		loaderDisplay: '40vh'
 	});
 
 	let ival: any;
@@ -111,8 +107,8 @@
 			window.addEventListener('beforeunload', handleBeforeUnload);
 
 			themeDetails.subscribe((v) => {
-				if (v.name !== 'Loading') {
-					window.ls.set('theme', v.name);
+				if (v.id !== '0') {
+					window.localStorage.setItem('tdb.theme', v.id);
 				}
 			});
 
@@ -120,7 +116,7 @@
 
 			ival = setInterval(() => {
 				loadTheme();
-			}, 1000);
+			}, 5000);
 		}
 	});
 
@@ -128,12 +124,29 @@
 		if (ival) clearInterval(ival);
 	});
 
-	function loadTheme() {
-		let theme = window.ls.get('theme');
+	async function loadTheme() {
+		let theme = window.localStorage.getItem('tdb.theme');
 		if (theme !== null) {
-			if (themes[theme]) $themeDetails = themes[theme];
+			if (theme === $themeDetails.id) return;
+			let th = await getTheme(theme);
+			if (th.error !== undefined) {
+				console.warn('Cannot find theme - Resetting to default (1)');
+				$themeDetails = {
+					id: '1',
+					...(await getTheme('1'))
+				};
+			} else {
+				$themeDetails = {
+					id: theme,
+					...th
+				};
+			}
+			// if (themes[theme]) $themeDetails = themes[theme];
 		} else {
-			$themeDetails = themes['Night'];
+			$themeDetails = {
+				id: '1',
+				...(await getTheme('1'))
+			};
 		}
 	}
 </script>
@@ -183,7 +196,7 @@
 		color: white;
 		font-weight: bold;
 		position: absolute;
-		top:  var(--loader-display);;
+		top: var(--loader-display);
 		bottom: auto;
 		left: auto;
 		right: auto;

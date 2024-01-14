@@ -16,11 +16,10 @@
 		' '
 	)}
 >
-	<h4>{topic.title}</h4>
-	<div>
-		<span><IconStopwatchPlayBold />{toHumanTime(topic.start)}</span> |
-		<span><IconStopwatchPauseBold />{toHumanTime(topic.end - topic.start)}</span>
-	</div>
+	<p class="timestamp">
+		{toHumanTime(topic.start)} <sup>({toHumanTime(topic.end - topic.start)})</sup>
+	</p>
+	<p>{topic.title}</p>
 	{#if topic.children !== undefined}
 		<div class="children">
 			{#each topic.children as child}
@@ -37,18 +36,22 @@
 		padding: 5px;
 	}
 
-	.topic h4 {
+	.active {
+		box-shadow: -5px 0px 0px rgba(var(--primary), 0.5);
+		transition: 200ms all ease-in-out;
+	}
+
+	.topic .timestamp {
+		font-weight: bold;
+	}
+
+	.topic p {
 		font-size: large;
 	}
 
 	.topic .children {
+		margin-top: 5px;
 		display: flex;
 		flex-direction: column;
-	}
-
-	.active {
-		color: black;
-		background-color: pink;
-		transition: 200ms all ease-in-out;
 	}
 </style>

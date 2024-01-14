@@ -27,7 +27,7 @@ export function processTimestampDocument(text: string): Topic[] {
 					modified: new Date(),
 					children: []
 				});
-			}
+			} //else if() {}
 		} else if (CONTINUANCE_EXTRACTOR.test(line)) {
 			if (TOPIC_EXTRACTOR.test(line)) {
 				const [, raw_id, title] = TOPIC_EXTRACTOR.exec(line) || [];

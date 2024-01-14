@@ -66,7 +66,7 @@
 	}
 
 	function insertIntro() {
-		let [lines, current, cursor, original] = newLineify();
+		let [lines, current] = newLineify();
 		lines.splice(current, 0, `[${toHumanTime($currentTime)}] *Intro*`);
 		$editor.value = lines.join('\n');
 	}
@@ -79,6 +79,9 @@
 		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
 	}
 </script>
+<head>
+	<script src="https://www.youtube.com/iframe_api"></script>
+</head>
 
 <div class="container">
 	<div class="editor">
@@ -98,11 +101,14 @@
 		<div class="topic-list">
 			<h2>Generated Topics</h2>
 			{#if $topics.length > 0}
-				{#each $topics as topic}
+				{#each $topics as topic, index}
 					<Topic {topic} />
+					{#if index < $topics.length - 1}
+						<hr />
+					{/if}
+				{:else}
+					<p>Start typing to generate topics</p>
 				{/each}
-			{:else}
-				<p>Start typing to generate topics</p>
 			{/if}
 		</div>
 	</div>
@@ -110,7 +116,8 @@
 
 <style>
 	.container {
-		margin: 5px 5px 5px;
+		margin: 5px;
+		padding-top: 75px;
 		display: grid;
 		grid-template-columns: auto 300px;
 		grid-template-rows: 345px 500px;

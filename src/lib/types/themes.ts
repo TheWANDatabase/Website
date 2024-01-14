@@ -1,32 +1,32 @@
 export interface PartialTheme {
-    name: string;
+	id: string;
 	loadingOpacity: number;
 	loadedOpacity: number;
 	bgPrimary: string;
 	loaderDisplay: string;
 }
 
-export interface Theme extends PartialTheme {
-	brand: string;
-	primary: string;
-	secondary: string;
-	bgPrimary: string;
-	bgSecondary: string;
-    bgTertiary: string;
-	bgAccent: string;
-    bgSecondaryAccent:string;
-	textPrimary: string;
-    textAccent: string;
-	messageBar: string;
-	messageBarUrgent: string;
-	plyrColorMain: string;
-}
+// export interface Theme extends PartialTheme {
+// 	brand: string;
+// 	primary: string;
+// 	secondary: string;
+// 	bgPrimary: string;
+// 	bgSecondary: string;
+//     bgTertiary: string;
+// 	bgAccent: string;
+//     bgSecondaryAccent:string;
+// 	textPrimary: string;
+//     textAccent: string;
+// 	messageBar: string;
+// 	messageBarUrgent: string;
+// 	plyrColorMain: string;
+// }
 
-interface ThemeLibrary {
-    [key: string]: Theme
-}
+// interface ThemeLibrary {
+//     [key: string]: Theme
+// }
 
-export const themes: ThemeLibrary = {
+export const themes = {
 	Day: {
 		name: 'Day',
 		loadingOpacity: 1,
@@ -53,7 +53,7 @@ export const themes: ThemeLibrary = {
 		loaderDisplay: "-100vh",
 		brand: '184,43,32',
 		primary: 'var(--brand)',
-		secondary: '#3e5399',
+		secondary: '62,83,153',
 		bgPrimary: '22,22,26',
 		bgSecondary: '36,36,50',
         bgTertiary: '45,45,55',

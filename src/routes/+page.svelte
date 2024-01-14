@@ -9,7 +9,7 @@
 
     if (browser) {
         if (posthog.getFeatureFlag('experiments-landing-page-alpha')) {
-            show.set(true);
+            $show = true;
         } else {
             window.location.pathname = '/archive'
         }

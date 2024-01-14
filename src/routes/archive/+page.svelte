@@ -33,7 +33,9 @@
 </div>
 <style>
     .container {
-        margin-top: 1rem;
+		padding: 0;
+		margin: 5px;
+		padding-top: 75px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -45,7 +47,7 @@
         width: 100%;
         justify-content: center;
         display: grid;
-        grid-template-columns: repeat(auto-fit, 400px);
+        grid-template-columns: repeat(auto-fit, 462px);
         grid-gap: 20px;
     }
 </style>

@@ -15,7 +15,6 @@ export interface Topic {
 	children?: Topic[];
 }
 
-
 const base: string = env.PUBLIC_API_BASE + '/v' + env.PUBLIC_API_VERSION;
 
 const headers: Headers = new Headers();
@@ -61,20 +60,29 @@ export function getVideos() {
 }
 
 export function getVideo(id: string) {
-	return fetch(base + '/episodes/'+id);
+	return fetch(base + '/episodes/' + id);
 }
 
 export function getHosts() {
 	return fetch(base + '/hosts');
 }
 
-
 export async function getNextShow() {
 	const req = await fetch(base + '/live/next', {
 		headers: {
-			"User-Agent": "TheWanDatabase" + dev ? " (Development)" : "(Production)"
+			'User-Agent': 'TheWanDatabase' + dev ? ' (Development)' : '(Production)'
 		}
 	});
-	
-	return await req.json()
+
+	return await req.json();
+}
+
+export async function getTheme(id: string) {
+	const req = await fetch(base + '/themes/' + id + '/json', {
+		headers: {
+			'User-Agent': 'TheWanDatabase' + dev ? ' (Development)' : '(Production)'
+		}
+	});
+
+	return await req.json();
 }

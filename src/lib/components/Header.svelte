@@ -53,7 +53,7 @@
 <div class="header">
 	<div class="header-container">
 		<div class="dropdown-container">
-			<button class="dropdown" on:click={openMenu}>
+			<!-- <button class="dropdown" on:click={openMenu}>
 				<div class="icon">
 					<GoGear />
 				</div>
@@ -61,7 +61,7 @@
 					<a href="/login">Sign In</a>
 					<a href="/register">Sign Up</a>
 				</div>
-			</button>
+			</button> -->
 		</div>
 		<div class="centraliser">
 			<ul>
@@ -112,7 +112,7 @@
 				</li>
 			</ul>
 		</div>
-		<button
+		<!-- <button
 			class="search"
 			on:click={openSearch}
 			style={$searchExpanded ? 'width: 300px;' : 'width: 42px;'}
@@ -141,7 +141,7 @@
 					disabled
 				/>
 			{/if}
-		</button>
+		</button> -->
 	</div>
 </div>
 
@@ -150,6 +150,7 @@
 		backdrop-filter: blur(50px);
 		position: sticky;
 		z-index: 100;
+		height: 0;
 		top: 0;
 		padding-top: 5px;
 	}

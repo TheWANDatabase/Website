@@ -20,14 +20,10 @@
 	export let data;
 
 	$preshowOffset = data.preShowOffset;
-
-	onMount(() => {
-		if(typeof window !== "undefined") {
-			console.log(window.ls)
-		}
-	})
 </script>
-
+<head>
+	<script src="https://www.youtube.com/iframe_api"></script>
+</head>
 <div class="container">
 	<title>{$playing ? '▶' : '⏸'} {data.title} | The WAN Database</title>
 	<div class="player">
@@ -61,8 +57,11 @@
 			<h2>Topics</h2>
 			{#if data.topics.length > 0}
 				<div class="topic-list">
-					{#each data.topics as topic}
+					{#each data.topics as topic, index}
 						<Topic topic={topic} />
+						{#if index < data.topics.length - 1}
+							<hr />
+						{/if}
 					{/each}
 				</div>
 			{:else}
@@ -112,10 +111,10 @@
 <style>
 	.container {
 		width: 100%;
-		padding: 0 5px;
-		/* background-color: pink; */
-		min-height: 100%;
-		margin: 10px auto auto;
+		min-height: 100vh;
+		padding: 0;
+		margin: 5px;
+		padding-top: 75px;
 		display: grid;
 		grid-template-columns: auto 570px 5px;
 		grid-template-rows: 76vh auto;
