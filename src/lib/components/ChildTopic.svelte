@@ -6,6 +6,7 @@
 	import { currentTime } from '$lib/stores';
 
 	export let topic: Topic;
+	export let dev: boolean = false;
 
 	function calcPercentage(start: number, end: number, position: number): string {
 		let diff = end - start;
@@ -22,7 +23,13 @@
 		' '
 	)}
 >
-	<p class="timestamp">{toHumanTime(topic.start)} -</p>
+	<p class="timestamp">
+		{#if dev}
+		{toHumanTime(topic.start)}<br>{topic.kind}
+	{:else}
+		{toHumanTime(topic.start)}
+	{/if}
+	</p>
 	<p class="contents">{topic.title}</p>
 	<div class="progress" style={`width: ${calcPercentage(topic.start, topic.end, $currentTime)};`}></div>
 </div>

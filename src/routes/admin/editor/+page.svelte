@@ -15,6 +15,9 @@
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
+			$editorContent = window.localStorage.getItem('wdb.ec') || '-Timestamps-\n[0:00] *Chapters*';
+
+
 			window.onkeydown = (e) => {
 				if (e.ctrlKey) {
 					switch (e.key) {
@@ -36,6 +39,7 @@
 
 		editorContent.subscribe(() => {
 			$topics = processTimestampDocument($editorContent);
+			window.localStorage.setItem('wdb.ec', $editorContent);	
 		});
 	});
 
@@ -102,7 +106,7 @@
 			<h2>Generated Topics</h2>
 			{#if $topics.length > 0}
 				{#each $topics as topic, index}
-					<Topic {topic} />
+					<Topic {topic} dev={true} />
 					{#if index < $topics.length - 1}
 						<hr />
 					{/if}

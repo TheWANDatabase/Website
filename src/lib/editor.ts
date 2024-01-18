@@ -25,6 +25,8 @@ export function processTimestampDocument(text: string): Topic[] {
 					end: 0,
 					created: new Date(),
 					modified: new Date(),
+					ref: null,
+					kind: 'topic',
 					children: []
 				});
 			} //else if() {}
@@ -45,6 +47,8 @@ export function processTimestampDocument(text: string): Topic[] {
 					end: 0,
 					created: new Date(),
 					modified: new Date(),
+					ref: null,
+					kind: 'topic',
 					children: []
 				});
 			}
@@ -58,6 +62,8 @@ export function processTimestampDocument(text: string): Topic[] {
 				title: title,
 				start: timestamp,
 				end: 0,
+				ref: null,
+				kind: 'tangent',
 				created: new Date(),
 				modified: new Date()
 			});

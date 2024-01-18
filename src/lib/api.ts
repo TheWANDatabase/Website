@@ -12,6 +12,8 @@ export interface Topic {
 	end: number;
 	created: Date;
 	modified: Date;
+	ref: string | null;
+	kind: 'topic' | 'merch message' | 'sponsor' | 'tangent' | 'sub topic';
 	children?: Topic[];
 }
 

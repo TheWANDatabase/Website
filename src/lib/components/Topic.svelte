@@ -7,6 +7,7 @@
 	import { currentTime } from '$lib/stores';
 
 	export let topic: Topic;
+	export let dev: boolean = false;
 
 	console.log(topic.start, topic.end, $currentTime < topic.end && $currentTime > topic.start);
 </script>
@@ -17,13 +18,17 @@
 	)}
 >
 	<p class="timestamp">
-		{toHumanTime(topic.start)} <sup>({toHumanTime(topic.end - topic.start)})</sup>
+		{#if dev}
+			{toHumanTime(topic.start)} <sup>({toHumanTime(topic.end - topic.start)})</sup> - {topic.kind}
+		{:else}
+			{toHumanTime(topic.start)} <sup>({toHumanTime(topic.end - topic.start)})</sup>
+		{/if}
 	</p>
 	<p>{topic.title}</p>
 	{#if topic.children !== undefined}
 		<div class="children">
 			{#each topic.children as child}
-				<ChildTopic topic={child} />
+				<ChildTopic topic={child} bind:dev={dev} />
 			{/each}
 		</div>
 	{/if}
