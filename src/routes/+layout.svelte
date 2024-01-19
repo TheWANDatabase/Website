@@ -11,6 +11,7 @@
 	import WanClock from '$lib/components/WanClock.svelte';
 	import { writable } from 'svelte/store';
 	import type { PartialTheme } from '$lib/types/themes';
+	import type { StateMessage } from '$lib/types/socket/State';
 
 	export const load = async () => {
 		if (browser) {
@@ -73,14 +74,13 @@
 					$socket.emit('message', JSON.stringify({ type: 2, payload: 'bingo' }));
 					$socket.emit('message', JSON.stringify({ type: 2, payload: 'live' }));
 
-					// return () => {
-					// 	$socketStore.close();
-					// };
+					return () => {
+						$socket.close();
+					};
 				});
 
 				$socket.on('state', (data: string) => {
-					let body = JSON.parse(data);
-					liveState.set(body);
+					$liveState = JSON.parse(data) satisfies StateMessage;
 					// notificationStore.update(value => {
 					//   value.push(data);
 					//   return value;
@@ -141,7 +141,6 @@
 					...th
 				};
 			}
-			// if (themes[theme]) $themeDetails = themes[theme];
 		} else {
 			$themeDetails = {
 				id: '1',
@@ -150,7 +149,9 @@
 		}
 	}
 </script>
-
+<svelte:head>
+  <link rel="icon" type="image/png" href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png" />
+</svelte:head>
 <div
 	class="container"
 	style={Object.entries($themeDetails)

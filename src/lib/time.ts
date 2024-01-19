@@ -1,4 +1,4 @@
-export function getTimeRemaining(target: Date): TimeDifferential {
+export function getTimeRemaining(target: Date = new Date()): TimeDifferential {
 	const total = target.getTime() - new Date().getTime();
 	const seconds = Math.floor((total / 1000) % 60);
 	const minutes = Math.floor((total / 1000 / 60) % 60);
