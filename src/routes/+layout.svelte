@@ -149,14 +149,9 @@
 		}
 	}
 </script>
-
-<head>
-	<link
-		rel="icon"
-		type="image/png"
-		href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png"
-	/>
-</head>
+<svelte:head>
+  <link rel="icon" type="image/png" href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png" />
+</svelte:head>
 <div
 	class="container"
 	style={Object.entries($themeDetails)
