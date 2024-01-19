@@ -41,7 +41,7 @@
 		padding: 5px;
 		transition: 200ms all ease-in-out;
 		display: grid;
-		grid-template-columns: fit-content auto;
+		grid-template-columns: auto 100%;
 		grid-template-areas: 
 			"timestamp text"
 			"unknown progress";
@@ -55,13 +55,16 @@
 	}
 
 	.topic .timestamp {
-		min-width: fit-content;
+		width: max-content !important;
+		padding-inline: 5px;
 		margin-right: 10px;
 		font-family: monospace, monospace;
 	}
 
-	.topic p {
+	.contents {
 		font-size: medium;
+		text-align: left;
+		width: 100%;
 	}
 
 	.progress {

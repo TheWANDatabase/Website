@@ -90,7 +90,7 @@
 <div class="container">
 	<div class="editor">
 		<div class="toolbar">
-			<button class=""> </button>
+			<h1>Topic Editor <sup style="font-size: small;color: red;text-decoration: underline;">preview</sup></h1>
 		</div>
 		<div class="body">
 			<textarea bind:this={$editor} bind:value={$editorContent} />
@@ -125,26 +125,26 @@
 		display: grid;
 		grid-template-columns: auto 300px;
 		grid-template-rows: 345px 500px;
-		max-height: 1000px;
 		grid-template-areas:
 			'editor vod'
 			'editor topics';
-		width: calc(100vw, -10px);
+		height: 100% !important;
 	}
 
 	.editor {
 		width: 100%;
 		grid-area: editor;
 		border-radius: 5px;
+		height: inherit;
 		background-color: var(--bg-secondary);
 		color: var(--textPrimary);
 	}
 
 	.editor .body {
-		padding: 5px;
+		/* padding: 5px; */
 		width: 100%;
 		min-height: 700px;
-		height: 70%;
+		/* height: auto; */
 		border-radius: 5px;
 		color: var(--textPrimary);
 	}
