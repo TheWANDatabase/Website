@@ -102,7 +102,7 @@
 
 				$socket.on('state', (data: string) => {
 					$liveState = JSON.parse(data) satisfies StateMessage;
-					toast($liveState.title);
+					// toast($liveState.title);
 					// $liveState.update(value => {
 					//   value.push(data);
 					//   return value;
