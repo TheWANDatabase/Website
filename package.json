@@ -47,6 +47,7 @@
     "localstorage-slim": "^2.7.0",
     "markdown-it": "^13.0.2",
     "markdown-it-emoji": "^2.0.2",
+    "nanoid": "^5.0.4",
     "plyr": "^3.7.8",
     "posthog-js": "^1.96.1",
     "socket.io-client": "^4.7.2",
