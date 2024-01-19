@@ -154,6 +154,12 @@
 		width: 100%;
 	}
 
+	.content .topic-list {
+		height: 70vh;
+		overflow-y: scroll;
+		overflow-x: hidden;
+	}
+
 	.content .product-container {
 		width: 100%;
 		display: flex;

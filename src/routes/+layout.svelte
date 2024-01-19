@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { io } from 'socket.io-client';
 	import Header from '$lib/components/Header.svelte';
+	import { nanoid } from 'nanoid';
 	import posthog from 'posthog-js';
 	import { browser, dev } from '$app/environment';
 	import { env } from '$env/dynamic/public';
@@ -35,18 +36,38 @@
 		return;
 	};
 
+	let snackbar: HTMLDivElement;
 	// const notificationStore = writable([]);
-	//
-	// notificationStore.subscribe(value => {
-	//   if (value.length > 0) {
-	//     const toast = document.querySelector('.snackbar .toast');
-	//     toast.style.transform = 'translate(0, 0)';
-	//     setTimeout(() => {
-	//       toast.style.transform = 'translate(-105%, 0)';
-	//     }, 3000);
-	//   }
+
+	// notificationStore.subscribe((value) => {
+	// 	if (value.length > 0) {
+
+	// 	}
 	// });
-	//
+
+	function toast(message: string, icon?: string) {
+		if (!snackbar) return;
+		let id = nanoid();
+		let div = document.createElement('div');
+		div.id = id;
+		div.classList.add('toast');
+		if (icon !== undefined) {
+			div.innerHTML = `
+			<img src="${icon}" />	
+			<p>${message}</p>
+			`;
+		} else {
+			div.innerHTML = `
+			<p>${message}</p>
+			`;
+		}
+
+		snackbar.prepend(div);
+
+		setTimeout(() => {
+			if (typeof 'window' === 'undefined') return;
+		}, 5000);
+	}
 
 	let currentPath = '';
 
@@ -81,7 +102,8 @@
 
 				$socket.on('state', (data: string) => {
 					$liveState = JSON.parse(data) satisfies StateMessage;
-					// notificationStore.update(value => {
+					toast($liveState.title);
+					// $liveState.update(value => {
 					//   value.push(data);
 					//   return value;
 					// });
@@ -149,9 +171,15 @@
 		}
 	}
 </script>
+
 <svelte:head>
-  <link rel="icon" type="image/png" href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png" />
+	<link
+		rel="icon"
+		type="image/png"
+		href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png"
+	/>
 </svelte:head>
+
 <div
 	class="container"
 	style={Object.entries($themeDetails)
@@ -162,6 +190,7 @@
 		<Header />
 		<slot />
 		<WanClock />
+		<div class="snackbar" bind:this={snackbar}></div>
 	</div>
 	<div class="loader">
 		<span>Loading...</span>
@@ -214,10 +243,7 @@
 		margin: auto;
 		font-size: xx-large;
 	}
-	/* :root {
-		--primary: #3e5399;
-		--message-bar: var(--primary);
-		--message-bar-urgent: #993e3e;
-		--plyr-color-main: var(--primary);
-	} */
+	.snackbar {
+		
+	}
 </style>
