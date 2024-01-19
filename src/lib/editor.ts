@@ -1,4 +1,4 @@
-import type { Topic } from './api';
+import type { Topic } from './types/api';
 
 const TIMESTAMP_EXTRACTOR = /((\d{1,2}:{0,1}){1,3}:(\d{1,2}:{0,1}))/;
 const CONTINUANCE_EXTRACTOR = /\[cont.\]/i;
@@ -8,6 +8,17 @@ const TANGENT_EXTRACTOR = /\s{1,3}>\s(.+)/;
 const SPONSOR_EXTRACTOR =
 	/\*(?:sponsors?)\s?(?:spots?)?\s?(?:ft\.?|feat\.?|featuring)?\s?(?:dennis)?.*\*/i;
 const MERCH_MESSAGE_EXTRACTOR = /merch\smessages\s#{0,1}(\d+)+(?:.+)\*/i;
+const UNKNOWN_TYPE_EXTRACTOR = /\*(.*)\*/i;
+
+const IGNORE_HEADERS = [
+	'Chapters.',
+	'Chapters',
+	'Intro.',
+	'Intro',
+	'Outro.',
+	'Outro'
+]
+
 
 export function processTimestampDocument(text: string): Topic[] {
 	const topics: Topic[] = [];
@@ -15,6 +26,7 @@ export function processTimestampDocument(text: string): Topic[] {
 	const lines: string[] = text.split('\n');
 	let inSponsorSpots = false;
 	let inMerchMessages = false;
+	let wasContinued = false;
 
 	for (const line of lines) {
 		if (MAINLINE_EXTRACTOR.test(line)) {
@@ -69,9 +81,38 @@ export function processTimestampDocument(text: string): Topic[] {
 					kind: 'merch message',
 					children: []
 				});
+			} else {
+				const [, title] = UNKNOWN_TYPE_EXTRACTOR.exec(line) || [];
+				if (inSponsorSpots) inSponsorSpots = false;
+				if (inMerchMessages) inMerchMessages = false;
+
+				if(IGNORE_HEADERS.includes(title)) continue;
+				console.log(title, 'timestamp: ' + timestamp)
+				topics.push({
+					id: 'unknown-' + Date.now(),
+					episodeId: '',
+					parent: null,
+					title: title,
+					start: timestamp,
+					end: 0,
+					created: new Date(),
+					modified: new Date(),
+					ref: null,
+					kind: 'topic',
+					children: []
+				});
+			}
+
+			if(wasContinued) {
+				if(topics[topics.length-2].start > 0) continue;
+				topics[topics.length-2].start = topics[topics.length-1].start;
+				wasContinued = false;
 			}
 		} else if (CONTINUANCE_EXTRACTOR.test(line)) {
+			wasContinued = true;
 			if (TOPIC_EXTRACTOR.test(line)) {
+				if (inSponsorSpots) inSponsorSpots = false;
+				if (inMerchMessages) inMerchMessages = false;
 				const [, raw_id, title] = TOPIC_EXTRACTOR.exec(line) || [];
 				const id = parseInt(raw_id);
 
@@ -91,6 +132,59 @@ export function processTimestampDocument(text: string): Topic[] {
 					kind: 'topic',
 					children: []
 				});
+			} else if (SPONSOR_EXTRACTOR.test(line)) {
+				if (inMerchMessages) inMerchMessages = false;
+				inSponsorSpots = true;
+				topics.push({
+					id: 'sponsors',
+					episodeId: '',
+					parent: null,
+					title: 'Sponsor Spots',
+					start: 0,
+					end: 0,
+					created: new Date(),
+					modified: new Date(),
+					ref: null,
+					kind: 'sponsor',
+					children: []
+				});
+			} else if (MERCH_MESSAGE_EXTRACTOR.test(line)) {
+				if (inSponsorSpots) inSponsorSpots = false;
+				inMerchMessages = true;
+				const [, raw_id] = MERCH_MESSAGE_EXTRACTOR.exec(line) || [];
+				topics.push({
+					id: 'merch_messages - ' + raw_id,
+					episodeId: '',
+					parent: null,
+					title: 'Merch Messages',
+					start: 0,
+					end: 0,
+					created: new Date(),
+					modified: new Date(),
+					ref: null,
+					kind: 'merch message',
+					children: []
+				});
+			} else {
+				const [, title] = UNKNOWN_TYPE_EXTRACTOR.exec(line) || [];
+				if (inSponsorSpots) inSponsorSpots = false;
+				if (inMerchMessages) inMerchMessages = false;
+
+				if(IGNORE_HEADERS.includes(title)) continue;
+
+				topics.push({
+					id: 'unknown-' + Date.now(),
+					episodeId: '',
+					parent: null,
+					title: title,
+					start: 0,
+					end: 0,
+					created: new Date(),
+					modified: new Date(),
+					ref: null,
+					kind: 'tangent',
+					children: []
+				});
 			}
 		} else if (TANGENT_EXTRACTOR.test(line)) {
 			const timestamp = fromHumanReadable(TIMESTAMP_EXTRACTOR.exec(line)?.[0] || '00:00');
@@ -108,6 +202,19 @@ export function processTimestampDocument(text: string): Topic[] {
 					created: new Date(),
 					modified: new Date()
 				});
+			} else if(inMerchMessages) {
+				topics[topics.length - 1].children?.push({
+					id: '',
+					episodeId: '',
+					parent: null,
+					title: title,
+					start: timestamp,
+					end: 0,
+					ref: null,
+					kind: 'merch message',
+					created: new Date(),
+					modified: new Date()
+				});
 			} else {
 				topics[topics.length - 1].children?.push({
 					id: '',
@@ -121,6 +228,11 @@ export function processTimestampDocument(text: string): Topic[] {
 					created: new Date(),
 					modified: new Date()
 				});
+			}
+
+			if(wasContinued) {
+				topics[topics.length-2].start = topics[topics.length-1].start;
+				wasContinued = false;
 			}
 		}
 	}

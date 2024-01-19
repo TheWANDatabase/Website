@@ -1,21 +1,6 @@
 import { env } from '$env/dynamic/public';
 import { dev } from '$app/environment';
-
-console.log(env);
-
-export interface Topic {
-	id: string;
-	episodeId: string;
-	parent: string | null;
-	title: string;
-	start: number;
-	end: number;
-	created: Date;
-	modified: Date;
-	ref: string | null;
-	kind: 'topic' | 'merch message' | 'sponsor' | 'tangent' | 'sub topic';
-	children?: Topic[];
-}
+import type { EpisodeSearchFilters } from './types/api';
 
 const base: string = env.PUBLIC_API_BASE + '/v' + env.PUBLIC_API_VERSION;
 
@@ -42,22 +27,10 @@ export function signOut() {
 	return fetch(base + '/auth/logout');
 }
 
-export function getVideos() {
+export function getVideos(filter: EpisodeSearchFilters) {
 	return fetch(base + '/episodes', {
 		method: 'POST',
-		body: JSON.stringify({
-			filters: {
-				order: { id: 'release-desc', label: 'Stream Date (Descending)' },
-				hideCW: false,
-				hideCorrupt: false,
-				startDate: '2012-08-27T23:00:00.000Z',
-				endDate: new Date().toISOString(),
-				members: []
-			},
-			offset: 0,
-			limit: 20,
-			flags: { include: ['cast_ids', 'topic_count'] }
-		})
+		body: JSON.stringify(filter)
 	});
 }
 

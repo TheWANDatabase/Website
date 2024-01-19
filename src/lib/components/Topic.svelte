@@ -8,12 +8,10 @@
 
 	export let topic: Topic;
 	export let dev: boolean = false;
-
-	console.log(topic.start, topic.end, $currentTime < topic.end && $currentTime > topic.start);
 </script>
 
 <div
-	class={['topic', $currentTime < topic.end && $currentTime > topic.start ? 'active' : ''].join(
+	class={['topic', /*$currentTime < topic.end &&*/ $currentTime > topic.start ? 'active' : ''].join(
 		' '
 	)}
 >

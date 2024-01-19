@@ -15,46 +15,43 @@
 
 		return percentage.toFixed(1) + '%';
 	}
-
 </script>
 
 <div
-	class={['topic', $currentTime < topic.end && $currentTime > topic.start ? 'active' : ''].join(
+	class={['topic', $currentTime > topic.start ? 'active' : ''].join(
 		' '
 	)}
 >
 	<p class="timestamp">
 		{#if dev}
-		{toHumanTime(topic.start)}<br>{topic.kind}
-	{:else}
-		{toHumanTime(topic.start)}
-	{/if}
+			{toHumanTime(topic.start)}<br />{topic.kind}
+		{:else}
+			{toHumanTime(topic.start)}
+		{/if}
 	</p>
 	<p class="contents">{topic.title}</p>
-	<div class="progress" style={`width: ${calcPercentage(topic.start, topic.end, $currentTime)};`}></div>
+	<div class="progressRunner" />
+	<div
+		class="progress"
+		style={`height: ${$currentTime > topic.end ? '100%' : calcPercentage(topic.start, topic.end, $currentTime)};`}
+	></div>
 </div>
 
 <style>
 	.topic {
-		margin: 0 0 0 -5px;
+		margin: 0 0 0 -11px;
+		/* margin: 0 0 0 -6px; */
 		border-radius: 0 5px 5px 0;
-		padding: 5px;
+		padding: 0 5px;
 		transition: 200ms all ease-in-out;
 		display: grid;
-		grid-template-columns: auto 100%;
-		grid-template-areas: 
-			"timestamp text"
-			"unknown progress";
+		grid-template-columns: 0px 10px auto auto;
+		grid-template-areas: 'progress x timestamp text';
 		width: 100%;
 	}
 
-	.active { 
-		margin: 0 0 0 -5px;
-		box-shadow: -5px 0px 0px rgb(var(--secondary));
-		transition: 200ms all ease-in-out;
-	}
-
 	.topic .timestamp {
+		grid-area: timestamp;
 		width: max-content !important;
 		padding-inline: 5px;
 		margin-right: 10px;
@@ -62,25 +59,50 @@
 	}
 
 	.contents {
+		grid-area: text;
 		font-size: medium;
 		text-align: left;
 		width: 100%;
+		margin: 5px 0;
+		word-wrap: wrap;
+		overflow: scroll;
 	}
 
 	.progress {
+		opacity: 0;
 		grid-area: progress;
 		margin-left: -4px;
 		border: none;
-		border-radius: 5px;
+		border-radius: 0;/*5px;*/ /*0 4px 4px 0;*/
 		height: 0px;
 		transition: 200ms;
 	}
 
-	.active .progress {
-		height: 5px;
-		background: rgb(var(--secondary));
+	.progressRunner {
+		opacity: 0;
+		grid-area: progress;
+		margin-left: -4px;
+		border: none;
+		border-radius: 0;/*5px;*/ /*0 4px 4px 0;*/
+		height: 0%;
 		transition: 200ms;
 	}
 
+	.active .progressRunner {
+		opacity: 1;
+		width: 5px;
+		height: 100%;
+		/* background: rgba(var(--secondary), 1); */
+		background: green;
+		transition: 200ms;
+	}
 
+	.active .progress {
+		opacity: 1;
+		width: 5px;
+		min-height: 1%;
+		background: pink;
+		/* background: rgb(var(--secondary)); */
+		transition: 200ms;
+	}
 </style>

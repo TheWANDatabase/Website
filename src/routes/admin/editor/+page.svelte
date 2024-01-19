@@ -3,12 +3,12 @@
 	import Player from '$lib/components/Player.svelte';
 	import Topic from '$lib/components/Topic.svelte';
 	import { processTimestampDocument } from '$lib/editor';
-	import { currentTime } from '$lib/stores';
+	import { currentTime, liveState } from '$lib/stores';
 	import { toHumanTime } from '$lib/time';
 	import { onMount } from 'svelte';
 	import { writable, type Writable } from 'svelte/store';
 
-	let vod = writable();
+	let vod = writable<any>();
 	let topics: Writable<any[]> = writable([]);
 	let editor: Writable<HTMLTextAreaElement> = writable();
 	let editorContent = writable('-Timestamps-\n[0:00] *Chapters*');
@@ -16,7 +16,6 @@
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
 			$editorContent = window.localStorage.getItem('wdb.ec') || '-Timestamps-\n[0:00] *Chapters*';
-
 
 			window.onkeydown = (e) => {
 				if (e.ctrlKey) {
@@ -30,7 +29,19 @@
 					}
 				}
 			};
-			let epReq = await getVideos();
+			let epReq = await getVideos({
+				filters: {
+					order: { id: 'release-desc', label: 'Stream Date (Descending)' },
+					hideCW: false,
+					hideCorrupt: false,
+					startDate: '2012-08-27T23:00:00.000Z',
+					endDate: new Date().toISOString(),
+					members: []
+				},
+				offset: 0,
+				limit: 1,
+				flags: { include: ['cast_ids', 'topic_count'] }
+			});
 			if (epReq.ok) {
 				let episodes = await epReq.json();
 				$vod = episodes[0];
@@ -39,7 +50,7 @@
 
 		editorContent.subscribe(() => {
 			$topics = processTimestampDocument($editorContent);
-			window.localStorage.setItem('wdb.ec', $editorContent);	
+			window.localStorage.setItem('wdb.ec', $editorContent);
 		});
 	});
 
@@ -61,11 +72,8 @@
 	}
 
 	function cursorDifferential(beforePosition: number, original: number, current: number): number {
-		console.log(beforePosition, original, current);
 		let difference = current - original;
-		console.log(difference);
 		let plannedPosition = beforePosition + difference;
-		console.log(plannedPosition);
 		return plannedPosition;
 	}
 
@@ -82,7 +90,19 @@
 		$editor.focus();
 		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
 	}
+
+	const liveHTML = writable('');
+
+	liveState.subscribe(
+		(v) =>{
+			if(!v) return;
+			$liveHTML = v.live
+				? '<span style="color: red;">Live</span>'
+				: '<span style="color: grey;">Offline</span>'
+		}
+	);
 </script>
+
 <head>
 	<script src="https://www.youtube.com/iframe_api"></script>
 </head>
@@ -90,69 +110,84 @@
 <div class="container">
 	<div class="editor">
 		<div class="toolbar">
-			<h1>Topic Editor <sup style="font-size: small;color: red;text-decoration: underline;">preview</sup></h1>
+			<h1>
+				Topic Editor
+				<sup style="font-size: small;color: red;text-decoration: underline;">preview</sup>
+			</h1>
+			<div>
+				{#if $liveState !== null && $liveState !== undefined}
+					<p>{$liveState.title}</p>
+					<div style="display: flex;justify-content:space-evenly">
+						<span>{$liveState.isWAN ? 'WAN' : 'Not WAN'}</span>
+						<span>|</span>
+						<span bind:innerHTML={$liveHTML} contenteditable="false" />
+						<span>|</span>
+						<span>{$liveState.textImminence}</span>
+					</div>
+				{/if}
+			</div>
 		</div>
-		<div class="body">
-			<textarea bind:this={$editor} bind:value={$editorContent} />
-		</div>
+			<textarea  class="body" bind:this={$editor} bind:value={$editorContent} />
 	</div>
-	<div class="player">
-		{#if $vod !== undefined}
-			<Player bind:vod={$vod} />
-		{/if}
-	</div>
-	<div class="topics">
-		<div class="topic-list">
-			<h2>Generated Topics</h2>
-			{#if $topics.length > 0}
-				{#each $topics as topic, index}
-					<Topic {topic} dev={true} />
-					{#if index < $topics.length - 1}
-						<hr />
-					{/if}
-				{:else}
-					<p>Start typing to generate topics</p>
-				{/each}
+	<div class="context">
+		<div class="player">
+			{#if $vod !== undefined}
+				<Player bind:vod={$vod} />
 			{/if}
+		</div>
+		<div class="topics">
+			<div class="topic-list">
+				<h2>Generated Topics</h2>
+				{#if $topics.length > 0}
+					{#each $topics as topic, index}
+						<Topic {topic} dev={true} />
+						{#if index < $topics.length - 1}
+							<hr />
+						{/if}
+					{:else}
+						<p>Start typing to generate topics</p>
+					{/each}
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
 
 <style>
 	.container {
-		margin: 5px;
-		padding-top: 75px;
+		margin: 0 5px;
 		display: grid;
-		grid-template-columns: auto 300px;
-		grid-template-rows: 345px 500px;
-		grid-template-areas:
-			'editor vod'
-			'editor topics';
-		height: 100% !important;
+		grid-template-columns: auto 5px 600px;
+		grid-template-areas: 'editor . context';
+		max-height: calc(100vh - 15px) !important;
+		overflow: hidden;
 	}
 
 	.editor {
-		width: 100%;
+		padding-top: 75px;
+		padding-bottom: 15px;
+		width: auto;
+		display: flex;
+		flex-direction: column;
 		grid-area: editor;
 		border-radius: 5px;
-		height: inherit;
-		background-color: var(--bg-secondary);
-		color: var(--textPrimary);
+		/* background-color: rgb(var(--bg-secondary)); */
+		color: rgb(var(--textPrimary));
+	}
+
+	.editor .toolbar {
+		width: auto;
+		display: flex;
+		flex-grow: 0;
+		margin: 5px;
+		flex-direction: row;
+		justify-content: space-between;
 	}
 
 	.editor .body {
-		/* padding: 5px; */
+		flex-grow: 1;
+		/* min-height: inherit; */
 		width: 100%;
-		min-height: 700px;
-		/* height: auto; */
-		border-radius: 5px;
-		color: var(--textPrimary);
-	}
-
-	.editor .body textarea {
-		width: 80%;
-		min-height: 700px;
-		height: 100%;
 		font-size: larger;
 		padding: 5px;
 		font-style: normal;
@@ -160,28 +195,42 @@
 		overflow-x: hidden;
 		overflow-y: scroll;
 		resize: none;
-		background-color: var(--bg-primary);
-		color: var(--textPrimary);
+		background-color: rgb(var(--bg-primary));
+		color: rgb(var(--textPrimary));
+	}
+
+	.context {
+		grid-area: context;
+		padding-top: 80px;
+		padding-bottom: 15px;
+		width: auto;
+		display: flex;
+		flex-direction: column;
+		border-radius: 5px;
+		/* background-color: rgb(var(--bg-secondary)); */
+		color: rgb(var(--textPrimary));
 	}
 
 	.topics {
-		grid-area: topics;
-		height: auto;
-		margin: 5px 0 0 -16vw;
-		width: auto;
+		flex-grow: 1;
+		margin: 5px 5px 0 0;
+		padding: 5px 5px 0;
 		border-radius: 5px;
-		background-color: var(--bg-primary);
+		background-color: rgb(var(--bg-primary));
 		display: flex;
 		align-items: center;
 		flex-direction: column;
 		overflow-y: scroll;
 		overflow-x: hidden;
+		height: calc(100vh - 440px)
+	}
+	
+	.topics hr {
+		width: 90%;
+		margin: 0px auto;
 	}
 
 	.player {
-		grid-area: vod;
-		margin: 0 0 0 -16vw;
-		width: auto;
-		height: auto;
+		flex-grow: 0;
 	}
 </style>
