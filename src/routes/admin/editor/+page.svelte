@@ -18,14 +18,24 @@
 			$editorContent = window.localStorage.getItem('wdb.ec') || '-Timestamps-\n[0:00] *Chapters*';
 
 			window.onkeydown = (e) => {
-				if (e.ctrlKey) {
-					switch (e.key) {
-						case 'i':
+				console.log(e.ctrlKey, e.shiftKey, e.code)
+				if (e.ctrlKey && e.shiftKey) {
+					switch (e.code) {
+						case 'Digit0':
 							e.preventDefault();
 							return insertIntro();
-						case 'm':
+						case 'Digit1':
 							e.preventDefault();
 							return insertPrimaryTopic();
+						case 'Digit2':
+							e.preventDefault();
+							return insertSecondaryTopic();
+						case 'Digit3':
+							e.preventDefault();
+							return insertContinuedtopic();
+						case 'Digit4':
+							e.preventDefault();
+							return insertSponsorHeader();
 					}
 				}
 			};
@@ -91,16 +101,39 @@
 		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
 	}
 
+	function insertSecondaryTopic() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `  > ${toHumanTime($currentTime)} `);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length)+1;
+	}
+
+	function insertContinuedtopic() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `[Cont.] *Topic #: *`);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 3;
+	}
+
+	function insertSponsorHeader() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `[${toHumanTime($currentTime)}] *Sponsor Spots*`);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
+		insertSecondaryTopic();
+	}
+
 	const liveHTML = writable('');
 
-	liveState.subscribe(
-		(v) =>{
-			if(!v) return;
-			$liveHTML = v.live
-				? '<span style="color: red;">Live</span>'
-				: '<span style="color: grey;">Offline</span>'
-		}
-	);
+	liveState.subscribe((v) => {
+		if (!v) return;
+		$liveHTML = v.live
+			? '<span style="color: red;">Live</span>'
+			: '<span style="color: grey;">Offline</span>';
+	});
 </script>
 
 <head>
@@ -127,7 +160,7 @@
 				{/if}
 			</div>
 		</div>
-			<textarea  class="body" bind:this={$editor} bind:value={$editorContent} />
+		<textarea class="body" bind:this={$editor} bind:value={$editorContent} />
 	</div>
 	<div class="context">
 		<div class="player">
@@ -222,9 +255,9 @@
 		flex-direction: column;
 		overflow-y: scroll;
 		overflow-x: hidden;
-		height: calc(100vh - 440px)
+		height: calc(100vh - 440px);
 	}
-	
+
 	.topics hr {
 		width: 90%;
 		margin: 0px auto;
