@@ -151,7 +151,7 @@
 				{#if $liveState !== null && $liveState !== undefined}
 					<p>{$liveState.title}</p>
 					<div style="display: flex;justify-content:space-evenly">
-						<span>{$liveState.isWAN ? 'WAN' : 'Not WAN'}</span>
+						<span>{$liveState.wan ? 'WAN' : 'Not WAN'}</span>
 						<span>|</span>
 						<span bind:innerHTML={$liveHTML} contenteditable="false" />
 						<span>|</span>
