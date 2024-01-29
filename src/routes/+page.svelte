@@ -14,6 +14,7 @@
             window.location.pathname = '/archive'
         }
     }
+    
 
 </script>
 {#if $show}

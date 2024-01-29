@@ -13,24 +13,32 @@
 	import { writable } from 'svelte/store';
 	import type { PartialTheme } from '$lib/types/themes';
 	import type { StateMessage } from '$lib/types/socket/State';
+	import { getCookie, setCookie } from '$lib/cookies';
+
+	export let data: any;
 
 	export const load = async () => {
 		if (browser) {
+			console.log('context', data);
 			console.log('Starting PostHog');
-			posthog.init(env.PUBLIC_POSTHOG_KEY, {
-				api_host: 'https://eu.posthog.com',
-				autocapture: !dev
-			});
-
-			let id = window.localStorage.getItem('tdb.sid');
-
-			if (id !== null) {
-				posthog.identify(id, {
-					usingEncryption: true
+			if (env.PUBLIC_POSTHOG_KEY) {
+				posthog.init(env.PUBLIC_POSTHOG_KEY, {
+					api_host: 'https://eu.posthog.com',
+					autocapture: !dev
 				});
+
+				let id = window.localStorage.getItem('tdb.sid');
+
+				if (id !== null) {
+					posthog.identify(id, {
+						usingEncryption: true
+					});
+				} else {
+					id = posthog.get_distinct_id();
+					window.localStorage.setItem('tdb.sid', id);
+				}
 			} else {
-				id = posthog.get_distinct_id();
-				window.localStorage.setItem('tdb.sid', id);
+				console.warn("[PostHog] - Failed to initialise public key")
 			}
 		}
 		return;
@@ -45,38 +53,35 @@
 	// 	}
 	// });
 
-	function toast(message: string, icon?: string) {
-		if (!snackbar) return;
-		let id = nanoid();
-		let div = document.createElement('div');
-		div.id = id;
-		div.classList.add('toast');
-		if (icon !== undefined) {
-			div.innerHTML = `
-			<img src="${icon}" />	
-			<p>${message}</p>
-			`;
-		} else {
-			div.innerHTML = `
-			<p>${message}</p>
-			`;
-		}
+	// function toast(message: string, icon?: string) {
+	// 	if (!snackbar) return;
+	// 	let id = nanoid();
+	// 	let div = document.createElement('div');
+	// 	div.id = id;
+	// 	div.classList.add('toast');
+	// 	if (icon !== undefined) {
+	// 		div.innerHTML = `
+	// 		<img src="${icon}" />
+	// 		<p>${message}</p>
+	// 		`;
+	// 	} else {
+	// 		div.innerHTML = `
+	// 		<p>${message}</p>
+	// 		`;
+	// 	}
 
-		snackbar.prepend(div);
+	// 	snackbar.prepend(div);
 
-		setTimeout(() => {
-			if (typeof 'window' === 'undefined') return;
-		}, 5000);
-	}
+	// 	setTimeout(() => {
+	// 		if (typeof 'window' === 'undefined') return;
+	// 	}, 5000);
+	// }
 
 	let currentPath = '';
 
 	export const themeDetails = writable<PartialTheme>({
-		id: '0',
-		loadingOpacity: 0,
-		loadedOpacity: 1,
-		bgPrimary: '60,60,65',
-		loaderDisplay: '40vh'
+		id: data.theme.id,
+		...JSON.parse(data.theme.body)
 	});
 
 	let ival: any;
@@ -102,11 +107,6 @@
 
 				$socket.on('state', (data: string) => {
 					$liveState = JSON.parse(data) satisfies StateMessage;
-					// toast($liveState.title);
-					// $liveState.update(value => {
-					//   value.push(data);
-					//   return value;
-					// });
 				});
 			}
 
@@ -130,7 +130,7 @@
 
 			themeDetails.subscribe((v) => {
 				if (v.id !== '0') {
-					window.localStorage.setItem('tdb.theme', v.id);
+					setCookie("tdb.theme", v.id, 365);
 				}
 			});
 
@@ -147,15 +147,17 @@
 	});
 
 	async function loadTheme() {
-		let theme = window.localStorage.getItem('tdb.theme');
+		let theme = getCookie("tdb.theme");
+		console.log(theme);
 		if (theme !== null) {
 			if (theme === $themeDetails.id) return;
-			let th = await getTheme(theme);
+			let th = (await getTheme(theme)) as any;
+			console.log(th)
 			if (th.error !== undefined) {
 				console.warn('Cannot find theme - Resetting to default (1)');
 				$themeDetails = {
 					id: '1',
-					...(await getTheme('1'))
+					...((await getTheme('1')) as any)
 				};
 			} else {
 				$themeDetails = {
@@ -166,7 +168,7 @@
 		} else {
 			$themeDetails = {
 				id: '1',
-				...(await getTheme('1'))
+				...((await getTheme('1')) as any)
 			};
 		}
 	}
@@ -243,7 +245,7 @@
 		margin: auto;
 		font-size: xx-large;
 	}
-	.snackbar {
+	/* .snackbar {
 		
-	}
+	} */
 </style>

@@ -3,7 +3,7 @@
 	import Player from '$lib/components/Player.svelte';
 	import Topic from '$lib/components/Topic.svelte';
 	import { processTimestampDocument } from '$lib/editor';
-	import { currentTime, liveState } from '$lib/stores';
+	import { currentTime, liveState, socket } from '$lib/stores';
 	import { toHumanTime } from '$lib/time';
 	import { onMount } from 'svelte';
 	import { writable, type Writable } from 'svelte/store';
@@ -15,6 +15,9 @@
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
+			console.log($socket);
+
+			
 			$editorContent = window.localStorage.getItem('wdb.ec') || '-Timestamps-\n[0:00] *Chapters*';
 
 			window.onkeydown = (e) => {

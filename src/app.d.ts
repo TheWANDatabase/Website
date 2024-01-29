@@ -5,7 +5,20 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		// interface Platform {}
+		interface Platform {
+			v: 1,
+			env: {
+				// Wrangler env variables
+				DB: D1Database;
+				// EDITOR: DurableObject,
+
+				// CF Pages env variables
+				CF_PAGES: number;
+				CF_PAGES_URL: string;
+				CF_PAGES_BRANCH: string;
+				CF_PAGES_COMMIT_SHA: string;
+			};
+		}
 	}
 }
 

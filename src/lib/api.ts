@@ -1,7 +1,6 @@
 import { env } from '$env/dynamic/public';
 import { dev } from '$app/environment';
 import type { EpisodeSearchFilters } from './types/api';
-
 const base: string = env.PUBLIC_API_BASE + '/v' + env.PUBLIC_API_VERSION;
 
 const headers: Headers = new Headers();
@@ -52,7 +51,7 @@ export async function getNextShow() {
 	return await req.json();
 }
 
-export async function getTheme(id: string) {
+export async function getTheme(id: string): Promise<never> {
 	const req = await fetch(base + '/themes/' + id + '/json', {
 		headers: {
 			'User-Agent': 'TheWanDatabase' + dev ? ' (Development)' : '(Production)'

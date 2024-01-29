@@ -1,0 +1,59 @@
+name = "api"
+main = "src/main.ts"
+compatibility_date = "2023-09-18"
+node_compat = true
+
+# Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
+# Note: Use secrets to store sensitive data.
+# Docs: https://developers.cloudflare.com/workers/platform/environment-variables
+# [vars]
+
+
+# Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
+# Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
+[[kv_namespaces]]
+binding = "TWDB_KV"
+id = "a0376333361c46ee972c36e20b96d1dd"
+
+[[kv_namespaces]]
+binding = "BINGO"
+id = "226b8d64944f404e8b08b29e369e5f46"
+
+[[kv_namespaces]]
+binding = "VK"
+id = "e6a2a80095cd4ca68626745318aa5544"
+
+[[kv_namespaces]]
+binding = "FP"
+id = "9cf7b5b29459458292a591db86a5ab77"
+
+# Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.
+# Docs: https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
+[[r2_buckets]]
+binding = "CDN"
+bucket_name = "cdn"
+preview_bucket_name = "cdd"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wand1"
+database_id = "a932d6f8-cbab-42e9-b355-ce526bdcd10f"
+
+browers = { binding = "BROWSER", type = "browser" }
+
+[[hyperdrive]]
+binding = "HETZNER"
+id = "cf9e980d1250476c9abf6c29685217d1"
+localConnectionString = "postgresql://sysuser:gorbachevrules@65.21.177.172:5432/development"
+
+[ai]
+binding = "AI"
+
+[placement]
+mode = "smart"
+
+[vars]
+PUBLIC_POSTHOG_KEY="phc_koSgAhKwNHOdd9NBgMoJcdlCktwyJuxWt7qBP326ayR"
+PUBLIC_API_VERSION=2
+PUBLIC_API_BASE="https://edge.thewandb.com"
+#PUBLIC_API_BASE="http://localhost:8787"
