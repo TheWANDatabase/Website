@@ -33,7 +33,7 @@
 </div>
 <style>
     .container {
-        padding-top: 1rem;
+        padding-top: 80px;
         display: flex;
         justify-content: center;
         align-items: center;
