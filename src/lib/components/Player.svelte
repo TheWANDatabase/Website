@@ -27,6 +27,8 @@
 			$player.autoplay = true;
 			$player.muted = !!dev
 			// TODO: add support for floatplane playback
+			
+			$player.volume = 0.25;
 
 			$playbackSource = 'youtube';
 			eventLoop = setInterval(() => {
@@ -34,7 +36,7 @@
 				$currentTime = $player.currentTime;
 				$maxDuration = $player.duration;
 				$playing = $player.playing;
-			}, 200);
+			}, 1e3);
 		}
 	});
 
