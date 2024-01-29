@@ -3,7 +3,7 @@
 	import Player from '$lib/components/Player.svelte';
 	import Topic from '$lib/components/Topic.svelte';
 	import { processTimestampDocument } from '$lib/editor';
-	import { currentTime, liveState } from '$lib/stores';
+	import { currentTime, liveState, socket } from '$lib/stores';
 	import { toHumanTime } from '$lib/time';
 	import { onMount } from 'svelte';
 	import { writable, type Writable } from 'svelte/store';
@@ -15,17 +15,30 @@
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
+			console.log($socket);
+
+			
 			$editorContent = window.localStorage.getItem('wdb.ec') || '-Timestamps-\n[0:00] *Chapters*';
 
 			window.onkeydown = (e) => {
-				if (e.ctrlKey) {
-					switch (e.key) {
-						case 'i':
+				console.log(e.ctrlKey, e.shiftKey, e.code)
+				if (e.ctrlKey && e.shiftKey) {
+					switch (e.code) {
+						case 'Digit0':
 							e.preventDefault();
 							return insertIntro();
-						case 'm':
+						case 'Digit1':
 							e.preventDefault();
 							return insertPrimaryTopic();
+						case 'Digit2':
+							e.preventDefault();
+							return insertSecondaryTopic();
+						case 'Digit3':
+							e.preventDefault();
+							return insertContinuedtopic();
+						case 'Digit4':
+							e.preventDefault();
+							return insertSponsorHeader();
 					}
 				}
 			};
@@ -91,16 +104,39 @@
 		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
 	}
 
+	function insertSecondaryTopic() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `  > ${toHumanTime($currentTime)} `);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length)+1;
+	}
+
+	function insertContinuedtopic() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `[Cont.] *Topic #: *`);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 3;
+	}
+
+	function insertSponsorHeader() {
+		let [lines, current, cursor, original] = newLineify();
+		lines.splice(current, 0, `[${toHumanTime($currentTime)}] *Sponsor Spots*`);
+		$editor.value = lines.join('\n');
+		$editor.focus();
+		$editor.selectionEnd = cursorDifferential(cursor, original, $editor.value.length) - 1;
+		insertSecondaryTopic();
+	}
+
 	const liveHTML = writable('');
 
-	liveState.subscribe(
-		(v) =>{
-			if(!v) return;
-			$liveHTML = v.live
-				? '<span style="color: red;">Live</span>'
-				: '<span style="color: grey;">Offline</span>'
-		}
-	);
+	liveState.subscribe((v) => {
+		if (!v) return;
+		$liveHTML = v.live
+			? '<span style="color: red;">Live</span>'
+			: '<span style="color: grey;">Offline</span>';
+	});
 </script>
 
 <head>
@@ -118,7 +154,7 @@
 				{#if $liveState !== null && $liveState !== undefined}
 					<p>{$liveState.title}</p>
 					<div style="display: flex;justify-content:space-evenly">
-						<span>{$liveState.isWAN ? 'WAN' : 'Not WAN'}</span>
+						<span>{$liveState.wan ? 'WAN' : 'Not WAN'}</span>
 						<span>|</span>
 						<span bind:innerHTML={$liveHTML} contenteditable="false" />
 						<span>|</span>
@@ -127,7 +163,7 @@
 				{/if}
 			</div>
 		</div>
-			<textarea  class="body" bind:this={$editor} bind:value={$editorContent} />
+		<textarea class="body" bind:this={$editor} bind:value={$editorContent} />
 	</div>
 	<div class="context">
 		<div class="player">
@@ -222,9 +258,9 @@
 		flex-direction: column;
 		overflow-y: scroll;
 		overflow-x: hidden;
-		height: calc(100vh - 440px)
+		height: calc(100vh - 440px);
 	}
-	
+
 	.topics hr {
 		width: 90%;
 		margin: 0px auto;

@@ -109,6 +109,11 @@ export function processTimestampDocument(text: string): Topic[] {
 				wasContinued = false;
 			}
 		} else if (CONTINUANCE_EXTRACTOR.test(line)) {
+			if(wasContinued) {
+				if(topics[topics.length-2].start > 0) continue;
+				topics[topics.length-2].start = topics[topics.length-1].start;
+				wasContinued = false;
+			}
 			wasContinued = true;
 			if (TOPIC_EXTRACTOR.test(line)) {
 				if (inSponsorSpots) inSponsorSpots = false;

@@ -8,14 +8,14 @@
 	let canShow = posthog.getFeatureFlag('experiments-wan-countdown-clock') === true;
 	let ticker: NodeJS.Timeout;
 
-	if (!$nextShow) {
-		getNextShow().then((d: string) => {
-			$nextShow = new Date(d);
-		});
-	}
-
 	onMount(() => {
 		if (typeof window !== 'undefined') {
+			if (!$nextShow) {
+				getNextShow().then((d: string) => {
+					$nextShow = new Date(d);
+				});
+			}
+
 			ticker = setInterval(() => {
 				if ($nextShow === null) return;
 				$showTime = getTimeRemaining($nextShow);
