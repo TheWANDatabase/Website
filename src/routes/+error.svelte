@@ -3,6 +3,8 @@
 	import { images } from '$lib/error';
 	import { writable } from 'svelte/store';
 
+
+
 	let details = writable({
 		...$page,
 		state: {
@@ -21,6 +23,8 @@
 			image: images[Math.floor(Math.random() * images.length)]
 		}
 	});
+
+	console.error($page);
 
 	function genericHandlerGoBack(e: MouseEvent) {
 		if (typeof 'window' !== 'undefined') {
