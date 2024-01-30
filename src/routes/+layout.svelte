@@ -38,7 +38,7 @@
 					window.localStorage.setItem('tdb.sid', id);
 				}
 			} else {
-				console.warn("[PostHog] - Failed to initialise public key")
+				console.warn('[PostHog] - Failed to initialise public key');
 			}
 		}
 		return;
@@ -87,72 +87,80 @@
 	let ival: any;
 
 	onMount(() => {
-		if (typeof window !== 'undefined') {
-			load();
-			if (!$socket) {
-				$socket = io('wss://mq.thewandb.com', {
-					transports: ['websocket']
-				});
+		try {
+			if (typeof window !== 'undefined') {
+				load();
+				if (!$socket) {
+					$socket = io('wss://mq.thewandb.com', {
+						transports: ['websocket']
+					});
 
-				$socket.on('connect', () => {
-					console.log('connected');
+					$socket.on('connect', () => {
+						console.log('connected');
 
-					$socket.emit('message', JSON.stringify({ type: 2, payload: 'bingo' }));
-					$socket.emit('message', JSON.stringify({ type: 2, payload: 'live' }));
+						$socket.emit('message', JSON.stringify({ type: 2, payload: 'bingo' }));
+						$socket.emit('message', JSON.stringify({ type: 2, payload: 'live' }));
 
-					return () => {
-						$socket.close();
-					};
-				});
+						return () => {
+							$socket.close();
+						};
+					});
 
-				$socket.on('state', (data: string) => {
-					$liveState = JSON.parse(data) satisfies StateMessage;
-				});
-			}
-
-			page.subscribe(($page) => {
-				if (currentPath && currentPath !== $page.url.pathname) {
-					posthog.capture('$pageleave');
+					$socket.on('state', (data: string) => {
+						$liveState = JSON.parse(data) satisfies StateMessage;
+					});
 				}
 
-				posthog.capture('$pageview', {
-					url: $page.url.pathname
+				page.subscribe(($page) => {
+					if (currentPath && currentPath !== $page.url.pathname) {
+						posthog.capture('$pageleave');
+					}
+
+					posthog.capture('$pageview', {
+						url: $page.url.pathname
+					});
 				});
-			});
 
-			const handleBeforeUnload = () => {
-				posthog.capture('$pageleave', {
-					url: $page.url.pathname
+				const handleBeforeUnload = () => {
+					posthog.capture('$pageleave', {
+						url: $page.url.pathname
+					});
+				};
+
+				window.addEventListener('beforeunload', handleBeforeUnload);
+
+				themeDetails.subscribe((v) => {
+					if (v.id !== '0') {
+						setCookie('tdb.theme', v.id, 365);
+					}
 				});
-			};
 
-			window.addEventListener('beforeunload', handleBeforeUnload);
-
-			themeDetails.subscribe((v) => {
-				if (v.id !== '0') {
-					setCookie("tdb.theme", v.id, 365);
-				}
-			});
-
-			loadTheme();
-
-			ival = setInterval(() => {
 				loadTheme();
-			}, 5000);
+
+				ival = setInterval(() => {
+					loadTheme();
+				}, 5000);
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	});
 
 	onDestroy(() => {
-		if (ival) clearInterval(ival);
+		try {
+			if (ival) clearInterval(ival);
+		} catch (e) {
+			console.error(e);
+		}
 	});
 
 	async function loadTheme() {
-		let theme = getCookie("tdb.theme");
+		let theme = getCookie('tdb.theme');
 		console.log(theme);
 		if (theme !== null) {
 			if (theme === $themeDetails.id) return;
 			let th = (await getTheme(theme)) as any;
-			console.log(th)
+			console.log(th);
 			if (th.error !== undefined) {
 				console.warn('Cannot find theme - Resetting to default (1)');
 				$themeDetails = {
@@ -173,14 +181,6 @@
 		}
 	}
 </script>
-
-<svelte:head>
-	<link
-		rel="icon"
-		type="image/png"
-		href="https://cdn.thewandb.com/assets/WANDB_logo_withOutline.png"
-	/>
-</svelte:head>
 
 <div
 	class="container"
