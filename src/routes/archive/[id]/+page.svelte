@@ -7,36 +7,41 @@
 	import { preshowOffset, playing, adjustedTime, maxDuration } from '$lib/stores.js';
 
 	import Topic from '$lib/components/Topic.svelte';
+	import type { CachedEntity, Episode } from '$lib/types/api.js';
 
-	export let data;
+	export let data: CachedEntity<Episode>;
 
-	$preshowOffset = data.preShowOffset;
+	export let {cached, data:episode, queryTime} = data; 
+
+	console.debug(`==== Fetch Report ====\nCached: ${cached}\nQuery Time: ${queryTime}ms`)
+
+	$preshowOffset = episode.preShowOffset ?? 0;
 </script>
 
 <head>
 	<script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <div class="container">
-	<title>{$playing ? '▶' : '⏸'} {data.title} | The WAN Database</title>
+	<title>{$playing ? '▶' : '⏸'} {episode.title} | The WAN Database</title>
 	<div class="player">
-		<Player bind:vod={data} />
+		<Player bind:vod={episode} />
 		<div class="details">
-			<h1 style="grid-area:title;">{data.title}</h1>
+			<h1 style="grid-area:title;">{episode.title}</h1>
 			<h2 style="grid-area:aired;margin-left:auto;width:fit-content;">
-				Originally Aired {new Date(data.aired).toLocaleDateString()} at {new Date(
-					data.aired
+				Originally Aired {new Date(episode.aired).toLocaleDateString()} at {new Date(
+					episode.aired
 				).toLocaleTimeString()}
 			</h2>
 			<h5 style="grid-area:runtime;margin-left:auto;width:fit-content;">
-				Runtime: {Math.round(data.duration / 60)} mins (approx) - Currently: {toHumanTime(
+				Runtime: {Math.round(episode.duration / 60)} mins (approx) - Currently: {toHumanTime(
 					$adjustedTime
 				)} / {toHumanTime($maxDuration)}
 			</h5>
 		</div>
 		<div class="cast">
-			{#if data.cast.length > 0}
+			{#if episode.cast.length > 0}
 				<div class="castContainer">
-					{#each data.cast as host}
+					{#each episode.cast as host}
 						<Host bind:host />
 					{/each}
 				</div>
@@ -49,11 +54,11 @@
 	<div class="content">
 		<div class="product-container">
 			<h2>Topics</h2>
-			{#if data.topics.length > 0}
+			{#if episode.topics.length > 0}
 				<div class="topic-list">
-					{#each data.topics as topic, index}
+					{#each episode.topics as topic, index}
 						<Topic {topic} />
-						{#if index < data.topics.length - 1}
+						{#if index < episode.topics.length - 1}
 							<hr />
 						{/if}
 					{/each}
@@ -63,9 +68,9 @@
 			{/if}
 			<hr />
 			<h2>Products On Show</h2>
-			{#if data.products.length > 0}
+			{#if episode.products.length > 0}
 				<div class="product-list">
-					{#each data.products as product}
+					{#each episode.products as product}
 						<a
 							id={'lttstore_product_' + product.id}
 							class="product"

@@ -10,6 +10,7 @@ declare global {
 			env: {
 				// Wrangler env variables
 				DB: D1Database;
+				WAN_CACHE: KVNamespace;
 				// EDITOR: DurableObject,
 
 				// CF Pages env variables

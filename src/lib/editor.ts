@@ -277,7 +277,7 @@ export function processTimestampDocument(text: string): Topic[] {
 	return finalized;
 }
 
-function fromHumanReadable(timestamp: string): number {
+export function fromHumanReadable(timestamp: string): number {
 	const pieces: string[] = timestamp.split(':');
 
 	const raw_seconds: string | undefined = pieces.pop();
