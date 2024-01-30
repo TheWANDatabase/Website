@@ -4,25 +4,26 @@
 	import Player from '$lib/components/Player.svelte';
 	import Host from '$lib/components/Host.svelte';
 	import { toHumanTime } from '$lib/time';
-	import { preshowOffset, playing, adjustedTime, maxDuration } from '$lib/stores.js';
+	import { preshowOffset, playing, adjustedTime, maxDuration, pageTitle, pageImage } from '$lib/stores.js';
 
 	import Topic from '$lib/components/Topic.svelte';
 	import type { CachedEntity, Episode } from '$lib/types/api.js';
 
 	export let data: CachedEntity<Episode>;
 
-	export let {cached, data:episode, queryTime} = data; 
+	export let { cached, data: episode, queryTime } = data;
 
-	console.debug(`==== Fetch Report ====\nCached: ${cached}\nQuery Time: ${queryTime}ms`)
+	console.debug(`==== Fetch Report ====\nCached: ${cached}\nQuery Time: ${queryTime}ms`);
 
 	$preshowOffset = episode.preShowOffset ?? 0;
+	$pageTitle = `${episode.title} | The WAN Database`;
+	$pageImage = `https://cdn.thewandb.com/media/${episode.thumbnail}.webp`;
 </script>
 
-<head>
+<svelte:head>
 	<script src="https://www.youtube.com/iframe_api"></script>
-</head>
+</svelte:head>
 <div class="container">
-	<title>{$playing ? '▶' : '⏸'} {episode.title} | The WAN Database</title>
 	<div class="player">
 		<Player bind:vod={episode} />
 		<div class="details">

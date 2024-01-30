@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { images } from '$lib/error';
+	import { pageTitle } from '$lib/stores';
 	import { writable } from 'svelte/store';
-
-
 
 	let details = writable({
 		...$page,
@@ -37,6 +36,8 @@
 			window.location.href = '/';
 		}
 	}
+
+	$pageTitle = `Whoops | The WAN Database`;
 </script>
 
 <div class="error-container">

@@ -4,6 +4,7 @@
 	import Video from '$lib/components/Video.svelte';
 	import type { EpisodeSearchFilters } from '$lib/types/api';
 	import { onMount } from 'svelte';
+	import { pageTitle } from '$lib/stores';
 
 	let vods = writable([]);
 
@@ -36,21 +37,22 @@
 	onMount(() => {
 		if (typeof 'window' === 'undefined') return;
 		if (window.localStorage) {
-            let storedFilters = window.localStorage.getItem('tdb.sf');
-            if(storedFilters) {
-                $filters = JSON.parse(storedFilters) satisfies EpisodeSearchFilters;
-            }
+			let storedFilters = window.localStorage.getItem('tdb.sf');
+			if (storedFilters) {
+				$filters = JSON.parse(storedFilters) satisfies EpisodeSearchFilters;
+			}
 		}
-        
-        load();
-		
-        filters.subscribe((v) => {
+
+		load();
+
+		filters.subscribe((v) => {
 			if (typeof 'window' === 'undefined') return;
 			if (window.localStorage) {
 				window.localStorage.setItem('tdb.sf', JSON.stringify(v));
 			}
 		});
 	});
+	$pageTitle = `The Archive | The WAN Database`;
 </script>
 
 <div class="container">

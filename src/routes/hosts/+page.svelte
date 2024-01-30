@@ -22,6 +22,9 @@
 
 
 </script>
+<svelte:head>
+	<title>The Hosts | The WAN Database</title>
+</svelte:head>
 <div class="container">
     <h1>Hosts</h1>
     <p>This page is a list of every person who has ever hosted, been phoned, or been present on the show.</p>

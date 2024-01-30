@@ -1,19 +1,21 @@
 <script lang="ts">
 	import { io } from 'socket.io-client';
 	import Header from '$lib/components/Header.svelte';
-	import { nanoid } from 'nanoid';
 	import posthog from 'posthog-js';
 	import { browser, dev } from '$app/environment';
 	import { env } from '$env/dynamic/public';
 	import { onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { socket, liveState } from '$lib/stores';
+	import { socket, liveState, pageTitle, pageImage } from '$lib/stores';
 	import { getTheme } from '$lib/api';
 	import WanClock from '$lib/components/WanClock.svelte';
 	import { writable } from 'svelte/store';
 	import type { PartialTheme } from '$lib/types/themes';
 	import type { StateMessage } from '$lib/types/socket/State';
 	import { getCookie, setCookie } from '$lib/cookies';
+
+	$pageTitle = "The WAN Database - The Unofficial Archive Project";
+	$pageImage = "https://cdn.thewandb.com/assets/WANDB_whiteBackgroundSocial.png"
 
 	export let data: any;
 
@@ -44,7 +46,7 @@
 		return;
 	};
 
-	let snackbar: HTMLDivElement;
+	// let snackbar: HTMLDivElement;
 	// const notificationStore = writable([]);
 
 	// notificationStore.subscribe((value) => {
@@ -181,6 +183,28 @@
 		}
 	}
 </script>
+<svelte:head>
+	<link rel="canonical" href={$page.url.href}>
+
+	<!-- Primary Meta Tags -->
+	<title>{$pageTitle}</title>
+	<meta name="title" content={$pageTitle} />
+	<meta name="description" content="The WAN Database is an unofficial community archive project for semi-popular internet tech podcast 'The WAN Show'" />
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={$page.url.href} />
+	<meta property="og:title" content={$pageTitle} />
+	<meta property="og:description" content="The WAN Database is an unofficial community archive project for semi-popular internet tech podcast 'The WAN Show'" />
+	<meta property="og:image" content={$pageImage} />
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:url" content={$page.url.href} />
+	<meta property="twitter:title" content={$pageTitle} />
+	<meta property="twitter:description" content="The WAN Database is an unofficial community archive project for semi-popular internet tech podcast 'The WAN Show'" />
+	<meta property="twitter:image" content={$pageImage} />
+</svelte:head>
 
 <div
 	class="container"
@@ -192,7 +216,7 @@
 		<Header />
 		<slot />
 		<WanClock />
-		<div class="snackbar" bind:this={snackbar}></div>
+		<!-- <div class="snackbar" bind:this={snackbar}></div> -->
 	</div>
 	<div class="loader">
 		<span>Loading...</span>

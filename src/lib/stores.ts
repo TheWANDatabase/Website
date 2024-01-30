@@ -17,3 +17,6 @@ export const preshowOffset = writable<number>(0);
 export const playing = writable<boolean>(false);
 export const playbackSource = writable<'youtube' | 'floatplane'>('youtube');
 export const adjustedTime = writable<number>(0);
+
+export const pageTitle = writable("The WAN Database - The Unofficial Archive Project");
+export const pageImage = writable("https://cdn.thewandb.com/assets/WANDB_whiteBackgroundSocial.png")
