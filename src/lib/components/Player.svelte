@@ -16,27 +16,30 @@
 	let eventLoop: any;
 
 	onMount(async () => {
-		if (typeof document !== 'undefined') {
-			// window.onkeyup = (event: KeyboardEvent) => {
-			// 	switch(event.key) {
-			// TODO: add keybindings to start/stop player
-			// 	}
-			// }
+		try {
+			if (typeof document !== 'undefined') {
+				// window.onkeyup = (event: KeyboardEvent) => {
+				// 	switch(event.key) {
+				// TODO: add keybindings to start/stop player
+				// 	}
+				// }
 
-			$player = new Plyr('#vodplayer');
-			$player.autoplay = true;
-			$player.muted = !!dev
-			// TODO: add support for floatplane playback
-			
-			$player.volume = 0.25;
+				$player = new Plyr('#vodplayer');
+				$player.autoplay = true;
+				$player.muted = !!dev;
+				// TODO: add support for floatplane playback
 
-			$playbackSource = 'youtube';
-			eventLoop = setInterval(() => {
-				
-				$currentTime = $player.currentTime;
-				$maxDuration = $player.duration;
-				$playing = $player.playing;
-			}, 1e3);
+				$player.volume = 0.25;
+
+				$playbackSource = 'youtube';
+				eventLoop = setInterval(() => {
+					$currentTime = $player.currentTime;
+					$maxDuration = $player.duration;
+					$playing = $player.playing;
+				}, 1e3);
+			}
+		} catch (e) {
+			console.error(e);
 		}
 	});
 
@@ -52,7 +55,11 @@
 	});
 
 	onDestroy(() => {
-		if (eventLoop) clearInterval(eventLoop);
+		try {
+			if (eventLoop) clearInterval(eventLoop);
+		} catch (e) {
+			console.error(e);
+		}
 	});
 </script>
 
