@@ -4,7 +4,14 @@
 	import Player from '$lib/components/Player.svelte';
 	import Host from '$lib/components/Host.svelte';
 	import { toHumanTime } from '$lib/time';
-	import { preshowOffset, playing, adjustedTime, maxDuration, pageTitle, pageImage } from '$lib/stores.js';
+	import {
+		preshowOffset,
+		playing,
+		adjustedTime,
+		maxDuration,
+		pageTitle,
+		pageImage
+	} from '$lib/stores.js';
 
 	import Topic from '$lib/components/Topic.svelte';
 	import type { CachedEntity, Episode } from '$lib/types/api.js';
@@ -18,10 +25,25 @@
 	$preshowOffset = episode.preShowOffset ?? 0;
 	$pageTitle = `${episode.title} | The WAN Database`;
 	$pageImage = `https://cdn.thewandb.com/media/${episode.thumbnail}.webp`;
+
+	let uploaded = `${new Date(episode.aired).toISOString()}`;
 </script>
 
 <svelte:head>
 	<script src="https://www.youtube.com/iframe_api"></script>
+
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "VideoObject",
+	  "name": $episode.title,
+	  "description": $episode.description,
+	  "embedUrl": `https://www.youtube.com/embed/${episode.id}`,
+	  "thumbnailUrl": `https://cdn.thewandb.com/assets/${episode.thumbnail}.webp`,
+	  "uploadDate: uploaded,
+	  "duration": "PT0M0S"
+	}
+	</script>
 </svelte:head>
 <div class="container">
 	<div class="player">
