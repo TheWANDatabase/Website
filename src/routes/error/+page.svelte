@@ -17,8 +17,7 @@
 					text: 'Go Home',
 					click: genericHandlerGoHome
 				}
-			],
-			image: images[Math.floor(Math.random() * images.length)]
+			]
 		}
 	});
 
@@ -40,16 +39,23 @@
 	<h2>{$details.state.messageToShow}</h2>
 	<p>{$details.state.descriptorMessage}</p>
 
-	<a
-		class="laugh-box"
-		href={`/archive/${$details.state.image.uri.split('https://i.ytimg.com/vi/')[1].split('/')[0]}`}
-	>
-		<img
-			src={$details.state.image.uri}
-			alt={`Thumbnail from the video ${$details.state.image.credit}`}
-		/>
-		<sup>Thumbnail from the episode "{$details.state.image.credit}" | Click to view episode.</sup>
-	</a>
+	<h3>Secret Tunnel!</h3>
+	<p class="descriptor">
+		Congratulations, you've found a secret page. Below is a list of all the possible images that can
+		be displayed on our error page. Run into a problem? We've got you covered with a meme in these
+		trying times.
+	</p>
+	<div class="funnies-list">
+		{#each images as image}
+			<a
+				class="laugh-box"
+				href={`/archive/${image.uri.split('https://i.ytimg.com/vi/')[1].split('/')[0]}`}
+			>
+				<img src={image.uri} alt={`Thumbnail from the video ${image.credit}`} />
+				<sup>Thumbnail from the episode "{image.credit}"</sup>
+			</a>
+		{/each}
+	</div>
 
 	{#each $details.state.buttons as button}
 		<button on:click={(e) => button.click(e)}>{button.text}</button>
@@ -60,10 +66,24 @@
 	.error-container {
 		background-color: rgb(var(--bg-primary));
 		color: rgb(var(--text-primary));
-		max-width: 1000px;
+		max-width: 1100px;
 		min-height: 100vh;
 		margin-inline: auto;
 		padding-top: 100px;
+	}
+
+	/* .error-container h1,
+	.error-container h2, */
+	.error-container h3 {
+		margin-top: 20px;
+		max-width: 700px;
+		margin-inline: auto;
+	}
+
+	.error-container .descriptor {
+		margin-bottom: 20px;
+		max-width: 700px;
+		margin-inline: auto;
 	}
 
 	.error-container button {
@@ -81,8 +101,13 @@
 		transition: 200ms;
 	}
 
+	.funnies-list {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
 	.laugh-box {
-		width: 1000px;
+		width: 500px;
 		overflow: hidden;
 		margin: 0.5rem auto;
 		display: flex;
@@ -93,8 +118,8 @@
 	}
 
 	.laugh-box img {
-		width: 1000px;
-		height: 560px;
+		width: inherit;
+		height: auto;
 		border-radius: 5px;
 		overflow: hidden;
 		/* transition: 200ms; */
