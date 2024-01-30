@@ -15,6 +15,7 @@
 
 	import Topic from '$lib/components/Topic.svelte';
 	import type { CachedEntity, Episode } from '$lib/types/api.js';
+	import SchemaOrg from '$lib/components/SchemaOrg.svelte';
 
 	export let data: CachedEntity<Episode>;
 
@@ -25,25 +26,21 @@
 	$preshowOffset = episode.preShowOffset ?? 0;
 	$pageTitle = `${episode.title} | The WAN Database`;
 	$pageImage = `https://cdn.thewandb.com/media/${episode.thumbnail}.webp`;
-
-	let uploaded = `${new Date(episode.aired).toISOString()}`;
 </script>
 
 <svelte:head>
 	<script src="https://www.youtube.com/iframe_api"></script>
-
-	<script type="application/ld+json">
-	{
-	  "@context": "https://schema.org",
-	  "@type": "VideoObject",
-	  "name": $episode.title,
-	  "description": $episode.description,
-	  "embedUrl": `https://www.youtube.com/embed/${episode.id}`,
-	  "thumbnailUrl": `https://cdn.thewandb.com/assets/${episode.thumbnail}.webp`,
-	  "uploadDate: uploaded,
-	  "duration": "PT0M0S"
-	}
-	</script>
+	<SchemaOrg
+		schemaOrgObject={{
+			'@context': 'https://schema.org',
+			'@type': 'VideoObject',
+			name: episode.title,
+			description: episode.description,
+			embedUrl: `https://www.youtube.com/embed/${episode.id}`,
+			thumbnailUrl: `https://cdn.thewandb.com/assets/${episode.thumbnail}.webp`,
+			uploadDate: new Date(episode.aired).toISOString()
+		}}
+	/>
 </svelte:head>
 <div class="container">
 	<div class="player">
