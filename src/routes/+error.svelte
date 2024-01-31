@@ -2,28 +2,11 @@
 	import { page } from '$app/stores';
 	import { images } from '$lib/error';
 	import { pageTitle } from '$lib/stores';
+	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
-	let details = writable({
-		...$page,
-		state: {
-			messageToShow: 'An error occurred',
-			descriptorMessage: 'This is usually caused by an issue on our side. Please try again later.',
-			buttons: [
-				{
-					text: 'Go Back',
-					click: genericHandlerGoBack
-				},
-				{
-					text: 'Go Home',
-					click: genericHandlerGoHome
-				}
-			],
-			image: images[Math.floor(Math.random() * images.length)]
-		}
-	});
-
-	console.error($page);
+	let details = writable<any>({ ...$page });
+	let pge = $page;
 
 	function genericHandlerGoBack(e: MouseEvent) {
 		if (typeof 'window' !== 'undefined') {
@@ -37,29 +20,63 @@
 		}
 	}
 
+	onMount(() => {
+		if (typeof window === 'undefined') return;
+		console.error(pge);
+		$details = {
+			...pge,
+			state: {
+				messageToShow: 'An error occurred',
+				descriptorMessage:
+					'This is usually caused by an issue on our side. Please try again later.',
+				buttons: [
+					{
+						text: 'Go Back',
+						click: genericHandlerGoBack
+					},
+					{
+						text: 'Go Home',
+						click: genericHandlerGoHome
+					}
+				],
+				image: images[Math.floor(Math.random() * images.length)]
+			}
+		};
+	});
+
 	$pageTitle = `Whoops | The WAN Database`;
 </script>
 
-<div class="error-container">
-	<h1>Whoops!</h1>
-	<h2>{$details.state.messageToShow}</h2>
-	<p>{$details.state.descriptorMessage}</p>
+{#if $details.state}
+	<div class="error-container">
+		<h1>Whoops!</h1>
+		<h2>{$details.state.messageToShow}</h2>
+		<p>{$details.state.descriptorMessage}</p>
 
-	<a
-		class="laugh-box"
-		href={`/archive/${$details.state.image.uri.split('https://i.ytimg.com/vi/')[1].split('/')[0]}`}
-	>
-		<img
-			src={$details.state.image.uri}
-			alt={`Thumbnail from the video ${$details.state.image.credit}`}
-		/>
-		<sup>Thumbnail from the episode "{$details.state.image.credit}" | Click to view episode.</sup>
-	</a>
+		<a
+			class="laugh-box"
+			href={`/archive/${
+				$details.state.image.uri.split('https://i.ytimg.com/vi/')[1].split('/')[0]
+			}`}
+		>
+			<img
+				src={$details.state.image.uri}
+				alt={`Thumbnail from the video ${$details.state.image.credit}`}
+			/>
+			<sup>Thumbnail from the episode "{$details.state.image.credit}" | Click to view episode.</sup>
+		</a>
 
-	{#each $details.state.buttons as button}
-		<button on:click={(e) => button.click(e)}>{button.text}</button>
-	{/each}
-</div>
+		{#each $details.state.buttons as button}
+			<button on:click={(e) => button.click(e)}>{button.text}</button>
+		{/each}
+	</div>
+{:else}
+	<div class="error-container">
+		<h1>Whoops!</h1>
+		<h2>Someone let the hamsters out!</h2>
+		<p>Please hold on whilst we figure out what happened</p>
+	</div>
+{/if}
 
 <style scoped>
 	.error-container {
