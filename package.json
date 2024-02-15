@@ -39,6 +39,7 @@
     "typescript": "^5.0.0",
     "unplugin-icons": "^0.18.1",
     "vite": "^4.5.2",
+    "wrangler": "^3.28.1",
     "vitest": "^0.32.2"
   },
   "dependencies": {
