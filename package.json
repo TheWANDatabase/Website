@@ -21,7 +21,7 @@
   "devDependencies": {
     "@iconify/json": "^2.2.165",
     "@playwright/test": "^1.28.1",
-    "@sveltejs/kit": "^1.27.4",
+    "@sveltejs/kit": "^2.5.0",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/markdown-it": "^13.0.7",
     "@types/uuid": "^9.0.7",
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240117.0",
-    "@sveltejs/adapter-cloudflare": "^2.3.3",
+    "@sveltejs/adapter-cloudflare": "^4.1.0",
     "axios": "^1.6.2",
     "blurhash": "^2.0.5",
     "highlight.js": "^11.9.0",
