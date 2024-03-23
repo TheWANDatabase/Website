@@ -7,7 +7,7 @@
 	import { pageTitle } from '$lib/stores';
 
 	let vods = writable([]);
-
+  
 	let filters = writable<EpisodeSearchFilters>({
 		filters: {
 			order: { id: 'release-desc', label: 'Stream Date (Descending)' },
@@ -42,7 +42,7 @@
 				$filters = JSON.parse(storedFilters) satisfies EpisodeSearchFilters;
 			}
 		}
-
+    $filters.filters.endDate = new Date().toISOString();
 		load();
 
 		filters.subscribe((v) => {

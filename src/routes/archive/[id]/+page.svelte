@@ -2,7 +2,8 @@
 	import { getVideos } from '$lib/api';
 	import Image from '$lib/components/Image.svelte';
 	import Player from '$lib/components/Player.svelte';
-	import Host from '$lib/components/Host.svelte';
+  import Host from '$lib/components/Host.svelte';
+  import Sponsor from "$lib/components/Sponsor.svelte";
 	import { toHumanTime } from '$lib/time';
 	import {
 		preshowOffset,
@@ -19,10 +20,10 @@
 
 	export let data: CachedEntity<Episode>;
 
-	export let { cached, data: episode, queryTime } = data;
+	export let { cached, data: episode, queryTime } = data as any;
 
 	console.debug(`==== Fetch Report ====\nCached: ${cached}\nQuery Time: ${queryTime}ms`);
-
+  console.debug("page.svelete - ", episode);
 	$preshowOffset = episode.preShowOffset ?? 0;
 	$pageTitle = `${episode.title} | The WAN Database`;
 	$pageImage = `https://cdn.thewandb.com/media/${episode.thumbnail}.webp`;
@@ -57,7 +58,21 @@
 					$adjustedTime
 				)} / {toHumanTime($maxDuration)}
 			</h5>
-		</div>
+    </div>
+    <h3>Sponsors</h3>
+    <div class="sponsors">
+      {#if episode.sponsors.length > 0}
+        <div class="sponsorContainer">
+          {#each episode.sponsors as sponsor}
+            <Sponsor bind:sponsor />
+          {/each}
+        </div>
+      {:else}
+        <p>No Sponsors Available</p>
+      {/if}
+    </div>
+    <hr />
+    <h3>Cast</h3>
 		<div class="cast">
 			{#if episode.cast.length > 0}
 				<div class="castContainer">
@@ -162,13 +177,19 @@
 			'description runtime';
 	}
 
+  .sponsorContainer,
 	.castContainer {
 		margin-top: 5px;
 		display: grid;
 		width: 100%;
-		grid-template-columns: repeat(auto-fit, 450px);
-		grid-template-rows: min-content;
+    grid-template-columns: repeat(auto-fit, 33.33%);
+    grid-template-rows: min-content;
 	}
+
+  .sponsorContainer {
+    grid-template-columns: repeat(auto-fit, 50%) !important;
+  }
+
 
 	.content {
 		background-color: rgb(var(--bg-secondary));

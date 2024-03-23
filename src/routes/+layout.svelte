@@ -21,7 +21,6 @@
 
 	export const load = async () => {
 		if (browser) {
-			console.log('context', data);
 			console.log('Starting PostHog');
 			if (env.PUBLIC_POSTHOG_KEY) {
 				posthog.init(env.PUBLIC_POSTHOG_KEY, {
@@ -46,38 +45,6 @@
 		return;
 	};
 
-	// let snackbar: HTMLDivElement;
-	// const notificationStore = writable([]);
-
-	// notificationStore.subscribe((value) => {
-	// 	if (value.length > 0) {
-
-	// 	}
-	// });
-
-	// function toast(message: string, icon?: string) {
-	// 	if (!snackbar) return;
-	// 	let id = nanoid();
-	// 	let div = document.createElement('div');
-	// 	div.id = id;
-	// 	div.classList.add('toast');
-	// 	if (icon !== undefined) {
-	// 		div.innerHTML = `
-	// 		<img src="${icon}" />
-	// 		<p>${message}</p>
-	// 		`;
-	// 	} else {
-	// 		div.innerHTML = `
-	// 		<p>${message}</p>
-	// 		`;
-	// 	}
-
-	// 	snackbar.prepend(div);
-
-	// 	setTimeout(() => {
-	// 		if (typeof 'window' === 'undefined') return;
-	// 	}, 5000);
-	// }
 
 	let currentPath = '';
 
@@ -108,7 +75,7 @@
 						};
 					});
 
-					$socket.on('state', (data: string) => {
+					$socket.on('live', (data: string) => {
 						$liveState = JSON.parse(data) satisfies StateMessage;
 					});
 				}
@@ -158,11 +125,9 @@
 
 	async function loadTheme() {
 		let theme = getCookie('tdb.theme');
-		console.log(theme);
 		if (theme !== null) {
 			if (theme === $themeDetails.id) return;
 			let th = (await getTheme(theme)) as any;
-			console.log(th);
 			if (th.error !== undefined) {
 				console.warn('Cannot find theme - Resetting to default (1)');
 				$themeDetails = {

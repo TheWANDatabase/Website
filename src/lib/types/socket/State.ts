@@ -1,10 +1,27 @@
-export type StateMessage = {
-    live: boolean,
-    wan?: boolean,
-    isWAN?: boolean;
-    title: string;
-    description: string;
-    thumbnail: string;
-    imminence: 0 | 1 | 2 | 3 | 4;
-    textImminence: "Distant" | "Today" | "Soon" | "Imminent" | "Live"
-  }
+export interface StateMessage {
+	live: boolean;
+	isWan: boolean;
+	isAfterparty: boolean;
+	title: string;
+	description: string;
+	thumbnail: Thumbnail;
+	imminence: number;
+	sponsors: Sponsor[];
+	streamUrl: string;
+}
+
+export interface Thumbnail {
+	width: number;
+	height: number;
+	path: string;
+	childImages: null | Thumbnail[];
+}
+
+export interface Sponsor {
+	company: string;
+	name: string;
+	logo: string;
+	link: string;
+	message: string;
+}
+

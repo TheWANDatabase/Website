@@ -30,8 +30,8 @@
 	.host-square {
 		display: flex;
 		flex-direction: column;
-		width: 400px;
-        margin: 5px 0;
+		width: auto;
+    margin: 0 0.5rem 0.5rem;
 		height: auto;
 		border: 1px solid black;
 		border-radius: 5px;

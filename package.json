@@ -24,6 +24,7 @@
     "@sveltejs/kit": "^1.27.4",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/markdown-it": "^13.0.7",
+    "@types/pg": "^8.11.2",
     "@types/uuid": "^9.0.7",
     "@types/youtube-player": "^5.5.11",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -39,8 +40,8 @@
     "typescript": "^5.0.0",
     "unplugin-icons": "^0.18.1",
     "vite": "^4.5.2",
-    "wrangler": "^3.28.1",
-    "vitest": "^0.32.2"
+    "vitest": "^0.32.2",
+    "wrangler": "^3.28.1"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20240117.0",

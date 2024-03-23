@@ -2,22 +2,23 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-        interface Platform {
-          env: {
-			DB: D1Database;
-			WAN_CACHE: KVNamespace;
-            EDITOR: DurableObjectNamespace;
-          };
-          context: {
-            waitUntil(promise: Promise<never>): void;
-          };
-          caches: CacheStorage & { default: Cache }
-        }
-    }
+		interface Platform {
+			env: {
+				PUBLIC_API_BASE: String;
+				PUBLIC_API_VERSION: Number;
+				DB: D1Database;
+				WAN_CACHE: KVNamespace;
+				EDITOR: DurableObjectNamespace;
+			};
+			context: {
+				waitUntil(promise: Promise<never>): void;
+			};
+			caches: CacheStorage & { default: Cache };
+		}
+	}
 }
 
 export {};
-
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
@@ -26,7 +27,7 @@ export {};
 // 		interface Error {}
 // 		interface Locals {}
 // 		interface PageData {}
-		
+
 // 		interface Platform {
 // 			env: {
 // 				// Wrangler env variables
@@ -48,5 +49,5 @@ export {};
 // 		}
 // 	}
 // }
-// 
+//
 // export {};

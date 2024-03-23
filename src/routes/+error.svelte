@@ -22,7 +22,6 @@
 
 	onMount(() => {
 		if (typeof window === 'undefined') return;
-		console.error(pge);
 		$details = {
 			...pge,
 			state: {
@@ -41,10 +40,23 @@
 				],
 				image: images[Math.floor(Math.random() * images.length)]
 			}
-		};
+    };
+    //console.log($details); 
 	});
 
-	$pageTitle = `Whoops | The WAN Database`;
+  $pageTitle = `Whoops | The WAN Database`;
+  let descriptorExpanded = writable(false);
+  let descriptorBox: HTMLPreElement;
+
+  onMount(() => {
+    if (typeof window === 'undefined') return;
+    if(descriptorBox){
+      descriptorBox.addEventListener('click', () => {
+        console.log('click');
+        descriptorExpanded.update((v) => !v);
+      });
+      }
+  });
 </script>
 
 {#if $details.state}
@@ -52,9 +64,10 @@
 		<h1>Whoops!</h1>
 		<h2>{$details.state.messageToShow}</h2>
 		<p>{$details.state.descriptorMessage}</p>
-
+    <pre bind:this={descriptorBox}><code>{JSON.stringify($details, null, 2)}</code></pre>
 		<a
-			class="laugh-box"
+        class="laugh-box"
+        target="_blank"
 			href={`/archive/${
 				$details.state.image.uri.split('https://i.ytimg.com/vi/')[1].split('/')[0]
 			}`}

@@ -68,8 +68,8 @@
 	<!-- TODO: Allow people to log in with Floatplane to view VODs with their floatplane offsets -->
 	<!-- {:else} -->
 	<div class="plyr__video-embed" id="vodplayer">
-		<iframe
-			src={`https://www.youtube.com/embed/${vod.id}?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1`}
+    <iframe
+        src={`https://www.youtube.com/embed/${vod.id}?amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1`}
 			allow="autoplay fullscreen transparency"
 			title="YouTube"
 		/>
@@ -95,7 +95,7 @@
 		overflow: hidden;
 		width: inherit;
 		height: inherit;
-		aspect-ratio: 16/9;
+		aspect-ratio: 16/9 !important;
 	}
 
 	.container #vodplayer iframe {
@@ -104,6 +104,6 @@
 		overflow: hidden;
 		width: inherit;
 		height: inherit;
-		aspect-ratio: 16/9;
+		aspect-ratio: 16/9 !important;
 	}
 </style>

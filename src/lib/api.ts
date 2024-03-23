@@ -10,24 +10,24 @@ const baseRequestInit: RequestInit<RequestInitCfProperties> = {
 	headers
 };
 
-
-async function query<T>(url: string, config: RequestInit<RequestInitCfProperties> = {}): Promise<T | ApiError> {
+async function query<T>(
+	url: string,
+	config: RequestInit<RequestInitCfProperties> = {}
+): Promise<T | ApiError> {
 	config = Object.apply(config, baseRequestInit as [value: unknown]);
 
 	const response = await fetch(url, config);
 
-
-	if(response.ok) {
-		return await response.json() satisfies T;
+	if (response.ok) {
+		return (await response.json()) satisfies T;
 	} else {
 		return {
-			...await response.json(),
+			...(await response.json()),
 			status: response.status,
-			statusText: response.statusText,
-		} satisfies ApiError
+			statusText: response.statusText
+		} satisfies ApiError;
 	}
 }
-
 
 export function signIn(email: string, password: string) {
 	return fetch(base + '/auth/login', {
@@ -49,10 +49,10 @@ export function signOut() {
 	return fetch(base + '/auth/logout');
 }
 
-export function getVideos(filter: EpisodeSearchFilters) {
+export function getVideos(filters: EpisodeSearchFilters) {
 	return fetch(base + '/episodes', {
 		method: 'POST',
-		body: JSON.stringify(filter)
+		body: JSON.stringify(filters)
 	});
 }
 
